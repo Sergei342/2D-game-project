@@ -10,7 +10,7 @@ import { createServer as createViteServer, ViteDevServer } from 'vite'
 import serialize from 'serialize-javascript'
 import cookieParser from 'cookie-parser'
 
-const port = process.env.PORT || 80
+const port = process.env.PORT || 3000
 const clientPath = path.join(__dirname, '..')
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -41,7 +41,12 @@ async function createServer() {
       // Создаём переменные
       let render: (
         req: ExpressRequest
-      ) => Promise<{ html: string; initialState: unknown; helmet: HelmetData; styleTags: string }>
+      ) => Promise<{
+        html: string
+        initialState: unknown
+        helmet: HelmetData
+        styleTags: string
+      }>
       let template: string
       if (vite) {
         template = await fs.readFile(
@@ -76,12 +81,20 @@ async function createServer() {
       }
 
       // Получаем HTML-строку из JSX
-      const { html: appHtml, initialState, helmet, styleTags } = await render(req)
+      const {
+        html: appHtml,
+        initialState,
+        helmet,
+        styleTags,
+      } = await render(req)
 
       // Заменяем комментарий на сгенерированную HTML-строку
       const html = template
         .replace('<!--ssr-styles-->', styleTags)
-        .replace(`<!--ssr-helmet-->`, `${helmet.meta.toString()} ${helmet.title.toString()} ${helmet.link.toString()}`)
+        .replace(
+          `<!--ssr-helmet-->`,
+          `${helmet.meta.toString()} ${helmet.title.toString()} ${helmet.link.toString()}`
+        )
         .replace(`<!--ssr-outlet-->`, appHtml)
         .replace(
           `<!--ssr-initial-state-->`,
