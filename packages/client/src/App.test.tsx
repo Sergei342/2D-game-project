@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 
 const appContent = 'Вот тут будет жить ваше приложение :)'
 
-// @ts-expect-error
+// @ts-expect-error TODO: fix types
 global.fetch = jest.fn(() =>
   Promise.resolve({ json: () => Promise.resolve('hey') })
 )
