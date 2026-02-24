@@ -1,0 +1,3 @@
+server/
+dist/
+jest.config.js

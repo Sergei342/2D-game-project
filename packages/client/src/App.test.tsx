@@ -1,14 +1,18 @@
 import App from './App'
 import { render, screen } from '@testing-library/react'
+import { Provider } from 'react-redux'
+import { store } from './store'
 
-const appContent = 'Вот тут будет жить ваше приложение :)'
-
-// @ts-ignore
+// @ts-expect-error TODO: fix types
 global.fetch = jest.fn(() =>
   Promise.resolve({ json: () => Promise.resolve('hey') })
 )
 
 test('Example test', async () => {
-  render(<App />)
-  expect(screen.getByText(appContent)).toBeDefined()
+  render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  )
+  expect(screen.getByText('Пользователь не найден!')).toBeDefined()
 })
