@@ -10,8 +10,10 @@ import {
   UnauthorizedError,
 } from './ProfileService'
 
-import { Button, Input, Form, message, Collapse } from 'antd'
+import { Button, Input, Form, message, Collapse, Avatar } from 'antd'
 import './ProfilePage.scss'
+import { MAX_AVATAR_SIZE } from './consts'
+import { UserOutlined } from '@ant-design/icons'
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage })
@@ -27,8 +29,6 @@ export const ProfilePage = () => {
   const [passwordForm] = Form.useForm()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const MAX_AVATAR_SIZE = 3145728
 
   const handleUnauthorized = useCallback(() => {
     message.error('Сессия истекла. Перенаправляем на страницу входа…')
@@ -185,12 +185,17 @@ export const ProfilePage = () => {
       key: 'profile',
       label: 'Профиль',
       children: (
-        <>
+        <div>
           <div className="profile-avatar-section">
             <div
               className="avatar-wrapper"
               onClick={() => fileInputRef.current?.click()}>
-              <img src={avatarSrc || '/default-avatar.png'} alt="Аватар" />
+              <Avatar
+                src={avatarSrc}
+                size={120}
+                icon={<UserOutlined />}
+                style={{ width: '100%', height: '100%' }}
+              />
               <div className="avatar-overlay">
                 <span>
                   сменить
@@ -262,7 +267,7 @@ export const ProfilePage = () => {
               </Button>
             </Form.Item>
           </Form>
-        </>
+        </div>
       ),
     },
     {

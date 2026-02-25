@@ -1,4 +1,4 @@
-const BASE_URL = 'https://ya-praktikum.tech/api/v2'
+import { BASE_URL } from './consts'
 
 export interface UserProfile {
   id: number
