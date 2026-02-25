@@ -1,57 +1,6 @@
-@mixin text-heading {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-heading);
-}
-
-@mixin text-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-muted);
-}
-
-@mixin text-input {
-  font-size: 14px;
-}
-
-@mixin text-body {
-  font-size: 16px;
-  color: var(--color-muted);
-}
-
-:root {
-  --color-heading:    #1e293b;
-  --color-muted:      #64748b;
-  --color-error:      #dc2626;
-  --color-success:    #16a34a;
-  --color-primary:    #6366f1;
-  --color-primary-h:  #4f46e5;
-  --color-bg:         #f0f2f5;
-  --color-surface:    #ffffff;
-  --color-border:     #f1f5f9;
-  --color-shadow:     rgba(0, 0, 0, 0.08);
-  --color-shadow-strong: rgba(0, 0, 0, 0.12);
-  --color-overlay:    rgba(0, 0, 0, 0.45);
-  --color-primary-bg-hover: rgba(99, 102, 241, 0.04);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-heading:    #e2e8f0;
-    --color-muted:      #94a3b8;
-    --color-error:      #f87171;
-    --color-success:    #4ade80;
-    --color-primary:    #818cf8;
-    --color-primary-h:  #6366f1;
-    --color-bg:         #0f172a;
-    --color-surface:    #1e293b;
-    --color-border:     #334155;
-    --color-shadow:     rgba(0, 0, 0, 0.24);
-    --color-shadow-strong: rgba(0, 0, 0, 0.36);
-    --color-overlay:    rgba(0, 0, 0, 0.6);
-    --color-primary-bg-hover: rgba(129, 140, 248, 0.08);
-  }
-}
+@use '../../assets/typography'; //хотелось бы настроить через конфиг без относительных путей
+@use '../../assets/fonts';
+@use '../../assets/variables';
 
 .profile-page {
   display: flex;
@@ -60,7 +9,6 @@
   justify-content: center;
   align-items: center;
   background: var(--color-bg);
-  font-family: 'Segoe UI', Roboto, sans-serif;
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -89,7 +37,7 @@
   }
 
   .ant-collapse > .ant-collapse-item > .ant-collapse-header {
-    @include text-heading;
+    @include typography.text-heading;
     padding: 16px;
     align-items: center;
     border-radius: 16px !important;
@@ -138,13 +86,13 @@
   }
 
   .ant-form-item-label > label {
-    @include text-label;
+    @include typography.text-label;
     white-space: nowrap;
   }
 
   .ant-input,
   .ant-input-password .ant-input {
-    @include text-input;
+    @include typography.text-input;
     border-radius: 8px;
   }
 }
@@ -158,7 +106,7 @@
 .profile-error {
   text-align: center;
   padding: 60px 20px;
-  @include text-body;
+  @include typography.text-body;
 }
 
 .profile-error {
