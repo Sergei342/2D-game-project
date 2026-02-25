@@ -8,10 +8,16 @@ export const Header = () => {
           <Link to="/">Главная</Link>
         </li>
         <li>
+          <Link to="/friends">Страница со списком друзей</Link>
+        </li>
+        <li>
+          <Link to="/404">404</Link>
+        </li>
+        <li>
           <Link to="/login">Вход</Link>
         </li>
         <li>
-          <Link to="/register">Регистрация</Link>
+          <Link to="/signin">Регистрация</Link>
         </li>
         <li>
           <Link to="/profile">Профиль</Link>
@@ -24,9 +30,6 @@ export const Header = () => {
         </li>
         <li>
           <Link to="/forum">Форум</Link>
-        </li>
-        <li>
-          <Link to="/friends">Друзья</Link>
         </li>
       </ul>
     </nav>
