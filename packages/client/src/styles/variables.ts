@@ -9,4 +9,5 @@ export const cssVariables = {
   secondaryColor: '#e5c45c',
   colorOverlay: '#00000045',
   colorError: '#ff0000',
+  redColor: '#ff4d4f',
 }
