@@ -10,7 +10,7 @@ import { createServer as createViteServer, ViteDevServer } from 'vite'
 import serialize from 'serialize-javascript'
 import cookieParser from 'cookie-parser'
 
-const port = process.env.PORT || 80
+const port = process.env.PORT || 3000
 const clientPath = path.join(__dirname, '..')
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -39,9 +39,7 @@ async function createServer() {
     try {
       // Получаем файл client/index.html который мы правили ранее
       // Создаём переменные
-      let render: (
-        req: ExpressRequest
-      ) => Promise<{
+      let render: (req: ExpressRequest) => Promise<{
         html: string
         initialState: unknown
         helmet: HelmetData
