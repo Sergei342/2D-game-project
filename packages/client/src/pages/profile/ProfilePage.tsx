@@ -2,7 +2,6 @@ import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
 import { usePage } from '../../hooks/usePage'
-import { PageInitArgs } from '../../routes'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   profileService,
@@ -14,6 +13,7 @@ import { Button, Input, Form, message, Collapse, Avatar } from 'antd'
 import './ProfilePage.scss'
 import { MAX_AVATAR_SIZE } from './consts'
 import { UserOutlined } from '@ant-design/icons'
+import { PageInitArgs } from '../../routes/types'
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage })
