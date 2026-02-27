@@ -1,0 +1,24 @@
+.login {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  margin-top: 80px;
+
+  &__container {
+    width: 500px;
+    max-width: 100%;
+    background: #edf2ff;
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  &__title {
+    text-align: center;
+  }
+
+  &__register {
+    text-decoration: none;
+  }
+}
