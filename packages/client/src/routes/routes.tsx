@@ -5,6 +5,7 @@ import { initProfilePage, ProfilePage } from '../pages/profile/ProfilePage'
 import { AppErrorBoundary } from '../components/AppErrorBoundary'
 import { GamePage, initGamePage } from '../pages/Game'
 import { Error500Page, initError500Page } from '../pages/error500/Error500'
+import { Error404Page, initError404Page } from '../pages/error404/Error404'
 
 export const routes = [
   {
@@ -28,6 +29,11 @@ export const routes = [
     path: '/500',
     Component: Error500Page,
     fetchData: initError500Page,
+  },
+  {
+    path: '/404',
+    Component: Error404Page,
+    fetchData: initError404Page,
   },
   {
     path: '*',
