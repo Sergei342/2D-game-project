@@ -15,12 +15,15 @@ import { configureStore } from '@reduxjs/toolkit'
 import {
   createContext,
   createFetchRequest,
-  createUrl
+  createUrl,
 } from './entry-server.utils'
 import { reducer } from './store'
-import { routes } from './routes'
+import { routes } from './routes/routes'
 import './index.css'
 import { setPageHasBeenInitializedOnServer } from './slices/ssrSlice'
+import { ConfigProvider, theme } from 'antd'
+import { theme as appTheme } from './config/theme'
+import { GlobalStyles } from './styles/styles'
 
 export const render = async (req: ExpressRequest) => {
   const { query, dataRoutes } = createStaticHandler(routes)
@@ -42,10 +45,14 @@ export const render = async (req: ExpressRequest) => {
     throw new Error('Страница не найдена!')
   }
 
-  const [{route: { fetchData }}] = foundRoutes
+  const [
+    {
+      route: { fetchData },
+    },
+  ] = foundRoutes
 
   try {
-    await fetchData({
+    await fetchData?.({
       dispatch: store.dispatch,
       state: store.getState(),
       ctx: createContext(req),
@@ -59,14 +66,24 @@ export const render = async (req: ExpressRequest) => {
   const router = createStaticRouter(dataRoutes, context)
   const sheet = new ServerStyleSheet()
   try {
-    const html = ReactDOM.renderToString(sheet.collectStyles(
-      <Provider store={store}>
-        <StaticRouterProvider router={router} context={context} />
-      </Provider>
-    ));
-    const styleTags = sheet.getStyleTags();
+    const html = ReactDOM.renderToString(
+      sheet.collectStyles(
+        <Provider store={store}>
+          <GlobalStyles />
+          <ConfigProvider
+            theme={{
+              algorithm: theme.darkAlgorithm,
+              ...appTheme,
+              hashed: true,
+            }}>
+            <StaticRouterProvider router={router} context={context} />
+          </ConfigProvider>
+        </Provider>
+      )
+    )
+    const styleTags = sheet.getStyleTags()
 
-    const helmet = Helmet.renderStatic();
+    const helmet = Helmet.renderStatic()
 
     return {
       html,
