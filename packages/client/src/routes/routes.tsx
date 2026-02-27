@@ -2,16 +2,25 @@ import { initMainPage, MainPage } from '../pages/Main'
 import { initFriendsPage, FriendsPage } from '../pages/FriendsPage'
 import { initNotFoundPage, NotFoundPage } from '../pages/NotFound'
 import { initLoginPage, LoginPage } from '../pages/login/Login'
+import { ProtectedRoute } from './ProtectedRoute'
 
 export const routes = [
   {
     path: '/',
-    Component: MainPage,
+    Component: () => (
+      <ProtectedRoute>
+        <MainPage />
+      </ProtectedRoute>
+    ),
     fetchData: initMainPage,
   },
   {
     path: '/friends',
-    Component: FriendsPage,
+    Component: () => (
+      <ProtectedRoute>
+        <FriendsPage />
+      </ProtectedRoute>
+    ),
     fetchData: initFriendsPage,
   },
   {
@@ -20,7 +29,7 @@ export const routes = [
     fetchData: initLoginPage,
   },
   {
-    path: '*',
+    path: '/*',
     Component: NotFoundPage,
     fetchData: initNotFoundPage,
   },

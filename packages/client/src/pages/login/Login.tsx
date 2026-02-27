@@ -11,6 +11,7 @@ export const LoginPage = () => {
     const result = await loginUser(values)
 
     if (result.ok) {
+      localStorage.setItem('isAuth', 'true')
       form.resetFields()
       navigate('/profile')
     } else {
