@@ -3,6 +3,7 @@ import { initFriendsPage, FriendsPage } from '../pages/FriendsPage'
 import { initNotFoundPage, NotFoundPage } from '../pages/NotFound'
 import { initProfilePage, ProfilePage } from '../pages/profile/ProfilePage'
 import { AppErrorBoundary } from '../components/AppErrorBoundary'
+import { GamePage, initGamePage } from '../pages/Game'
 
 export const routes = [
   {
@@ -16,6 +17,11 @@ export const routes = [
     Component: FriendsPage,
     fetchData: initFriendsPage,
     ErrorBoundary: AppErrorBoundary,
+  },
+  {
+    path: '/game',
+    Component: GamePage,
+    fetchData: initGamePage,
   },
   {
     path: '*',
