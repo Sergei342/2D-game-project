@@ -39,9 +39,7 @@ async function createServer() {
     try {
       // Получаем файл client/index.html который мы правили ранее
       // Создаём переменные
-      let render: (
-        req: ExpressRequest
-      ) => Promise<{
+      let render: (req: ExpressRequest) => Promise<{
         html: string
         initialState: unknown
         helmet: HelmetData
