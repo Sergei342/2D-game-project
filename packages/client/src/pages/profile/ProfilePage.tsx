@@ -9,11 +9,11 @@ import {
   UnauthorizedError,
 } from './ProfileService'
 
-import { Button, Input, Form, message, Collapse, Avatar } from 'antd'
-import './ProfilePage.scss'
-import { MAX_AVATAR_SIZE } from './consts'
+import { MAX_AVATAR_SIZE, MAX_AVATAR_SIZE_MB_UNITS } from './consts'
 import { UserOutlined } from '@ant-design/icons'
 import { PageInitArgs } from '../../routes/types'
+import { Button, Input, Form, message, Collapse, Avatar } from 'antd'
+import './ProfilePage.scss'
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage })
@@ -85,8 +85,8 @@ export const ProfilePage = () => {
         return
       }
 
-      if (file.size > MAX_AVATAR_SIZE) {
-        message.error('Файл слишком большой. Максимум 3 МБ')
+      if (file.size > MAX_AVATAR_SIZE * MAX_AVATAR_SIZE_MB_UNITS) {
+        message.error(`Файл слишком большой. Максимум ${MAX_AVATAR_SIZE} МБ`)
         return
       }
 
