@@ -60,5 +60,6 @@ export const routes = [
     path: '/profile',
     Component: ProfilePage,
     fetchData: initProfilePage,
+    ErrorBoundary: AppErrorBoundary,
   },
 ]
