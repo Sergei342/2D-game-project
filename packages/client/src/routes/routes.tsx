@@ -7,6 +7,19 @@ import { GamePage, initGamePage } from '../pages/Game'
 import { Error500Page, initError500Page } from '../pages/error500/Error500'
 import { Error404Page, initError404Page } from '../pages/error404/Error404'
 
+import {
+  initForumTopicsPage,
+  ForumTopicsPage,
+} from '../pages/forum/ForumTopicsPage'
+import {
+  initForumCreateTopicPage,
+  ForumCreateTopicPage,
+} from '../pages/forum/ForumCreateTopicPage'
+import {
+  initForumTopicPage,
+  ForumTopicPage,
+} from '../pages/forum/ForumTopicPage'
+
 export const routes = [
   {
     path: '/',
@@ -34,7 +47,27 @@ export const routes = [
     path: '/404',
     Component: Error404Page,
     fetchData: initError404Page,
+    ErrorBoundary: AppErrorBoundary,
   },
+  {
+    path: '/forum',
+    Component: ForumTopicsPage,
+    fetchData: initForumTopicsPage,
+    ErrorBoundary: AppErrorBoundary,
+  },
+  {
+    path: '/forum/new',
+    Component: ForumCreateTopicPage,
+    fetchData: initForumCreateTopicPage,
+    ErrorBoundary: AppErrorBoundary,
+  },
+  {
+    path: '/forum/:topicId',
+    Component: ForumTopicPage,
+    fetchData: initForumTopicPage,
+    ErrorBoundary: AppErrorBoundary,
+  },
+
   {
     path: '*',
     Component: NotFoundPage,
