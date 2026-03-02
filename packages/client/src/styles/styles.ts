@@ -25,8 +25,8 @@ export const GlobalStyles = createGlobalStyle`
     --primary-color: ${cssVariables.primaryColor};
     --bg-color: ${cssVariables.bgColor};
     --placeholder: ${cssVariables.placeholder};
-    --colorOverlay: ${cssVariables.colorOverlay};
-    --colorError: ${cssVariables.colorOverlay};
+    --overlayColor: ${cssVariables.overlayColor};
+    --errorColor: ${cssVariables.errorColor};
   }
 
   *, *::before, *::after {

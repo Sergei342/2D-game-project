@@ -13,7 +13,7 @@ export const AppErrorBoundary = () => {
 
   return (
     <Result
-      icon={<BugOutlined style={{ color: cssVariables.redColor }} />}
+      icon={<BugOutlined style={{ color: cssVariables.errorColor }} />}
       title="Сервис временно недоступен"
       subTitle="Произошла ошибка при работе сервиса. Мы уже чиним."
       status="error"

@@ -7,7 +7,6 @@ export const cssVariables = {
   placeholder: '#9896ab',
   primaryColor: '#00ff9c',
   secondaryColor: '#e5c45c',
-  colorOverlay: '#00000045',
-  colorError: '#ff0000',
-  redColor: '#ff4d4f',
+  overlayColor: '#00000045',
+  errorColor: '#ff4d4f',
 }

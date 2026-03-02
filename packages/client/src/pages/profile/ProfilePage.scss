@@ -88,7 +88,7 @@
 }
 
 .profile-error {
-  color: var(--colorError);
+  color: var(--errorColor);
 }
 
 .profile-avatar-section {
@@ -126,7 +126,7 @@
   left: 0;
   right: 0;
   height: 50%;
-  background: var(--colorOverlay);
+  background: var(--overlayColor);
   display: flex;
   align-items: center;
   justify-content: center;
