@@ -12,10 +12,10 @@ const { Title, Paragraph } = Typography
 
 type GameStartProps = {
   open: boolean
-  onFinish: () => void
+  onStart: () => void
 }
 
-export const GameStart = ({ open, onFinish }: GameStartProps) => {
+export const GameStart = ({ open, onStart }: GameStartProps) => {
   const navigate = useNavigate()
   const [started, setStarted] = useState(false)
   const [step, setStep] = useState(0)
@@ -38,7 +38,7 @@ export const GameStart = ({ open, onFinish }: GameStartProps) => {
     }
 
     const finishTimer = setTimeout(() => {
-      onFinish()
+      onStart()
     }, 800)
 
     return () => clearTimeout(finishTimer)
