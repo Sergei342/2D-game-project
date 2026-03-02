@@ -1,11 +1,23 @@
-import React, { useEffect, useRef } from 'react'
-import { CANVAS_H, CANVAS_W } from '../game/engine/types'
-import { Game } from '../game/engine/Game'
-import { usePage } from '../hooks/usePage'
+import { useEffect, useRef, useState } from 'react'
+import { CANVAS_H, CANVAS_W } from '../../../../game/engine/types'
+import { Game } from '../../../../game/engine/Game'
+import { usePage } from '../../../../hooks/usePage'
+import { GameStart } from '../GameStart'
 
 export const GamePage = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const gameRef = useRef<Game | null>(null)
+  const [showModal, setShowModal] = useState(true)
+
+  const handleStart = () => {
+    setShowModal(false)
+    console.log('game init')
+
+    if (gameRef.current) {
+      gameRef.current.init()
+      gameRef.current.run()
+    }
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -17,14 +29,6 @@ export const GamePage = () => {
     const game = new Game(ctx)
     gameRef.current = game
 
-    let mounted = true
-
-    ;(async () => {
-      await game.init()
-      if (!mounted) return
-      game.run()
-    })()
-
     const onClick = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect()
       const x = ((e.clientX - rect.left) / rect.width) * CANVAS_W
@@ -35,7 +39,6 @@ export const GamePage = () => {
     canvas.addEventListener('click', onClick)
 
     return () => {
-      mounted = false
       canvas.removeEventListener('click', onClick)
       game.destroy()
       gameRef.current = null
@@ -45,19 +48,23 @@ export const GamePage = () => {
   usePage({ initPage: initGamePage })
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={CANVAS_W}
-      height={CANVAS_H}
-      style={{
-        width: `${CANVAS_W}px`,
-        height: `${CANVAS_H}px`,
-        display: 'block',
-        margin: '0 auto',
-        background: '#000',
-        userSelect: 'none',
-      }}
-    />
+    <>
+      <GameStart open={showModal} onStart={handleStart} />
+
+      <canvas
+        ref={canvasRef}
+        width={CANVAS_W}
+        height={CANVAS_H}
+        style={{
+          width: `${CANVAS_W}px`,
+          height: `${CANVAS_H}px`,
+          display: 'block',
+          margin: '0 auto',
+          background: '#000',
+          userSelect: 'none',
+        }}
+      />
+    </>
   )
 }
 
