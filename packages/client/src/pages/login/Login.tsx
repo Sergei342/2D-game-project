@@ -1,21 +1,25 @@
 import { Button, Form, Input, message } from 'antd'
 import './login.scss'
 import { LoginData, loginUser } from './LoginService'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export const LoginPage = () => {
   const [form] = Form.useForm()
   const navigate = useNavigate()
 
   const handleSave = async (values: LoginData) => {
-    const result = await loginUser(values)
+    try {
+      const result = await loginUser(values)
 
-    if (result.ok) {
-      localStorage.setItem('isAuth', 'true')
-      form.resetFields()
-      navigate('/profile')
-    } else {
-      message.error(`Ошибка: ${result.reason}`)
+      if (result.ok) {
+        form.resetFields()
+        navigate('/')
+      } else {
+        message.error(`Ошибка: ${result.reason}`)
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      message.error('Произошла сетевая ошибка. Попробуйте позже.')
     }
   }
 
@@ -23,7 +27,6 @@ export const LoginPage = () => {
     <div className="login">
       <div className="login__container">
         <h1 className="login__title">Войти</h1>
-        <form id="loginForm" className="form"></form>
         <Form form={form} layout="vertical" onFinish={handleSave}>
           <Form.Item
             label="Логин"
@@ -43,9 +46,9 @@ export const LoginPage = () => {
             </Button>
           </Form.Item>
         </Form>
-        <a className="login__register" href="/register">
+        <Link className="login__register" to="/register">
           Еще не зарегестрированы?
-        </a>
+        </Link>
       </div>
     </div>
   )

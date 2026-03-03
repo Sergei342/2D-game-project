@@ -8,34 +8,52 @@ export interface LoginResponse {
   reason?: string
 }
 
+export const BASE_URL = 'https://ya-praktikum.tech/api/v2/auth/'
+
 export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
   try {
-    const response = await fetch(
-      'https://ya-praktikum.tech/api/v2/auth/signin',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      }
-    )
-    console.log('response', response)
+    const response = await fetch(`${BASE_URL}signin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    })
 
     let result: any
     try {
       result = await response.json()
-    } catch {
-      result = {}
+    } catch (error) {
+      console.error('JSON parse error:', error)
     }
 
     if (response.ok) {
       return { ok: true }
-    } else {
-      return { ok: false, reason: result.reason || 'Неизвестная ошибка' }
+    }
+    return {
+      ok: false,
+      reason: result.reason || 'Неизвестная ошибка',
     }
   } catch (error) {
-    console.error(error)
-    return { reason: 'Ошибка сети, попробуйте позже' }
+    console.error('Network error:', error)
+
+    return {
+      ok: false,
+      reason: 'Ошибка сети, попробуйте позже',
+    }
+  }
+}
+
+export const logoutUser = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}logout`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+    return response.ok
+  } catch (error) {
+    console.error('Logout error:', error)
+    return false
   }
 }
