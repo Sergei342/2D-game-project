@@ -7,11 +7,26 @@ import { Header } from '../components/Header'
 import { usePage } from '../hooks/usePage'
 import { PageInitArgs } from '../routes/types'
 import { UIKitDemo } from '../components/UIKitDemo'
+import { Button, message } from 'antd'
+import { logoutUser } from './login/LoginService'
+import { useNavigate } from 'react-router-dom'
 
 export const MainPage = () => {
   const user = useSelector(selectUser)
+  const navigate = useNavigate()
 
   usePage({ initPage: initMainPage })
+
+  const handleLogout = async () => {
+    const success = await logoutUser()
+
+    if (success) {
+      navigate('/login')
+    } else {
+      message.error('Не удалось выйти. Попробуйте позже.')
+    }
+  }
+
   return (
     <div>
       <Helmet>
@@ -23,12 +38,14 @@ export const MainPage = () => {
         />
       </Helmet>
       <Header />
+      <Button onClick={handleLogout}>Выйти</Button>
       <Link href="#">
         <Icon viewBox="0 0 20 20">
           <path d="M10 15h8c1 0 2-1 2-2V3c0-1-1-2-2-2H2C1 1 0 2 0 3v10c0 1 1 2 2 2h4v4l4-4zM5 7h2v2H5V7zm4 0h2v2H9V7zm4 0h2v2h-2V7z" />
         </Icon>
         <Label>Hovering my parent changes my style!</Label>
       </Link>
+
       {user ? (
         <div>
           <p>{user.name}</p>
