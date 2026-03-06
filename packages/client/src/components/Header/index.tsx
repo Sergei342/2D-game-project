@@ -16,6 +16,12 @@ export const Header = () => {
         <li>
           <Link to="/404">404</Link>
         </li>
+        <li>
+          <Link to="/profile">Профиль</Link>
+        </li>
+        <li>
+          <Link to="/500">500</Link>
+        </li>
       </ul>
     </nav>
   )
