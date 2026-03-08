@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
 import { usePage } from '../../hooks/usePage'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   profileService,
   UserProfile,
@@ -10,10 +10,18 @@ import {
 } from './ProfileService'
 
 import { MAX_AVATAR_SIZE, MAX_AVATAR_SIZE_MB_UNITS } from './consts'
-import { UserOutlined } from '@ant-design/icons'
 import { PageInitArgs } from '../../routes/types'
-import { Button, Input, Form, message, Collapse, Avatar } from 'antd'
-import './ProfilePage.scss'
+import { Form, message, Collapse } from 'antd'
+
+import {
+  ProfilePageWrapper,
+  ProfileCollapseWrapper,
+  ProfileLoading,
+  ProfileError,
+} from './ProfilePage.styled'
+import { PasswordSection } from './PasswordSection'
+import { ProfileSection } from './ProfileSection'
+import { GeoSectionContent } from './GeoSection'
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage })
@@ -25,10 +33,16 @@ export const ProfilePage = () => {
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
+  const [geoStatus, setGeoStatus] = useState<string | null>(null)
+  const [geoCoords, setGeoCoords] = useState<{
+    latitude: number
+    longitude: number
+  } | null>(null)
+  const [geoLoading, setGeoLoading] = useState(false)
+  const [geoError, setGeoError] = useState<string | null>(null)
+
   const [form] = Form.useForm()
   const [passwordForm] = Form.useForm()
-
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleUnauthorized = useCallback(() => {
     message.error('Сессия истекла. Перенаправляем на страницу входа…')
@@ -36,12 +50,15 @@ export const ProfilePage = () => {
   }, [navigate])
 
   useEffect(() => {
-    let cancelled = false
+    const controller = new AbortController()
 
     profileService
-      .getUser()
+      .getUser({ signal: controller.signal })
       .then((data: UserProfile | null) => {
-        if (cancelled || !data) {
+        if (controller.signal.aborted) return
+
+        if (!data) {
+          setError('Не удалось загрузить данные профиля')
           return
         }
 
@@ -57,7 +74,7 @@ export const ProfilePage = () => {
         })
       })
       .catch(err => {
-        if (cancelled) return
+        if (controller.signal.aborted) return
 
         if (err instanceof UnauthorizedError) {
           handleUnauthorized()
@@ -67,18 +84,19 @@ export const ProfilePage = () => {
         setError(err.message)
       })
       .finally(() => {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setLoading(false)
         }
       })
 
     return () => {
-      cancelled = true
+      controller.abort()
     }
   }, [form, handleUnauthorized])
 
   const handleAvatarChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const input = e.target
       const file = e.target.files?.[0]
 
       if (!file) {
@@ -101,9 +119,7 @@ export const ProfilePage = () => {
         }
         message.error('Не удалось загрузить аватар')
       } finally {
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ''
-        }
+        input.value = ''
       }
     },
     [handleUnauthorized]
@@ -126,13 +142,17 @@ export const ProfilePage = () => {
 
         setUser(updated)
         message.success('Профиль успешно сохранён')
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
           handleUnauthorized()
           return
         }
-        setError(err.message)
-        message.error(err.message || 'Не удалось сохранить профиль')
+
+        const errorMessage =
+          err instanceof Error ? err.message : 'Не удалось сохранить профиль'
+
+        setError(errorMessage)
+        message.error(errorMessage)
       } finally {
         setSaving(false)
       }
@@ -161,148 +181,97 @@ export const ProfilePage = () => {
     [passwordForm, handleUnauthorized]
   )
 
+  const handleGeoFindMe = useCallback(() => {
+    setGeoCoords(null)
+    setGeoError(null)
+
+    if (!navigator.geolocation) {
+      setGeoError('Геолокация не поддерживается вашим браузером')
+      return
+    }
+
+    setGeoLoading(true)
+    setGeoStatus('Определяем местоположение…')
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords
+        setGeoCoords({ latitude, longitude })
+        setGeoStatus(null)
+        setGeoLoading(false)
+      },
+      err => {
+        let errorMessage = 'Не удалось определить местоположение'
+
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            errorMessage = 'Вы запретили доступ к геолокации'
+            break
+          case err.POSITION_UNAVAILABLE:
+            errorMessage = 'Информация о местоположении недоступна'
+            break
+          case err.TIMEOUT:
+            errorMessage = 'Время запроса на определение местоположения истекло'
+            break
+        }
+
+        setGeoError(errorMessage)
+        setGeoStatus(null)
+        setGeoLoading(false)
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    )
+  }, [])
+
   if (loading) {
-    return <p className="profile-loading">Загрузка…</p>
+    return <ProfileLoading>Загрузка…</ProfileLoading>
   }
 
   if (error && !user) {
-    return <p className="profile-error">{error}</p>
+    return <ProfileError>{error}</ProfileError>
   }
 
   const avatarSrc = profileService.avatarUrl(user?.avatar ?? null)
-
-  const formLayout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
-  }
-
-  const buttonLayout = {
-    wrapperCol: { offset: 0, span: 24 },
-  }
 
   const collapseItems = [
     {
       key: 'profile',
       label: 'Профиль',
       children: (
-        <div>
-          <div className="profile-avatar-section">
-            <div
-              className="avatar-wrapper"
-              onClick={() => fileInputRef.current?.click()}>
-              <Avatar
-                src={avatarSrc}
-                size={120}
-                icon={<UserOutlined />}
-                style={{ width: '100%', height: '100%' }}
-              />
-              <div className="avatar-overlay">
-                <span>
-                  сменить
-                  <br />
-                  аватар
-                </span>
-              </div>
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="avatar-file-input"
-              onChange={handleAvatarChange}
-            />
-          </div>
-
-          <Form
-            form={form}
-            layout="horizontal"
-            onFinish={handleSave}
-            className="profile-form"
-            {...formLayout}>
-            <Form.Item
-              label="Имя"
-              name="first_name"
-              rules={[{ required: true, message: 'Введите имя' }]}>
-              <Input placeholder="Имя" />
-            </Form.Item>
-
-            <Form.Item
-              label="Фамилия"
-              name="second_name"
-              rules={[{ required: true, message: 'Введите фамилию' }]}>
-              <Input placeholder="Фамилия" />
-            </Form.Item>
-
-            <Form.Item label="Отображаемое имя" name="display_name">
-              <Input placeholder="Имя в чате" />
-            </Form.Item>
-
-            <Form.Item
-              label="Логин"
-              name="login"
-              rules={[{ required: true, message: 'Введите логин' }]}>
-              <Input placeholder="Логин" />
-            </Form.Item>
-
-            <Form.Item
-              label="Почта"
-              name="email"
-              rules={[
-                { required: true, message: 'Введите почту' },
-                { type: 'email', message: 'Некорректный email' },
-              ]}>
-              <Input placeholder="email@example.com" />
-            </Form.Item>
-
-            <Form.Item
-              label="Телефон"
-              name="phone"
-              rules={[{ required: true, message: 'Введите телефон' }]}>
-              <Input placeholder="+7 (999) 999-99-99" />
-            </Form.Item>
-
-            <Form.Item className="profile-submit-row" {...buttonLayout}>
-              <Button type="primary" htmlType="submit" block loading={saving}>
-                Сохранить
-              </Button>
-            </Form.Item>
-          </Form>
-        </div>
+        <ProfileSection
+          avatarSrc={avatarSrc}
+          form={form}
+          saving={saving}
+          onSave={handleSave}
+          onAvatarChange={handleAvatarChange}
+        />
       ),
     },
     {
       key: 'password',
       label: 'Сменить пароль',
       children: (
-        <Form
+        <PasswordSection
           form={passwordForm}
-          layout="horizontal"
-          onFinish={handlePassword}
-          className="profile-form"
-          {...formLayout}>
-          <Form.Item
-            label="Старый пароль"
-            name="oldPassword"
-            rules={[{ required: true, message: 'Введите текущий пароль' }]}>
-            <Input.Password placeholder="Текущий пароль" />
-          </Form.Item>
-
-          <Form.Item
-            label="Новый пароль"
-            name="newPassword"
-            rules={[
-              { required: true, message: 'Введите новый пароль' },
-              { min: 6, message: 'Минимум 6 символов' },
-            ]}>
-            <Input.Password placeholder="Новый пароль" />
-          </Form.Item>
-
-          <Form.Item className="profile-submit-row" {...buttonLayout}>
-            <Button type="primary" htmlType="submit" block>
-              Изменить пароль
-            </Button>
-          </Form.Item>
-        </Form>
+          onChangePassword={handlePassword}
+        />
+      ),
+    },
+    {
+      key: 'geolocation',
+      label: 'Моё местоположение',
+      children: (
+        <GeoSectionContent
+          geoStatus={geoStatus}
+          geoCoords={geoCoords}
+          geoLoading={geoLoading}
+          geoError={geoError}
+          onFindMe={handleGeoFindMe}
+        />
       ),
     },
   ]
@@ -315,20 +284,20 @@ export const ProfilePage = () => {
         <meta name="description" content="Страница профиля пользователя" />
       </Helmet>
 
-      <div className="profile-page">
-        <div className="profile-collapse-wrapper">
+      <ProfilePageWrapper>
+        <ProfileCollapseWrapper>
           <Collapse
             defaultActiveKey={['profile']}
             items={collapseItems}
             accordion={false}
             bordered={false}
           />
-        </div>
-      </div>
+        </ProfileCollapseWrapper>
+      </ProfilePageWrapper>
     </div>
   )
 }
 
-export const initProfilePage = async (args: PageInitArgs) => {
-  // Заглушка для инициализации страницы профиля, на будущее, когда подключим redux
+export const initProfilePage = async (_args: PageInitArgs) => {
+  // Заглушка для инициализации страницы профиля
 }
