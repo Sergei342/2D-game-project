@@ -2,10 +2,13 @@ import React, { useEffect, useRef } from 'react'
 import { CANVAS_H, CANVAS_W } from '../game/engine/types'
 import { Game } from '../game/engine/Game'
 import { usePage } from '../hooks/usePage'
+import { useFullscreen } from '../hooks/useFullscreen'
 
 export const GamePage = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
   const gameRef = useRef<Game | null>(null)
+  const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -45,19 +48,51 @@ export const GamePage = () => {
   usePage({ initPage: initGamePage })
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={CANVAS_W}
-      height={CANVAS_H}
+    <div
+      ref={containerRef}
       style={{
-        width: `${CANVAS_W}px`,
-        height: `${CANVAS_H}px`,
-        display: 'block',
+        position: 'relative',
+        width: isFullscreen ? '100%' : `${CANVAS_W}px`,
+        height: isFullscreen ? '100%' : undefined,
         margin: '0 auto',
-        background: '#000',
-        userSelect: 'none',
-      }}
-    />
+        display: isFullscreen ? 'flex' : undefined,
+        alignItems: isFullscreen ? 'center' : undefined,
+        justifyContent: isFullscreen ? 'center' : undefined,
+        background: isFullscreen ? '#000' : undefined,
+      }}>
+      <canvas
+        ref={canvasRef}
+        width={CANVAS_W}
+        height={CANVAS_H}
+        style={{
+          width: `${CANVAS_W}px`,
+          height: `${CANVAS_H}px`,
+          display: 'block',
+          background: '#000',
+          userSelect: 'none',
+        }}
+      />
+      {!isFullscreen && (
+        <button
+          onClick={toggleFullscreen}
+          style={{
+            position: 'absolute',
+            left: 4,
+            bottom: 4,
+            width: 28,
+            height: 28,
+            padding: 0,
+            border: 'none',
+            background: '#00ff9c',
+            cursor: 'pointer',
+            color: '#1b1950',
+            zIndex: 10,
+          }}
+          title="Полноэкранный режим">
+          ⛶
+        </button>
+      )}
+    </div>
   )
 }
 
