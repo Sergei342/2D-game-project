@@ -33,14 +33,6 @@ export const ProfilePage = () => {
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
-  const [geoStatus, setGeoStatus] = useState<string | null>(null)
-  const [geoCoords, setGeoCoords] = useState<{
-    latitude: number
-    longitude: number
-  } | null>(null)
-  const [geoLoading, setGeoLoading] = useState(false)
-  const [geoError, setGeoError] = useState<string | null>(null)
-
   const [form] = Form.useForm()
   const [passwordForm] = Form.useForm()
 
@@ -181,52 +173,6 @@ export const ProfilePage = () => {
     [passwordForm, handleUnauthorized]
   )
 
-  const handleGeoFindMe = useCallback(() => {
-    setGeoCoords(null)
-    setGeoError(null)
-
-    if (!navigator.geolocation) {
-      setGeoError('Геолокация не поддерживается вашим браузером')
-      return
-    }
-
-    setGeoLoading(true)
-    setGeoStatus('Определяем местоположение…')
-
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const { latitude, longitude } = position.coords
-        setGeoCoords({ latitude, longitude })
-        setGeoStatus(null)
-        setGeoLoading(false)
-      },
-      err => {
-        let errorMessage = 'Не удалось определить местоположение'
-
-        switch (err.code) {
-          case err.PERMISSION_DENIED:
-            errorMessage = 'Вы запретили доступ к геолокации'
-            break
-          case err.POSITION_UNAVAILABLE:
-            errorMessage = 'Информация о местоположении недоступна'
-            break
-          case err.TIMEOUT:
-            errorMessage = 'Время запроса на определение местоположения истекло'
-            break
-        }
-
-        setGeoError(errorMessage)
-        setGeoStatus(null)
-        setGeoLoading(false)
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    )
-  }, [])
-
   if (loading) {
     return <ProfileLoading>Загрузка…</ProfileLoading>
   }
@@ -264,15 +210,7 @@ export const ProfilePage = () => {
     {
       key: 'geolocation',
       label: 'Моё местоположение',
-      children: (
-        <GeoSectionContent
-          geoStatus={geoStatus}
-          geoCoords={geoCoords}
-          geoLoading={geoLoading}
-          geoError={geoError}
-          onFindMe={handleGeoFindMe}
-        />
-      ),
+      children: <GeoSectionContent />,
     },
   ]
 
