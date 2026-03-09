@@ -5,14 +5,27 @@ export class Invader implements Rect {
   y: number
   w: number
   h: number
-  alive = true
-  score: number
 
-  constructor(x: number, y: number, score: number) {
-    this.x = x
-    this.y = y
+  readonly row: number
+  readonly col: number
+
+  alive = true
+  readonly score: number
+
+  constructor(opts: {
+    x: number
+    y: number
+    row: number
+    col: number
+    score: number
+  }) {
+    this.x = opts.x
+    this.y = opts.y
     this.w = 44
     this.h = 34
-    this.score = score
+
+    this.row = opts.row
+    this.col = opts.col
+    this.score = opts.score
   }
 }

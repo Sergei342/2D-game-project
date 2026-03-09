@@ -10,6 +10,8 @@ export class Bullet implements Rect {
   vy: number
   owner: BulletOwner
 
+  dead = false
+
   constructor(opts: { x: number; y: number; vy: number; owner: BulletOwner }) {
     this.x = opts.x
     this.y = opts.y
@@ -23,7 +25,11 @@ export class Bullet implements Rect {
     this.y += this.vy * dt
   }
 
-  isOffscreen(h: number) {
-    return this.y + this.h < 0 || this.y > h
+  isOffscreen(screenH: number) {
+    return this.y + this.h < 0 || this.y > screenH
+  }
+
+  center() {
+    return { cx: this.x + this.w / 2, cy: this.y + this.h / 2 }
   }
 }
