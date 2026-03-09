@@ -3,6 +3,14 @@ import { Invader } from './Invader'
 
 export type FleetShot = { x: number; y: number } | null
 
+export type FleetHit = {
+  scoreGain: number
+  x: number
+  y: number
+  w: number
+  h: number
+} | null
+
 export interface IFleet {
   resetLevel1Formation(): void
   update(dt: number): void
@@ -16,7 +24,7 @@ export interface IFleet {
   forEachAlive(fn: (inv: Invader) => void): void
 
   // Попадание по флоту: вернёт scoreGain (0 если промах)
-  hitTestAndKill(rect: { x: number; y: number; w: number; h: number }): number
+  hitTestAndKill(rect: { x: number; y: number; w: number; h: number }): FleetHit
 }
 
 export class Fleet implements IFleet {
@@ -155,7 +163,12 @@ export class Fleet implements IFleet {
     return { x: shooter.x + shooter.w / 2 - 3, y: shooter.y + shooter.h + 6 }
   }
 
-  hitTestAndKill(rect: { x: number; y: number; w: number; h: number }) {
+  hitTestAndKill(rect: {
+    x: number
+    y: number
+    w: number
+    h: number
+  }): FleetHit {
     for (const inv of this.invaders) {
       if (!inv.alive) continue
 
@@ -169,8 +182,9 @@ export class Fleet implements IFleet {
 
       inv.alive = false
       this.aliveCount = Math.max(0, this.aliveCount - 1)
-      return inv.score
+
+      return { scoreGain: inv.score, x: inv.x, y: inv.y, w: inv.w, h: inv.h }
     }
-    return 0
+    return null
   }
 }

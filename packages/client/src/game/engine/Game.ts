@@ -13,6 +13,7 @@ import { Fleet } from '../entities/Fleet'
 
 import { Bullet } from '../entities/Bullet'
 import { Shield } from '../entities/Shield'
+import { Explosion } from '../entities/Explosion'
 
 export type PlayerIdentity = {
   userId: string
@@ -57,6 +58,7 @@ export class Game {
   private levelIndex = 0
   private bullets: Bullet[] = []
   private shields: Shield[] = []
+  private explosions: Explosion[] = []
 
   constructor(
     ctx: CanvasRenderingContext2D,
@@ -199,6 +201,7 @@ export class Game {
     this.bullets = []
     this.fleet.resetLevel1Formation()
     this.applyLevelConfig(this.level)
+    this.explosions = []
 
     // shields
     this.shields = this.level.shields.map(s => new Shield(s.x, s.y, s.w, s.h))
@@ -240,6 +243,10 @@ export class Game {
     // update bullets
     for (const b of this.bullets) b.update(dt)
 
+    // update взрыва
+    for (const ex of this.explosions) ex.update(dt)
+    this.explosions = this.explosions.filter(ex => !ex.dead)
+
     // collisions set dead=true
     this.resolveCollisions()
 
@@ -264,6 +271,10 @@ export class Game {
     if (this.fleet.getAliveCount() === 0) {
       if (this.levelIndex < LEVELS.length - 1) {
         this.levelIndex++
+
+        // +1 жизнь за достижение нового уровня (2 и 3)
+        this.player.lives += 1
+
         this.resetWorldForCurrentLevel()
         this.state = 'between'
       } else {
@@ -303,10 +314,16 @@ export class Game {
     for (const b of this.bullets) {
       if (b.dead || b.owner !== 'player') continue
 
-      const gain = this.fleet.hitTestAndKill(b)
-      if (gain > 0) {
+      const hit = this.fleet.hitTestAndKill(b)
+      if (hit) {
         b.dead = true
-        this.player.score += gain
+
+        this.player.score += hit.scoreGain
+
+        // спавн взрыва в центре врага
+        const exX = hit.x + hit.w / 2
+        const exY = hit.y + hit.h / 2
+        this.explosions.push(new Explosion(exX, exY, { ttl: 0.22, size: 64 }))
 
         this.emit({
           type: 'score',
@@ -424,6 +441,29 @@ export class Game {
     } else {
       ctx.fillStyle = '#66b3ff'
       ctx.fillRect(this.player.x, this.player.y, this.player.w, this.player.h)
+    }
+
+    // взрывы
+    for (const ex of this.explosions) {
+      const size = ex.size
+      const x = ex.x - size / 2
+      const y = ex.y - size / 2
+
+      this.ctx.save()
+      this.ctx.globalAlpha = ex.alpha
+
+      if (this.assets.ready('explosion')) {
+        this.ctx.imageSmoothingEnabled = false
+        this.ctx.drawImage(this.assets.get('explosion'), x, y, size, size)
+      } else {
+        // fallback
+        this.ctx.fillStyle = 'rgba(255, 210, 90, 0.9)'
+        this.ctx.beginPath()
+        this.ctx.arc(ex.x, ex.y, size * 0.25, 0, Math.PI * 2)
+        this.ctx.fill()
+      }
+
+      this.ctx.restore()
     }
 
     this.drawOverlay()
