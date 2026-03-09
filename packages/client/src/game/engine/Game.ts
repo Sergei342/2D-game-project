@@ -43,6 +43,7 @@ export class Game {
   private rafId: number | null = null
   private lastT = 0
   private running = false
+  private damageFlash = 0 // sec
 
   private readonly assets: IAssets
   private readonly input: IInput
@@ -138,6 +139,8 @@ export class Game {
       level: this.level.id,
       at: Date.now(),
     })
+
+    this.damageFlash = 0
   }
 
   restartToStartScreen() {
@@ -148,6 +151,7 @@ export class Game {
     this.shields = []
     this.fleet.resetLevel1Formation()
     this.applyLevelConfig(this.level)
+    this.damageFlash = 0
   }
 
   continueNextLevel() {
@@ -202,6 +206,7 @@ export class Game {
     this.fleet.resetLevel1Formation()
     this.applyLevelConfig(this.level)
     this.explosions = []
+    this.damageFlash = 0
 
     // shields
     this.shields = this.level.shields.map(s => new Shield(s.x, s.y, s.w, s.h))
@@ -288,6 +293,9 @@ export class Game {
         })
       }
     }
+
+    // update на мерцание экрана при damage
+    this.damageFlash = Math.max(0, this.damageFlash - dt)
   }
 
   private resolveCollisions() {
@@ -341,7 +349,10 @@ export class Game {
 
       if (intersectsRect(b, this.player)) {
         b.dead = true
+
+        // было попадание -> теряем жизнь -> включаем красный blink
         this.player.lives -= 1
+        this.damageFlash = 0.18 // длительность мигания (сек)
 
         if (this.player.lives <= 0) {
           this.state = 'gameover'
@@ -357,6 +368,22 @@ export class Game {
         }
       }
     }
+  }
+
+  private drawDamageFlash() {
+    if (this.damageFlash <= 0) return
+
+    const ctx = this.ctx
+
+    // чем ближе к 0, тем слабее
+    const t = Math.min(1, this.damageFlash / 0.18)
+    const alpha = 0.22 * t // интенсивность
+
+    ctx.save()
+    ctx.globalAlpha = alpha
+    ctx.fillStyle = '#ff0000'
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H)
+    ctx.restore()
   }
 
   private draw() {
@@ -465,6 +492,8 @@ export class Game {
 
       this.ctx.restore()
     }
+
+    this.drawDamageFlash()
 
     this.drawOverlay()
     this.drawBorder()
