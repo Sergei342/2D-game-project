@@ -5,8 +5,9 @@ export type BulletOwner = 'player' | 'enemy'
 export class Bullet implements Rect {
   x: number
   y: number
-  w: number
-  h: number
+  w = 6
+  h = 14
+
   vy: number
   owner: BulletOwner
 
@@ -15,8 +16,6 @@ export class Bullet implements Rect {
   constructor(opts: { x: number; y: number; vy: number; owner: BulletOwner }) {
     this.x = opts.x
     this.y = opts.y
-    this.w = 6
-    this.h = 14
     this.vy = opts.vy
     this.owner = opts.owner
   }

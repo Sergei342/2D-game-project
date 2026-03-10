@@ -7,10 +7,10 @@ export type ShieldSpec = { x: number; y: number; w: number; h: number }
 export type LevelConfig = {
   id: LevelId
   enemyFireEvery: number // секунды
-  shields: ShieldSpec[]
+  shields: ReadonlyArray<ShieldSpec>
 }
 
-export const LEVELS: ReadonlyArray<LevelConfig> = [
+export const LEVELS: ReadonlyArray<Readonly<LevelConfig>> = [
   {
     id: 1,
     enemyFireEvery: 0.75,

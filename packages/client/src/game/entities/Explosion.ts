@@ -2,28 +2,31 @@ export class Explosion {
   x: number
   y: number
 
-  age = 0 // sec
-  ttl: number // sec
+  private age = 0 // sec
+  private ttl: number // sec
   size: number // px (квадрат)
 
-  constructor(x: number, y: number, opts?: { ttl?: number; size?: number }) {
+  constructor(x: number, y: number, opts: { ttl: number; size: number }) {
     this.x = x
     this.y = y
-    this.ttl = opts?.ttl ?? 0.22
-    this.size = opts?.size ?? 56
+    this.ttl = opts.ttl
+    this.size = opts.size
   }
 
   update(dt: number) {
     this.age += dt
   }
 
-  get dead() {
-    return this.age >= this.ttl
+  /** 0..1 */
+  get progress() {
+    return this.ttl > 0 ? Math.min(1, this.age / this.ttl) : 1
   }
 
-  // Простой fade-out
+  get dead() {
+    return this.progress >= 1
+  }
+
   get alpha() {
-    const t = Math.min(1, this.age / this.ttl)
-    return 1 - t
+    return 1 - this.progress
   }
 }

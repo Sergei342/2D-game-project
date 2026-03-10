@@ -30,6 +30,7 @@ export interface IFleet {
 export class Fleet implements IFleet {
   private invaders: Invader[] = []
   private aliveCount = 0
+  private killedCount = 0
 
   private dir: 1 | -1 = 1
   private speed = 55 // px/sec
@@ -74,6 +75,7 @@ export class Fleet implements IFleet {
 
     this.invaders = next
     this.aliveCount = next.length
+    this.killedCount = 0
 
     this.dir = 1
     this.speed = 55
@@ -108,8 +110,7 @@ export class Fleet implements IFleet {
     if (this.aliveCount === 0) return
 
     // ускорение по мере убийств
-    const killed = this.invaders.length - this.aliveCount
-    this.speed = 55 + killed * 2.2
+    this.speed = 55 + this.killedCount * 2.2
 
     const { minX, maxX } = this.computeBounds()
     const step = this.speed * dt * this.dir
@@ -118,9 +119,10 @@ export class Fleet implements IFleet {
     const willHitRight = maxX + step > CANVAS_W - this.padding
 
     if (willHitLeft || willHitRight) {
-      this.dir = this.dir === 1 ? -1 : 1
+      this.dir *= -1
       this.forEachAlive(inv => {
         inv.y += this.drop
+        inv.x += this.speed * dt * this.dir
       })
       return
     }
@@ -146,10 +148,7 @@ export class Fleet implements IFleet {
     this.fireAcc -= this.fireEvery
 
     // стреляют нижние в колонках: для каждого col берём invader с максимальным y
-    const bottomByCol: Array<Invader | null> = Array.from(
-      { length: this.cols },
-      () => null
-    )
+    const bottomByCol = new Array<Invader | null>(this.cols).fill(null)
 
     this.forEachAlive(inv => {
       const prev = bottomByCol[inv.col]
@@ -182,6 +181,7 @@ export class Fleet implements IFleet {
 
       inv.alive = false
       this.aliveCount = Math.max(0, this.aliveCount - 1)
+      this.killedCount++
 
       return { scoreGain: inv.score, x: inv.x, y: inv.y, w: inv.w, h: inv.h }
     }

@@ -66,8 +66,8 @@ export class Shield implements Rect {
 
     const lx = Math.floor(((worldX - this.x) / this.w) * this.buffer.width)
     const ly = Math.floor(((worldY - this.y) / this.h) * this.buffer.height)
-    const a = this.bctx.getImageData(lx, ly, 1, 1).data[3]
-    return a > 10
+    const data = this.bctx.getImageData(lx, ly, 1, 1)
+    return data.data[3] !== 0
   }
 
   damageAt(worldX: number, worldY: number, radiusWorld = 11) {

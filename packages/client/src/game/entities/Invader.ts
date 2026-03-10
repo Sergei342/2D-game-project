@@ -3,8 +3,8 @@ import type { Rect } from '../engine/types'
 export class Invader implements Rect {
   x: number
   y: number
-  w: number
-  h: number
+  w = 44
+  h = 34
 
   readonly row: number
   readonly col: number
@@ -21,9 +21,6 @@ export class Invader implements Rect {
   }) {
     this.x = opts.x
     this.y = opts.y
-    this.w = 44
-    this.h = 34
-
     this.row = opts.row
     this.col = opts.col
     this.score = opts.score
