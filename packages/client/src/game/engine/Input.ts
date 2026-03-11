@@ -1,9 +1,20 @@
-export class Input {
+export interface IInput {
+  attach(): void
+  detach(): void
+  down(code: 'ArrowLeft' | 'ArrowRight' | 'Space'): boolean
+}
+
+export class Input implements IInput {
   private keys = new Set<string>()
 
   private onKeyDown = (e: KeyboardEvent) => {
-    if (['ArrowLeft', 'ArrowRight', 'Space'].includes(e.code))
+    if (
+      e.code === 'ArrowLeft' ||
+      e.code === 'ArrowRight' ||
+      e.code === 'Space'
+    ) {
       e.preventDefault()
+    }
     this.keys.add(e.code)
   }
 

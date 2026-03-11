@@ -1,13 +1,27 @@
 import { CANVAS_W, clamp } from '../engine/types'
 import { Bullet } from './Bullet'
 
-export class Player {
+export interface IPlayer {
+  x: number
+  y: number
+  w: number
+  h: number
+  lives: number
+  score: number
+
+  reset(): void
+  update(dt: number, moveDir: -1 | 0 | 1): void
+  tryShoot(isShooting: boolean): Bullet | null
+}
+
+export class Player implements IPlayer {
   x = CANVAS_W / 2 - 28
   y = 710
   w = 56
   h = 56
 
   speed = 420 // px/sec
+
   lives = 3
   score = 0
 
