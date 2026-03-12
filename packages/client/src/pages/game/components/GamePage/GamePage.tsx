@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo, useRef } from 'react'
-import { CANVAS_H, CANVAS_W } from '../game/engine/types'
-import { Game, type GameEvent } from '../game/engine/Game'
-import { usePage } from '../hooks/usePage'
-import { useFullscreen } from '../hooks/useFullscreen'
+import { MouseEvent, useEffect, useRef, useState } from 'react'
+import { CANVAS_H, CANVAS_W } from '../../../../game/engine/types'
+import { Game, type GameEvent } from '../../../../game/engine/Game'
+import { usePage } from '../../../../hooks/usePage'
+import { GameStart } from '../GameStart'
+import { useFullscreen } from '../../../../hooks/useFullscreen'
 
-type Props = {
+// TODO: userId и displayName забирать из стора Redux, удаоить из пропсов компонента
+type GamePageProps = {
   userId: string
   displayName?: string
 
@@ -12,11 +14,34 @@ type Props = {
   onGameEvent?: (e: GameEvent) => void
 }
 
-export const GamePage = ({ userId, displayName, onGameEvent }: Props) => {
+export const GamePage = ({ userId, displayName, onGameEvent }: GamePageProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
+  
   const gameRef = useRef<Game | null>(null)
+  const [showModal, setShowModal] = useState(true)
+  
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
+
+  const handleStart = () => {
+    setShowModal(false)
+
+    if (gameRef.current) {
+      gameRef.current.init()
+      gameRef.current.run()
+    }
+  }
+
+  const handleClick = (e: MouseEvent<HTMLCanvasElement>) => {
+    const game = gameRef.current
+    const canvas = canvasRef.current
+    if (!game || !canvas) return
+
+    const rect = canvas.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * CANVAS_W
+    const y = ((e.clientY - rect.top) / rect.height) * CANVAS_H
+    game.handleUiClick(x, y)
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -32,35 +57,11 @@ export const GamePage = ({ userId, displayName, onGameEvent }: Props) => {
 
     gameRef.current = game
 
-    let mounted = true
-    ;(async () => {
-      try {
-        await game.init()
-        if (!mounted) return
-        game.run()
-      } catch (err) {
-        console.error('Game init failed', err)
-      }
-    })()
-
     return () => {
-      mounted = false
       game.destroy()
       gameRef.current = null
     }
   }, [userId, displayName, onGameEvent])
-
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const game = gameRef.current
-    const canvas = canvasRef.current
-    if (!game || !canvas) return
-
-    const rect = canvas.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * CANVAS_W
-    const y = ((e.clientY - rect.top) / rect.height) * CANVAS_H
-
-    game.handleUiClick(x, y)
-  }
 
   usePage({ initPage: initGamePage })
 
@@ -77,6 +78,8 @@ export const GamePage = ({ userId, displayName, onGameEvent }: Props) => {
         justifyContent: isFullscreen ? 'center' : undefined,
         background: isFullscreen ? '#000' : undefined,
       }}>
+      <GameStart open={showModal} onStart={handleStart} />
+
       <canvas
         ref={canvasRef}
         width={CANVAS_W}
