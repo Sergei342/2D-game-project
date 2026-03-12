@@ -95,7 +95,7 @@ export const GamePage = ({ userId, displayName, onGameEvent }: Props) => {
           onClick={toggleFullscreen}
           style={{
             position: 'absolute',
-            left: 4,
+            right: 4,
             bottom: 4,
             width: 28,
             height: 28,
