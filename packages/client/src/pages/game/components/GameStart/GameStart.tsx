@@ -1,7 +1,7 @@
 import { Modal, Button, Typography, Space, Spin, Flex } from 'antd'
 import { HomeOutlined, RocketOutlined } from '@ant-design/icons'
 import { useEffect, useState } from 'react'
-import { PHRASES } from './GameStart.constants'
+import { GAME_START_TEXT, PHRASES } from './GameStart.constants'
 import { cssVariables } from '../../../../styles/variables'
 import { KeyCap } from '../../../../components/KeyCap'
 import { useTypewriter } from '../../../../hooks/useTypewriter'
@@ -20,16 +20,18 @@ export const GameStart = ({ open, onStart }: GameStartProps) => {
   const [started, setStarted] = useState(false)
   const [step, setStep] = useState(0)
 
-  const text =
-    'Управляй кораблём, уничтожай захватчиков и не дай им добраться до Земли'
-  const typedText = useTypewriter(text)
+  const { value: typedText, done } = useTypewriter({
+    text: GAME_START_TEXT,
+    enabled: !started,
+  })
+  const phrase = PHRASES[step]
 
   useEffect(() => {
     if (!started) {
       return
     }
 
-    if (step < PHRASES.length) {
+    if (step < PHRASES.length - 1) {
       const timer = setTimeout(() => {
         setStep(prev => prev + 1)
       }, 1000)
@@ -37,12 +39,10 @@ export const GameStart = ({ open, onStart }: GameStartProps) => {
       return () => clearTimeout(timer)
     }
 
-    const finishTimer = setTimeout(() => {
-      onStart()
-    }, 800)
+    const finishTimer = setTimeout(onStart, 1000)
 
     return () => clearTimeout(finishTimer)
-  }, [started, step])
+  }, [started, step, onStart])
 
   return (
     <Modal
@@ -92,6 +92,8 @@ export const GameStart = ({ open, onStart }: GameStartProps) => {
             type="primary"
             size="large"
             icon={<RocketOutlined />}
+            style={{ opacity: done ? 1 : 0 }}
+            disabled={!done}
             onClick={() => setStarted(true)}>
             Поехали
           </Button>
@@ -115,7 +117,7 @@ export const GameStart = ({ open, onStart }: GameStartProps) => {
           <Title
             level={4}
             style={{ color: cssVariables.secondaryColor, marginTop: 16 }}>
-            {PHRASES[Math.min(step, PHRASES.length - 1)]}
+            {phrase}
           </Title>
         </Space>
       )}

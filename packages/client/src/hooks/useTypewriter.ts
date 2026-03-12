@@ -1,17 +1,46 @@
 import { useEffect, useState } from 'react'
 
-export const useTypewriter = (text: string, speed = 40) => {
+const SPEED_MIN = 40
+const SPEED_MAX = 200
+
+type UseTypewriterProps = {
+  text: string
+  speed?: number
+  enabled?: boolean
+}
+
+export const useTypewriter = ({
+  text,
+  speed = SPEED_MIN,
+  enabled = true,
+}: UseTypewriterProps) => {
   const [value, setValue] = useState('')
 
+  const delay = Math.min(Math.max(speed, SPEED_MIN), SPEED_MAX)
+  const done = value.length >= text.length
+
   useEffect(() => {
-    if (value.length >= text.length) return
+    if (!enabled) {
+      return
+    }
+
+    setValue('')
+  }, [text, enabled])
+
+  useEffect(() => {
+    if (!enabled || done) {
+      return
+    }
 
     const timeout = setTimeout(() => {
-      setValue(text.slice(0, value.length + 1))
-    }, speed)
+      setValue(prev => text.slice(0, prev.length + 1))
+    }, delay)
 
     return () => clearTimeout(timeout)
-  }, [value, text, speed])
+  }, [value, text, delay, enabled])
 
-  return value
+  return {
+    value,
+    done,
+  }
 }
