@@ -61,8 +61,12 @@ const request = async <T>(url: string, options?: RequestInit): Promise<T> => {
 }
 
 export const profileService = {
-  async getUser(): Promise<UserProfile | null> {
-    return request<UserProfile | null>('/auth/user')
+  async getUser(options?: {
+    signal?: AbortSignal
+  }): Promise<UserProfile | null> {
+    return request<UserProfile | null>('/auth/user', {
+      signal: options?.signal,
+    })
   },
 
   async changePassword(data: ChangePasswordData): Promise<void> {
