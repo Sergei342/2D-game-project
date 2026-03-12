@@ -1,22 +1,32 @@
 import { initMainPage, MainPage } from '../pages/Main'
 import { initFriendsPage, FriendsPage } from '../pages/FriendsPage'
 import { initNotFoundPage, NotFoundPage } from '../pages/NotFound'
+import { initLoginPage, LoginPage } from '../pages/login/Login'
+import { ProtectedRoute } from './ProtectedRoute'
 import { initProfilePage, ProfilePage } from '../pages/profile/ProfilePage'
 import { AppErrorBoundary } from '../components/AppErrorBoundary'
-import { GamePage, initGamePage } from '../pages/Game'
+import { GamePage, initGamePage } from '../pages/game/components/GamePage'
 import { Error500Page, initError500Page } from '../pages/error500/Error500'
 import { Error404Page, initError404Page } from '../pages/error404/Error404'
 
 export const routes = [
   {
     path: '/',
-    Component: MainPage,
+    Component: () => (
+      <ProtectedRoute>
+        <MainPage />
+      </ProtectedRoute>
+    ),
     fetchData: initMainPage,
     ErrorBoundary: AppErrorBoundary,
   },
   {
     path: '/friends',
-    Component: FriendsPage,
+    Component: () => (
+      <ProtectedRoute>
+        <FriendsPage />
+      </ProtectedRoute>
+    ),
     fetchData: initFriendsPage,
     ErrorBoundary: AppErrorBoundary,
   },
@@ -36,7 +46,12 @@ export const routes = [
     fetchData: initError404Page,
   },
   {
-    path: '*',
+    path: '/login',
+    Component: LoginPage,
+    fetchData: initLoginPage,
+  },
+  {
+    path: '/*',
     Component: NotFoundPage,
     fetchData: initNotFoundPage,
     ErrorBoundary: AppErrorBoundary,
@@ -45,5 +60,6 @@ export const routes = [
     path: '/profile',
     Component: ProfilePage,
     fetchData: initProfilePage,
+    ErrorBoundary: AppErrorBoundary,
   },
 ]

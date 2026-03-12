@@ -8,6 +8,9 @@ export const Header = () => {
           <Link to="/">Главная</Link>
         </li>
         <li>
+          <Link to="/login">Войти</Link>
+        </li>
+        <li>
           <Link to="/friends">Страница со списком друзей</Link>
         </li>
         <li>
@@ -21,6 +24,9 @@ export const Header = () => {
         </li>
         <li>
           <Link to="/500">500</Link>
+        </li>
+        <li>
+          <Link to="/game">Игра</Link>
         </li>
       </ul>
     </nav>
