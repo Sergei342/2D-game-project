@@ -34,6 +34,7 @@ export const routes = [
     path: '/game',
     Component: GamePage,
     fetchData: initGamePage,
+    ErrorBoundary: AppErrorBoundary,
   },
   {
     path: '/500',
