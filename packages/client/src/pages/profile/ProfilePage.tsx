@@ -254,6 +254,6 @@ export const ProfilePage = () => {
   )
 }
 
-export const initProfilePage = async (_args: PageInitArgs) => {
-  // Заглушка для инициализации страницы профиля
+export const initProfilePage = async () => {
+  // Заглушка
 }
