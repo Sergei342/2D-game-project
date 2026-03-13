@@ -25,6 +25,7 @@ export interface ForumState {
 const initialState: ForumState = {
   topics: [],
 }
+
 export const forumSlice = createSlice({
   name: 'forum',
   initialState,

@@ -2,30 +2,57 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '../store'
 import { SERVER_HOST } from '../constants'
 
-interface Friend {
+export interface Friend {
   name: string
   secondName: string
   avatar: string
 }
 
 export interface FriendsState {
-  data: Array<Friend>
+  data: Friend[]
   isLoading: boolean
+  error: string | null
 }
 
 const initialState: FriendsState = {
   data: [],
   isLoading: false,
+  error: null,
 }
 
-export const fetchFriendsThunk = createAsyncThunk(
-  'user/fetchFriendsThunk',
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async (_: void) => {
-    const url = `${SERVER_HOST}/friends`
-    return fetch(url).then(res => res.json())
+export const fetchFriendsThunk = createAsyncThunk<
+  Friend[],
+  void,
+  { rejectValue: string }
+>('friends/fetchFriendsThunk', async (_, { rejectWithValue }) => {
+  try {
+    const url = new URL('/friends', SERVER_HOST)
+
+    const response = await fetch(url.toString(), {
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Ошибка ${response.status}`
+
+      try {
+        const errorBody = await response.json()
+        if (errorBody?.reason) {
+          errorMessage = errorBody.reason
+        }
+      } catch {
+        // ignore json parse error
+      }
+
+      return rejectWithValue(errorMessage)
+    }
+
+    const data = (await response.json()) as Friend[]
+    return data
+  } catch {
+    return rejectWithValue('Не удалось загрузить список друзей')
   }
-)
+})
 
 export const friendsSlice = createSlice({
   name: 'friends',
@@ -33,26 +60,29 @@ export const friendsSlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(fetchFriendsThunk.pending.type, state => {
+      .addCase(fetchFriendsThunk.pending, state => {
         state.data = []
         state.isLoading = true
+        state.error = null
       })
       .addCase(
-        fetchFriendsThunk.fulfilled.type,
+        fetchFriendsThunk.fulfilled,
         (state, { payload }: PayloadAction<Friend[]>) => {
           state.data = payload
           state.isLoading = false
+          state.error = null
         }
       )
-      .addCase(fetchFriendsThunk.rejected.type, state => {
+      .addCase(fetchFriendsThunk.rejected, (state, action) => {
         state.isLoading = false
+        state.error = action.payload ?? 'Не удалось загрузить список друзей'
       })
   },
 })
 
 export const selectFriends = (state: RootState) => state.friends.data
-
 export const selectIsLoadingFriends = (state: RootState) =>
   state.friends.isLoading
+export const selectFriendsError = (state: RootState) => state.friends.error
 
 export default friendsSlice.reducer

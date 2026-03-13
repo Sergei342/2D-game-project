@@ -12,6 +12,8 @@ import {
 import { MAX_AVATAR_SIZE, MAX_AVATAR_SIZE_MB_UNITS } from './consts'
 import { PageInitArgs } from '../../routes/types'
 import { Form, message, Collapse } from 'antd'
+import { useDispatch } from '../../store'
+import { setUser } from '../../slices/userSlice'
 
 import {
   ProfilePageWrapper,
@@ -27,8 +29,9 @@ export const ProfilePage = () => {
   usePage({ initPage: initProfilePage })
 
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-  const [user, setUser] = useState<UserProfile | null>(null)
+  const [user, setLocalUser] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -54,7 +57,14 @@ export const ProfilePage = () => {
           return
         }
 
-        setUser(data)
+        setLocalUser(data)
+
+        dispatch(
+          setUser({
+            name: data.first_name,
+            secondName: data.second_name,
+          })
+        )
 
         form.setFieldsValue({
           first_name: data.first_name,
@@ -84,7 +94,7 @@ export const ProfilePage = () => {
     return () => {
       controller.abort()
     }
-  }, [form, handleUnauthorized])
+  }, [form, handleUnauthorized, dispatch])
 
   const handleAvatarChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +112,7 @@ export const ProfilePage = () => {
 
       try {
         const updated = await profileService.changeAvatar(file)
-        setUser(updated)
+        setLocalUser(updated)
         message.success('Аватар обновлён')
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
@@ -132,7 +142,15 @@ export const ProfilePage = () => {
           phone: values.phone,
         })
 
-        setUser(updated)
+        setLocalUser(updated)
+
+        dispatch(
+          setUser({
+            name: updated.first_name,
+            secondName: updated.second_name,
+          })
+        )
+
         message.success('Профиль успешно сохранён')
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
@@ -149,7 +167,7 @@ export const ProfilePage = () => {
         setSaving(false)
       }
     },
-    [handleUnauthorized]
+    [handleUnauthorized, dispatch]
   )
 
   const handlePassword = useCallback(

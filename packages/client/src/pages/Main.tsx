@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 import { Helmet } from 'react-helmet'
 
-import { useSelector } from '../store'
-import { fetchUserThunk, selectUser } from '../slices/userSlice'
+import { useDispatch, useSelector } from '../store'
+import { clearUser, fetchUserThunk, selectUser } from '../slices/userSlice'
 import { Header } from '../components/Header'
 import { usePage } from '../hooks/usePage'
 import { PageInitArgs } from '../routes/types'
@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom'
 
 export const MainPage = () => {
   const user = useSelector(selectUser)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
 
   usePage({ initPage: initMainPage })
@@ -21,6 +22,7 @@ export const MainPage = () => {
     const success = await logoutUser()
 
     if (success) {
+      dispatch(clearUser())
       navigate('/login')
     } else {
       message.error('Не удалось выйти. Попробуйте позже.')
@@ -37,8 +39,10 @@ export const MainPage = () => {
           content="Главная страница с информацией о пользователе"
         />
       </Helmet>
+
       <Header />
       <Button onClick={handleLogout}>Выйти</Button>
+
       <Link href="#">
         <Icon viewBox="0 0 20 20">
           <path d="M10 15h8c1 0 2-1 2-2V3c0-1-1-2-2-2H2C1 1 0 2 0 3v10c0 1 1 2 2 2h4v4l4-4zM5 7h2v2H5V7zm4 0h2v2H9V7zm4 0h2v2h-2V7z" />

@@ -3,16 +3,20 @@ import './login.scss'
 import { LoginData, loginUser } from './LoginService'
 import { Link, useNavigate } from 'react-router-dom'
 import { validationRules } from '../../validation/validators'
+import { useDispatch } from '../../store'
+import { fetchUserThunk } from '../../slices/userSlice'
 
 export const LoginPage = () => {
   const [form] = Form.useForm()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const handleSave = async (values: LoginData) => {
     try {
       const result = await loginUser(values)
 
       if (result.ok) {
+        await dispatch(fetchUserThunk())
         form.resetFields()
         navigate('/')
       } else {
