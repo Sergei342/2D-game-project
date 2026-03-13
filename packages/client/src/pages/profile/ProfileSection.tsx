@@ -2,6 +2,7 @@ import { useId } from 'react'
 import { Avatar, Button, Form, Input } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
 import { FormInstance } from 'antd/es/form'
+import { validationRules } from '../../validation/validators'
 import {
   ProfileAvatarSection,
   AvatarWrapper,
@@ -63,14 +64,14 @@ export const ProfileSection = ({
         <Form.Item
           label="Имя"
           name="first_name"
-          rules={[{ required: true, message: 'Введите имя' }]}>
+          rules={validationRules.first_name}>
           <Input placeholder="Имя" />
         </Form.Item>
 
         <Form.Item
           label="Фамилия"
           name="second_name"
-          rules={[{ required: true, message: 'Введите фамилию' }]}>
+          rules={validationRules.second_name}>
           <Input placeholder="Фамилия" />
         </Form.Item>
 
@@ -78,28 +79,16 @@ export const ProfileSection = ({
           <Input placeholder="Имя в чате" />
         </Form.Item>
 
-        <Form.Item
-          label="Логин"
-          name="login"
-          rules={[{ required: true, message: 'Введите логин' }]}>
+        <Form.Item label="Логин" name="login" rules={validationRules.login}>
           <Input placeholder="Логин" />
         </Form.Item>
 
-        <Form.Item
-          label="Почта"
-          name="email"
-          rules={[
-            { required: true, message: 'Введите почту' },
-            { type: 'email', message: 'Некорректный email' },
-          ]}>
+        <Form.Item label="Почта" name="email" rules={validationRules.email}>
           <Input placeholder="email@example.com" />
         </Form.Item>
 
-        <Form.Item
-          label="Телефон"
-          name="phone"
-          rules={[{ required: true, message: 'Введите телефон' }]}>
-          <Input placeholder="+7 (999) 999-99-99" />
+        <Form.Item label="Телефон" name="phone" rules={validationRules.phone}>
+          <Input placeholder="+79999999999" />
         </Form.Item>
 
         <ProfileSubmitRow>

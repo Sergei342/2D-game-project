@@ -1,5 +1,6 @@
 import { Button, Form, Input } from 'antd'
 import { FormInstance } from 'antd/es/form'
+import { validationRules } from '../../validation/validators'
 import { ProfileForm, ProfileSubmitRow } from './ProfilePage.styled'
 
 interface PasswordSectionProps {
@@ -31,10 +32,7 @@ export const PasswordSection = ({
       <Form.Item
         label="Новый пароль"
         name="newPassword"
-        rules={[
-          { required: true, message: 'Введите новый пароль' },
-          { min: 6, message: 'Минимум 6 символов' },
-        ]}>
+        rules={validationRules.password}>
         <Input.Password placeholder="Новый пароль" />
       </Form.Item>
 
