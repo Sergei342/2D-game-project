@@ -14,13 +14,17 @@ type GamePageProps = {
   onGameEvent?: (e: GameEvent) => void
 }
 
-export const GamePage = ({ userId, displayName, onGameEvent }: GamePageProps) => {
+export const GamePage = ({
+  userId,
+  displayName,
+  onGameEvent,
+}: GamePageProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  
+
   const gameRef = useRef<Game | null>(null)
   const [showModal, setShowModal] = useState(true)
-  
+
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
 
   const handleStart = () => {
