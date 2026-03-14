@@ -1,4 +1,4 @@
-import { BASE_URL } from './consts'
+import { BASE_URL, HttpStatus } from './consts'
 
 export interface UserProfile {
   id: number
@@ -40,7 +40,7 @@ const request = async <T>(url: string, options?: RequestInit): Promise<T> => {
   })
 
   if (!res.ok) {
-    if (res.status === 401) {
+    if (res.status === HttpStatus.Unauthorized) {
       throw new UnauthorizedError()
     }
 
