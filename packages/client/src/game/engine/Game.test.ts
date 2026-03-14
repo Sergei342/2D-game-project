@@ -5,6 +5,78 @@ import type { IAssets } from './Assets'
 import type { IPlayer } from '../entities/Player'
 import type { FleetShot, FleetHit } from '../entities/Fleet'
 
+/** Стандартный шаг одного кадра */
+const DT_MS = 16
+
+/** Размер игрока */
+const PLAYER_W = 56
+const PLAYER_H = 56
+
+/** Половина ширины игрока — смещение от центра холста */
+const PLAYER_HALF_W = PLAYER_W / 2
+
+/** Начальная Y-позиция игрока */
+const PLAYER_START_Y = 710
+
+/** Начальное количество жизней */
+const INITIAL_LIVES = 3
+
+/** Начальное количество живых захватчиков во флоте */
+const INITIAL_ALIVE_COUNT = 50
+
+/** Нижняя Y-координата флота по умолчанию */
+const INITIAL_FLEET_BOTTOM_Y = 344
+
+/** Размеры кнопки UI */
+const UI_BUTTON_X = 100
+const UI_BUTTON_Y = 100
+const UI_BUTTON_W = 200
+const UI_BUTTON_H = 50
+
+/** Координаты клика попадающие внутрь кнопки UI */
+const UI_CLICK_HIT_X = 150
+const UI_CLICK_HIT_Y = 120
+
+/** Координаты клика промахивающиеся мимо кнопки UI */
+const UI_CLICK_MISS_X = 50
+const UI_CLICK_MISS_Y = 50
+
+/** Координаты игрока при тесте попадания вражеского выстрела */
+const HIT_TEST_PLAYER_X = 200
+const HIT_TEST_PLAYER_Y = 300
+const HIT_TEST_SHOT_X = 220
+const HIT_TEST_SHOT_Y = 320
+
+/** Параметры пули игрока */
+const BULLET_X = 100
+const BULLET_Y = 200
+const BULLET_W = 4
+const BULLET_H = 12
+const BULLET_VY = -760
+
+/** Параметры убитого захватчика (hitResult) */
+const INVADER_HIT_X = 95
+const INVADER_HIT_Y = 195
+const INVADER_HIT_W = 44
+const INVADER_HIT_H = 34
+
+/** Очки за убийство захватчика */
+const KILL_SCORE = 50
+const KILL_SCORE_MULTI = 30
+
+/** Ожидаемые размеры отрисованной UI-кнопки */
+const EXPECTED_UI_BTN_W = 240
+const EXPECTED_UI_BTN_H = 58
+
+/** rAF ID, возвращаемый моком */
+const RAF_ID = 42
+
+/** Размер stub-канваса */
+const STUB_CANVAS_SIZE = 1
+
+/** Размер RGBA данных для getImageData */
+const RGBA_CHANNELS = 4
+
 const stubCtx = {
   clearRect: jest.fn(),
   fillRect: jest.fn(),
@@ -16,10 +88,10 @@ const stubCtx = {
   fill: jest.fn(),
   save: jest.fn(),
   restore: jest.fn(),
-  getImageData: jest.fn(() => ({ data: new Uint8ClampedArray(4) })),
+  getImageData: jest.fn(() => ({ data: new Uint8ClampedArray(RGBA_CHANNELS) })),
   putImageData: jest.fn(),
   createImageData: jest.fn((w: number, h: number) => ({
-    data: new Uint8ClampedArray(w * h * 4),
+    data: new Uint8ClampedArray(w * h * RGBA_CHANNELS),
     width: w,
     height: h,
   })),
@@ -41,8 +113,8 @@ beforeAll(() => {
     .mockImplementation((tag: string, opts?: any) => {
       if (tag === 'canvas')
         return {
-          width: 1,
-          height: 1,
+          width: STUB_CANVAS_SIZE,
+          height: STUB_CANVAS_SIZE,
           getContext: () => stubCtx,
         } as unknown as HTMLCanvasElement
       return origCreateElement(tag, opts)
@@ -72,16 +144,16 @@ function mkInput() {
 }
 
 const mkPlayer = (): IPlayer => ({
-  x: CANVAS_W / 2 - 28,
-  y: 710,
-  w: 56,
-  h: 56,
-  lives: 3,
+  x: CANVAS_W / 2 - PLAYER_HALF_W,
+  y: PLAYER_START_Y,
+  w: PLAYER_W,
+  h: PLAYER_H,
+  lives: INITIAL_LIVES,
   score: 0,
   reset: jest.fn(function (this: IPlayer) {
-    this.x = CANVAS_W / 2 - 28
-    this.y = 710
-    this.lives = 3
+    this.x = CANVAS_W / 2 - PLAYER_HALF_W
+    this.y = PLAYER_START_Y
+    this.lives = INITIAL_LIVES
     this.score = 0
   }),
   update: jest.fn(),
@@ -90,8 +162,8 @@ const mkPlayer = (): IPlayer => ({
 
 function mkFleet() {
   const cfg = {
-    aliveCount: 50,
-    bottomY: 344,
+    aliveCount: INITIAL_ALIVE_COUNT,
+    bottomY: INITIAL_FLEET_BOTTOM_Y,
     shot: null as FleetShot,
     hitResult: null as FleetHit,
     aliveInvaders: [] as any[],
@@ -99,8 +171,8 @@ function mkFleet() {
   return {
     cfg,
     resetLevel1Formation: jest.fn(() => {
-      cfg.aliveCount = 50
-      cfg.bottomY = 344
+      cfg.aliveCount = INITIAL_ALIVE_COUNT
+      cfg.bottomY = INITIAL_FLEET_BOTTOM_Y
     }),
     update: jest.fn(),
     setEnemyFireEvery: jest.fn(),
@@ -147,7 +219,7 @@ function collectEvents(cb?: GameCallbacks) {
   }
 }
 
-function tick(game: Game, dtMs = 16) {
+function tick(game: Game, dtMs = DT_MS) {
   let rafCb: FrameRequestCallback | null = null
   const rafSpy = jest
     .spyOn(window, 'requestAnimationFrame')
@@ -174,15 +246,37 @@ function tick(game: Game, dtMs = 16) {
   cancelSpy.mockRestore()
 }
 
+function mkUiButton() {
+  return { x: UI_BUTTON_X, y: UI_BUTTON_Y, w: UI_BUTTON_W, h: UI_BUTTON_H }
+}
+
 function placePlayerForEnemyHit(
   player: IPlayer,
   fleet: ReturnType<typeof mkFleet>
 ) {
-  player.x = 200
-  player.y = 300
-  player.w = 56
-  player.h = 56
-  fleet.cfg.shot = { x: 220, y: 320 }
+  player.x = HIT_TEST_PLAYER_X
+  player.y = HIT_TEST_PLAYER_Y
+  player.w = PLAYER_W
+  player.h = PLAYER_H
+  fleet.cfg.shot = { x: HIT_TEST_SHOT_X, y: HIT_TEST_SHOT_Y }
+}
+
+function mkBullet() {
+  return {
+    x: BULLET_X,
+    y: BULLET_Y,
+    w: BULLET_W,
+    h: BULLET_H,
+    vy: BULLET_VY,
+    owner: 'player' as const,
+    dead: false,
+    update: jest.fn(),
+    center: () => ({
+      cx: BULLET_X + BULLET_W / 2,
+      cy: BULLET_Y + BULLET_H / 2,
+    }),
+    isOffscreen: () => false,
+  }
 }
 
 describe('Game', () => {
@@ -208,7 +302,7 @@ describe('Game', () => {
   it('run is idempotent, stop cancels rAF', () => {
     const rafSpy = jest
       .spyOn(window, 'requestAnimationFrame')
-      .mockReturnValue(42)
+      .mockReturnValue(RAF_ID)
     const cancelSpy = jest
       .spyOn(window, 'cancelAnimationFrame')
       .mockImplementation(jest.fn())
@@ -217,7 +311,7 @@ describe('Game', () => {
     game.run()
     expect(rafSpy).toHaveBeenCalledTimes(1)
     game.stop()
-    expect(cancelSpy).toHaveBeenCalledWith(42)
+    expect(cancelSpy).toHaveBeenCalledWith(RAF_ID)
     rafSpy.mockRestore()
     cancelSpy.mockRestore()
   })
@@ -258,11 +352,11 @@ describe('Game', () => {
   it('handleUiClick ignores null button and misses', () => {
     const { game } = mkGame()
     game.uiButton = null
-    game.handleUiClick(400, 400)
+    game.handleUiClick(UI_CLICK_HIT_X, UI_CLICK_HIT_Y)
     expect(game.state).toBe('start')
 
-    game.uiButton = { x: 100, y: 100, w: 200, h: 50 }
-    game.handleUiClick(50, 50)
+    game.uiButton = mkUiButton()
+    game.handleUiClick(UI_CLICK_MISS_X, UI_CLICK_MISS_Y)
     expect(game.state).toBe('start')
   })
 
@@ -272,18 +366,18 @@ describe('Game', () => {
     ['win', 'start'],
   ] as const)('button click: "%s" → "%s"', (from, to) => {
     const { game } = mkGame()
-    game.uiButton = { x: 100, y: 100, w: 200, h: 50 }
+    game.uiButton = mkUiButton()
     game.state = from
-    game.handleUiClick(150, 120)
+    game.handleUiClick(UI_CLICK_HIT_X, UI_CLICK_HIT_Y)
     expect(game.state).toBe(to)
   })
 
   it('button click in "between" → continueNextLevel → "playing" + level event', () => {
     const { events, callbacks } = collectEvents()
     const { game } = mkGame({ callbacks })
-    game.uiButton = { x: 100, y: 100, w: 200, h: 50 }
+    game.uiButton = mkUiButton()
     game.state = 'between'
-    game.handleUiClick(150, 120)
+    game.handleUiClick(UI_CLICK_HIT_X, UI_CLICK_HIT_Y)
     expect(game.state).toBe('playing')
     expect(events.some(e => e.type === 'level')).toBe(true)
   })
@@ -300,7 +394,7 @@ describe('Game', () => {
 
   it('tick in "start" state does not update player', () => {
     const { game, player } = mkGame()
-    tick(game, 16)
+    tick(game)
     expect(player.update).not.toHaveBeenCalled()
   })
 
@@ -310,16 +404,16 @@ describe('Game', () => {
     const { game } = mkGame({ input, player })
     game.startNewGame()
 
-    tick(game, 16)
+    tick(game)
     expect(player.update).toHaveBeenCalledWith(expect.any(Number), 0)
 
     input.press('ArrowLeft', true)
-    tick(game, 32)
+    tick(game, DT_MS * 2)
     expect(player.update).toHaveBeenCalledWith(expect.any(Number), -1)
 
     input.press('ArrowLeft', false)
     input.press('ArrowRight', true)
-    tick(game, 48)
+    tick(game, DT_MS * 3)
     expect(player.update).toHaveBeenCalledWith(expect.any(Number), 1)
   })
 
@@ -331,9 +425,9 @@ describe('Game', () => {
     game.startNewGame()
     placePlayerForEnemyHit(player, fleet)
 
-    tick(game, 16)
+    tick(game)
 
-    expect(player.lives).toBe(2)
+    expect(player.lives).toBe(INITIAL_LIVES - 1)
   })
 
   it('last life lost → gameover with reason "no_lives"', () => {
@@ -346,7 +440,7 @@ describe('Game', () => {
     player.lives = 1
     placePlayerForEnemyHit(player, fleet)
 
-    tick(game, 16)
+    tick(game)
 
     expect(player.lives).toBe(0)
     expect(game.state).toBe('gameover')
@@ -366,7 +460,7 @@ describe('Game', () => {
 
     fleet.cfg.bottomY = player.y
 
-    tick(game, 16)
+    tick(game)
 
     expect(game.state).toBe('gameover')
     expect(events.find(e => e.type === 'gameover')).toMatchObject({
@@ -380,24 +474,21 @@ describe('Game', () => {
     const player = mkPlayer()
     const { game } = mkGame({ fleet, player, callbacks })
     game.startNewGame()
-    ;(player.tryShoot as jest.Mock).mockReturnValueOnce({
-      x: 100,
-      y: 200,
-      w: 4,
-      h: 12,
-      vy: -760,
-      owner: 'player',
-      dead: false,
-      update: jest.fn(),
-      center: () => ({ cx: 102, cy: 206 }),
-      isOffscreen: () => false,
+    ;(player.tryShoot as jest.Mock).mockReturnValueOnce(mkBullet())
+    fleet.cfg.hitResult = {
+      scoreGain: KILL_SCORE,
+      x: INVADER_HIT_X,
+      y: INVADER_HIT_Y,
+      w: INVADER_HIT_W,
+      h: INVADER_HIT_H,
+    }
+
+    tick(game)
+
+    expect(player.score).toBe(KILL_SCORE)
+    expect(events.find(e => e.type === 'score')).toMatchObject({
+      score: KILL_SCORE,
     })
-    fleet.cfg.hitResult = { scoreGain: 50, x: 95, y: 195, w: 44, h: 34 }
-
-    tick(game, 16)
-
-    expect(player.score).toBe(50)
-    expect(events.find(e => e.type === 'score')).toMatchObject({ score: 50 })
   })
 
   it('accumulates score from multiple kills across ticks', () => {
@@ -406,33 +497,27 @@ describe('Game', () => {
     const player = mkPlayer()
     const { game } = mkGame({ fleet, player, callbacks })
     game.startNewGame()
-
-    const mkBullet = () => ({
-      x: 100,
-      y: 200,
-      w: 4,
-      h: 12,
-      vy: -760,
-      owner: 'player' as const,
-      dead: false,
-      update: jest.fn(),
-      center: () => ({ cx: 102, cy: 206 }),
-      isOffscreen: () => false,
-    })
-
     ;(player.tryShoot as jest.Mock)
       .mockReturnValueOnce(mkBullet())
       .mockReturnValueOnce(mkBullet())
 
     let calls = 0
     ;(fleet.hitTestAndKill as jest.Mock).mockImplementation(() =>
-      ++calls <= 2 ? { scoreGain: 30, x: 100, y: 200, w: 44, h: 34 } : null
+      ++calls <= 2
+        ? {
+            scoreGain: KILL_SCORE_MULTI,
+            x: BULLET_X,
+            y: BULLET_Y,
+            w: INVADER_HIT_W,
+            h: INVADER_HIT_H,
+          }
+        : null
     )
 
-    tick(game, 16)
-    tick(game, 32)
+    tick(game)
+    tick(game, DT_MS * 2)
 
-    expect(player.score).toBe(60)
+    expect(player.score).toBe(KILL_SCORE_MULTI * 2)
     expect(events.filter(e => e.type === 'score')).toHaveLength(2)
   })
 
@@ -444,10 +529,10 @@ describe('Game', () => {
     game.startNewGame()
 
     fleet.cfg.aliveCount = 0
-    tick(game, 16)
+    tick(game)
 
     expect(game.state).toBe('between')
-    expect(player.lives).toBe(4)
+    expect(player.lives).toBe(INITIAL_LIVES + 1)
     expect(game.level.id).toBe(2)
     expect(fleet.setEnemyFireEvery).toHaveBeenCalledWith(
       LEVELS[1].enemyFireEvery
@@ -464,13 +549,13 @@ describe('Game', () => {
 
     for (let i = 0; i < LEVELS.length - 1; i++) {
       fleet.cfg.aliveCount = 0
-      tick(game, 16)
+      tick(game)
       game.continueNextLevel()
-      fleet.cfg.aliveCount = 50
+      fleet.cfg.aliveCount = INITIAL_ALIVE_COUNT
     }
 
     fleet.cfg.aliveCount = 0
-    tick(game, 16)
+    tick(game)
 
     expect(game.state).toBe('win')
     expect(events.find(e => e.type === 'win')).toMatchObject({ userId: 'u1' })
@@ -479,23 +564,19 @@ describe('Game', () => {
   it('uiButton is null when "playing", set for other states', () => {
     const { game } = mkGame()
     game.startNewGame()
-    tick(game, 16)
+    tick(game)
     expect(game.uiButton).toBeNull()
 
     game.state = 'start'
-    tick(game, 32)
+    tick(game, DT_MS * 2)
     expect(game.uiButton).not.toBeNull()
-    expect(game.uiButton?.w).toBe(240)
-    expect(game.uiButton?.h).toBe(58)
+    expect(game.uiButton?.w).toBe(EXPECTED_UI_BTN_W)
+    expect(game.uiButton?.h).toBe(EXPECTED_UI_BTN_H)
   })
 
   it('draw does not throw with assets ready or not ready', () => {
-    expect(() =>
-      tick(mkGame({ assets: mkAssets(true) }).game, 16)
-    ).not.toThrow()
-    expect(() =>
-      tick(mkGame({ assets: mkAssets(false) }).game, 16)
-    ).not.toThrow()
+    expect(() => tick(mkGame({ assets: mkAssets(true) }).game)).not.toThrow()
+    expect(() => tick(mkGame({ assets: mkAssets(false) }).game)).not.toThrow()
   })
 
   it('works without callbacks and with empty callbacks object', () => {
