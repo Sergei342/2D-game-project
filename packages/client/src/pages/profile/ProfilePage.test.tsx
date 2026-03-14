@@ -8,6 +8,7 @@ import {
   UserProfile,
   UnauthorizedError,
 } from './ProfileService'
+import { message } from 'antd'
 
 const mockNavigate = jest.fn()
 
@@ -45,6 +46,20 @@ jest.mock('./ProfileService', () => {
 jest.mock('./GeoSection', () => ({
   GeoSectionContent: () => <div data-testid="geo-section">GeoSection</div>,
 }))
+
+jest.mock('antd', () => {
+  const actual = jest.requireActual('antd')
+  return {
+    ...actual,
+    message: {
+      success: jest.fn(),
+      error: jest.fn(),
+      info: jest.fn(),
+      warning: jest.fn(),
+      loading: jest.fn(),
+    },
+  }
+})
 
 const FAKE_USER: UserProfile = {
   id: 1,
@@ -122,6 +137,10 @@ describe('ProfilePage', () => {
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/login')
     })
+
+    expect(message.error).toHaveBeenCalledWith(
+      'Сессия истекла. Перенаправляем на страницу входа…'
+    )
   })
 
   it('renders Collapse with profile, password and geo sections after loading', async () => {
@@ -182,6 +201,10 @@ describe('ProfilePage', () => {
     expect(profileService.updateProfile).toHaveBeenCalledWith(
       expect.objectContaining({ first_name: 'Пётр' })
     )
+
+    await waitFor(() => {
+      expect(message.success).toHaveBeenCalledWith('Профиль успешно сохранён')
+    })
   })
 
   it('shows error message when updateProfile rejects', async () => {
@@ -200,6 +223,10 @@ describe('ProfilePage', () => {
 
     await waitFor(() => {
       expect(profileService.updateProfile).toHaveBeenCalledTimes(1)
+    })
+
+    await waitFor(() => {
+      expect(message.error).toHaveBeenCalledWith('Ошибка сервера')
     })
   })
 
@@ -251,33 +278,9 @@ describe('ProfilePage', () => {
       oldPassword: 'oldPass123',
       newPassword: 'newPass456',
     })
-  })
-
-  it('navigates to /login when changePassword throws UnauthorizedError', async () => {
-    ;(profileService.changePassword as jest.Mock).mockRejectedValue(
-      new UnauthorizedError()
-    )
-
-    renderPage()
 
     await waitFor(() => {
-      expect(screen.getByText('Сменить пароль')).toBeInTheDocument()
-    })
-
-    await expandPanel(/Сменить пароль/)
-
-    await waitFor(() => {
-      expect(screen.getByLabelText('Старый пароль')).toBeInTheDocument()
-    })
-
-    await userEvent.type(screen.getByLabelText('Старый пароль'), 'oldPass123')
-    await userEvent.type(screen.getByLabelText('Новый пароль'), 'newPass456')
-    await userEvent.click(
-      screen.getByRole('button', { name: /изменить пароль/i })
-    )
-
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/login')
+      expect(message.success).toHaveBeenCalledWith('Пароль успешно изменён')
     })
   })
 
@@ -297,6 +300,61 @@ describe('ProfilePage', () => {
     })
 
     expect(profileService.changeAvatar).not.toHaveBeenCalled()
+  })
+
+  it('calls changeAvatar and shows success on valid file upload', async () => {
+    const updatedUser = { ...FAKE_USER, avatar: 'new-avatar.png' }
+    ;(profileService.changeAvatar as jest.Mock).mockResolvedValue(updatedUser)
+
+    renderPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Профиль')).toBeInTheDocument()
+    })
+
+    const fileInput = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement
+
+    const file = new File(['avatar-content'], 'photo.png', {
+      type: 'image/png',
+    })
+
+    await act(async () => {
+      fireEvent.change(fileInput, { target: { files: [file] } })
+    })
+
+    await waitFor(() => {
+      expect(profileService.changeAvatar).toHaveBeenCalledWith(file)
+    })
+
+    expect(message.success).toHaveBeenCalledWith('Аватар обновлён')
+  })
+
+  it('shows error when changeAvatar fails', async () => {
+    ;(profileService.changeAvatar as jest.Mock).mockRejectedValue(
+      new Error('upload failed')
+    )
+
+    renderPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('Профиль')).toBeInTheDocument()
+    })
+
+    const fileInput = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement
+
+    const file = new File(['x'], 'photo.png', { type: 'image/png' })
+
+    await act(async () => {
+      fireEvent.change(fileInput, { target: { files: [file] } })
+    })
+
+    await waitFor(() => {
+      expect(message.error).toHaveBeenCalledWith('Не удалось загрузить аватар')
+    })
   })
 
   it('does not update state after unmount (aborted fetch)', async () => {

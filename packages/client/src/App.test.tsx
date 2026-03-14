@@ -3,10 +3,9 @@ import { render, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { store } from './store'
 
-// @ts-expect-error TODO: fix types
 global.fetch = jest.fn(() =>
-  Promise.resolve({ json: () => Promise.resolve('hey') })
-)
+  Promise.resolve({ json: () => Promise.resolve(null) })
+) as unknown as typeof global.fetch
 
 test('Example test', async () => {
   render(
@@ -14,5 +13,5 @@ test('Example test', async () => {
       <App />
     </Provider>
   )
-  expect(screen.getByText('Пользователь не найден!')).toBeDefined()
+  expect(await screen.findByText('Пользователь не найден!')).toBeDefined()
 })
