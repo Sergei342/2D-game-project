@@ -7,7 +7,7 @@ import { useFullscreen } from '../../../../hooks/useFullscreen'
 
 // TODO: userId и displayName забирать из стора Redux, удаоить из пропсов компонента
 type GamePageProps = {
-  userId: string
+  userId?: string
   displayName?: string
 
   // можно подписаться и слать инфу в лидерборд
@@ -26,6 +26,7 @@ export const GamePage = ({
   const [showModal, setShowModal] = useState(true)
 
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
+  const effectiveUserId = userId ?? 'anonymous'
 
   const handleStart = () => {
     setShowModal(false)
@@ -55,7 +56,7 @@ export const GamePage = ({
     if (!ctx) return
 
     const game = new Game(ctx, {
-      identity: { userId, displayName },
+      identity: { userId: effectiveUserId, displayName },
       callbacks: { onEvent: onGameEvent },
     })
 
@@ -65,7 +66,7 @@ export const GamePage = ({
       game.destroy()
       gameRef.current = null
     }
-  }, [userId, displayName, onGameEvent])
+  }, [effectiveUserId, displayName, onGameEvent])
 
   usePage({ initPage: initGamePage })
 

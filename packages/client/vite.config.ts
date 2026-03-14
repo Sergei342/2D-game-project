@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 import dotenv from 'dotenv'
 import path from 'path'
 dotenv.config()
@@ -19,5 +20,30 @@ export default defineConfig({
   ssr: {
     format: 'cjs',
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
+      // Keep manifest generation minimal; caching logic lives in src/sw.ts.
+      manifest: {
+        name: 'Space Invaders',
+        short_name: 'SpaceInvaders',
+        start_url: '/',
+        display: 'standalone',
+        background_color: '#0b1020',
+        theme_color: '#1d4ed8',
+      },
+      injectManifest: {
+        swSrc: path.join(__dirname, 'src', 'sw.ts'),
+        globPatterns: [
+          '**/*.{js,css,html,ico,png,svg,webp,ttf,woff,woff2,json}',
+        ],
+      },
+      devOptions: {
+        enabled: true,
+      },
+    }),
+  ],
 })
