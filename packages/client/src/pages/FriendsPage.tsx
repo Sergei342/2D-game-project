@@ -17,6 +17,7 @@ export const FriendsPage = () => {
   const user = useSelector(selectUser)
 
   usePage({ initPage: initFriendsPage })
+
   return (
     <div className="App">
       <Helmet>
@@ -30,9 +31,9 @@ export const FriendsPage = () => {
       <Header />
       {user ? (
         <>
-          <h3>Информация о пользователе:</h3>{' '}
+          <h3>Информация о пользователе:</h3>
           <p>
-            {user.name} {user.secondName}
+            {user.first_name} {user.second_name}
           </p>
         </>
       ) : (
@@ -55,8 +56,10 @@ export const FriendsPage = () => {
 
 export const initFriendsPage = ({ dispatch, state }: PageInitArgs) => {
   const queue: Array<Promise<unknown>> = [dispatch(fetchFriendsThunk())]
+
   if (!selectUser(state)) {
     queue.push(dispatch(fetchUserThunk()))
   }
+
   return Promise.all(queue)
 }

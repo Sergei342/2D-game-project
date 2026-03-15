@@ -29,9 +29,9 @@ export const ProfilePage = () => {
 
   const navigate = useNavigate()
   const dispatch = useDispatch()
-
   const user = useSelector(selectUser)
 
+  const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -57,6 +57,7 @@ export const ProfilePage = () => {
           return
         }
 
+        setProfile(data)
         dispatch(setUser(data))
 
         form.setFieldsValue({
@@ -103,6 +104,7 @@ export const ProfilePage = () => {
 
       try {
         const updated = await profileService.changeAvatar(file)
+        setProfile(updated)
         dispatch(setUser(updated))
         message.success('Аватар обновлён')
       } catch (err: unknown) {
@@ -133,6 +135,7 @@ export const ProfilePage = () => {
           phone: values.phone,
         })
 
+        setProfile(updated)
         dispatch(setUser(updated))
         message.success('Профиль успешно сохранён')
       } catch (err: unknown) {
@@ -178,11 +181,13 @@ export const ProfilePage = () => {
     return <ProfileLoading>Загрузка…</ProfileLoading>
   }
 
-  if (error && !user) {
+  if (error && !profile && !user) {
     return <ProfileError>{error}</ProfileError>
   }
 
-  const avatarSrc = profileService.avatarUrl(user?.avatar ?? null)
+  const avatarSrc = profileService.avatarUrl(
+    profile?.avatar ?? user?.avatar ?? null
+  )
 
   const collapseItems = [
     {
