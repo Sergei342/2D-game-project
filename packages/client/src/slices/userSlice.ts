@@ -31,7 +31,7 @@ export const fetchUserThunk = createAsyncThunk<
   { rejectValue: string }
 >('user/fetchUserThunk', async (_, { rejectWithValue }) => {
   try {
-    const url = new URL('/user', SERVER_HOST)
+    const url = new URL('/auth/user', SERVER_HOST)
 
     const response = await fetch(url.toString(), {
       credentials: 'include',
@@ -79,8 +79,8 @@ export const userSlice = createSlice({
         state.isLoading = true
         state.error = null
       })
-      .addCase(fetchUserThunk.fulfilled, (state, { payload }) => {
-        state.data = payload
+      .addCase(fetchUserThunk.fulfilled, (state, action) => {
+        state.data = action.payload
         state.isLoading = false
         state.error = null
       })

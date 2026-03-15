@@ -28,7 +28,9 @@ export const FriendsPage = () => {
           content="Страница со списком друзей и с информацией о пользователе"
         />
       </Helmet>
+
       <Header />
+
       {user ? (
         <>
           <h3>Информация о пользователе:</h3>
@@ -39,6 +41,7 @@ export const FriendsPage = () => {
       ) : (
         <h3>Пользователь не найден</h3>
       )}
+
       {isLoading ? (
         'Загрузка списка...'
       ) : (
@@ -55,7 +58,7 @@ export const FriendsPage = () => {
 }
 
 export const initFriendsPage = ({ dispatch, state }: PageInitArgs) => {
-  const queue: Array<Promise<unknown>> = [dispatch(fetchFriendsThunk())]
+  const queue: Promise<unknown>[] = [dispatch(fetchFriendsThunk())]
 
   if (!selectUser(state)) {
     queue.push(dispatch(fetchUserThunk()))

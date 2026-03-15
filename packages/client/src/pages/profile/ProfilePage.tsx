@@ -95,7 +95,9 @@ export const ProfilePage = () => {
       const input = e.target
       const file = e.target.files?.[0]
 
-      if (!file) return
+      if (!file) {
+        return
+      }
 
       if (file.size > MAX_AVATAR_SIZE * MAX_AVATAR_SIZE_MB_UNITS) {
         message.error(`Файл слишком большой. Максимум ${MAX_AVATAR_SIZE} МБ`)
@@ -112,6 +114,7 @@ export const ProfilePage = () => {
           handleUnauthorized()
           return
         }
+
         message.error('Не удалось загрузить аватар')
       } finally {
         input.value = ''
@@ -171,6 +174,7 @@ export const ProfilePage = () => {
           handleUnauthorized()
           return
         }
+
         message.error('Не удалось сменить пароль')
       }
     },
