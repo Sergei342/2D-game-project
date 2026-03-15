@@ -10,8 +10,9 @@ import {
 } from './ProfileService'
 
 import { MAX_AVATAR_SIZE, MAX_AVATAR_SIZE_MB_UNITS } from './consts'
-import { PageInitArgs } from '../../routes/types'
 import { Form, message, Collapse } from 'antd'
+import { useDispatch, useSelector } from '../../store'
+import { setUser, selectUser } from '../../slices/userSlice'
 
 import {
   ProfilePageWrapper,
@@ -27,8 +28,10 @@ export const ProfilePage = () => {
   usePage({ initPage: initProfilePage })
 
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-  const [user, setUser] = useState<UserProfile | null>(null)
+  const user = useSelector(selectUser)
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -54,7 +57,7 @@ export const ProfilePage = () => {
           return
         }
 
-        setUser(data)
+        dispatch(setUser(data))
 
         form.setFieldsValue({
           first_name: data.first_name,
@@ -84,16 +87,14 @@ export const ProfilePage = () => {
     return () => {
       controller.abort()
     }
-  }, [form, handleUnauthorized])
+  }, [form, handleUnauthorized, dispatch])
 
   const handleAvatarChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const input = e.target
       const file = e.target.files?.[0]
 
-      if (!file) {
-        return
-      }
+      if (!file) return
 
       if (file.size > MAX_AVATAR_SIZE * MAX_AVATAR_SIZE_MB_UNITS) {
         message.error(`Файл слишком большой. Максимум ${MAX_AVATAR_SIZE} МБ`)
@@ -102,7 +103,7 @@ export const ProfilePage = () => {
 
       try {
         const updated = await profileService.changeAvatar(file)
-        setUser(updated)
+        dispatch(setUser(updated))
         message.success('Аватар обновлён')
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
@@ -114,7 +115,7 @@ export const ProfilePage = () => {
         input.value = ''
       }
     },
-    [handleUnauthorized]
+    [handleUnauthorized, dispatch]
   )
 
   const handleSave = useCallback(
@@ -132,7 +133,7 @@ export const ProfilePage = () => {
           phone: values.phone,
         })
 
-        setUser(updated)
+        dispatch(setUser(updated))
         message.success('Профиль успешно сохранён')
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
@@ -149,7 +150,7 @@ export const ProfilePage = () => {
         setSaving(false)
       }
     },
-    [handleUnauthorized]
+    [handleUnauthorized, dispatch]
   )
 
   const handlePassword = useCallback(
@@ -236,6 +237,6 @@ export const ProfilePage = () => {
   )
 }
 
-export const initProfilePage = async (_args: PageInitArgs) => {
+export const initProfilePage = async () => {
   // Заглушка для инициализации страницы профиля
 }
