@@ -1,5 +1,4 @@
 import { useSelector } from './store'
-
 import { selectUser } from './slices/userSlice'
 
 const App = () => {
@@ -9,8 +8,8 @@ const App = () => {
     <div>
       {user ? (
         <div>
-          <p>{user.name}</p>
-          <p>{user.secondName}</p>
+          <p>{user.first_name}</p>
+          <p>{user.second_name}</p>
         </div>
       ) : (
         <p>Пользователь не найден!</p>
