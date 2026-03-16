@@ -1,6 +1,6 @@
-import { AppLayout } from '../layouts/AppLayout'
-import { AuthLayout } from '../layouts/AuthLayout'
-import { AppDispatch, RootState } from '../store'
+import { AppLayout } from '@/layouts/AppLayout'
+import { AuthLayout } from '@/layouts/AuthLayout'
+import { AppDispatch, RootState } from '@/store'
 import { RouteObject } from 'react-router-dom'
 
 export type PageInitContext = {

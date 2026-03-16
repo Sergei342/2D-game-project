@@ -1,11 +1,11 @@
 import { Button, Card, Form, Input, Space, Typography } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
-import { usePage } from '../../hooks/usePage'
-import { useDispatch } from '../../store'
-import { addTopic } from '../../slices/forumSlice'
-import { formatDateTime } from '../../shared/formatDateTime'
-import { getAuthorInfo } from '../../shared/getAuthorInfo'
+import { usePage } from '@/hooks/usePage'
+import { useDispatch } from '@/store'
+import { addTopic } from '@/slices/forumSlice'
+import { formatDateTime } from '@/shared/formatDateTime'
+import { getAuthorInfo } from '@/shared/getAuthorInfo'
 
 const { Title } = Typography
 

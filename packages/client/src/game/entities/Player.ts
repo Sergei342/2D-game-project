@@ -1,4 +1,4 @@
-import { CANVAS_W, clamp } from '../engine/types'
+import { CANVAS_W, clamp } from '@/engine/types'
 import { Bullet } from './Bullet'
 
 export interface IPlayer {

@@ -12,15 +12,11 @@ import {
 import { UserOutlined } from '@ant-design/icons'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { usePage } from '../../hooks/usePage'
-import { useDispatch, useSelector } from '../../store'
-import {
-  addComment,
-  deleteTopic,
-  selectTopicById,
-} from '../../slices/forumSlice'
-import { formatDateTime } from '../../shared/formatDateTime'
-import { getAuthorInfo } from '../../shared/getAuthorInfo'
+import { usePage } from '@/hooks/usePage'
+import { useDispatch, useSelector } from '@/store'
+import { addComment, deleteTopic, selectTopicById } from '@/slices/forumSlice'
+import { formatDateTime } from '@/shared/formatDateTime'
+import { getAuthorInfo } from '@/shared/getAuthorInfo'
 
 const { Title, Text } = Typography
 

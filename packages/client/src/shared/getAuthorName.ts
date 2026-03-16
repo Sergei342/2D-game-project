@@ -1,4 +1,4 @@
-import { profileService } from '../pages/profile/ProfileService'
+import { profileService } from '@/pages/profile/ProfileService'
 
 const AUTHOR_KEY = 'forum_author_v1'
 
