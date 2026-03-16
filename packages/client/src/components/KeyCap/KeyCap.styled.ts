@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { cssVariables } from '../../styles/variables'
+import { cssVariables } from '@/styles/variables'
 
 export const Container = styled.span<{ $wide?: boolean }>`
   display: inline-flex;

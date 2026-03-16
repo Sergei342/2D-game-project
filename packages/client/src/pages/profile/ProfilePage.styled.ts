@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { Form, Typography } from 'antd'
-import { cssVariables } from '../../styles/variables'
+import { cssVariables } from '@/styles/variables'
 
 const { Link: AntLink } = Typography
 

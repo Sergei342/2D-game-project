@@ -1,4 +1,4 @@
-import type { Rect } from '../engine/types'
+import type { Rect } from '@/engine/types'
 
 export class Invader implements Rect {
   x: number

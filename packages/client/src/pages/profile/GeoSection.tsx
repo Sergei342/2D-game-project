@@ -10,7 +10,7 @@ import {
   GeoMapLink,
 } from './ProfilePage.styled'
 import { COORD_ROUND_VALUE, OSM_BASE_URL, OSM_DEFAULT_ZOOM } from './consts'
-import { useGeolocation } from '../../hooks/useGeolocation'
+import { useGeolocation } from '@/hooks/useGeolocation'
 
 const { Text } = Typography
 

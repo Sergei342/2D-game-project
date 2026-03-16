@@ -1,8 +1,8 @@
 import { Badge, Button, Card, List, Modal, Space, Typography } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { usePage } from '../../hooks/usePage'
-import { useDispatch, useSelector } from '../../store'
-import { deleteTopic, selectTopics } from '../../slices/forumSlice'
+import { usePage } from '@/hooks/usePage'
+import { useDispatch, useSelector } from '@/store'
+import { deleteTopic, selectTopics } from '@/slices/forumSlice'
 
 const { Title, Text } = Typography
 

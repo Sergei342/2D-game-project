@@ -5,15 +5,15 @@ import { Input } from './Input'
 import { CANVAS_H, CANVAS_W, type GameState, intersectsRect } from './types'
 import { LEVELS, type LevelConfig, type LevelId } from './Level'
 
-import type { IPlayer } from '../entities/Player'
-import { Player } from '../entities/Player'
+import type { IPlayer } from '@/entities/Player'
+import { Player } from '@/entities/Player'
 
-import type { IFleet } from '../entities/Fleet'
-import { Fleet } from '../entities/Fleet'
+import type { IFleet } from '@/entities/Fleet'
+import { Fleet } from '@/entities/Fleet'
 
-import { Bullet } from '../entities/Bullet'
-import { Shield } from '../entities/Shield'
-import { Explosion } from '../entities/Explosion'
+import { Bullet } from '@/entities/Bullet'
+import { Shield } from '@/entities/Shield'
+import { Explosion } from '@/entities/Explosion'
 
 export type PlayerIdentity = {
   userId: string

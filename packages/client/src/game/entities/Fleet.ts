@@ -1,4 +1,4 @@
-import { CANVAS_W } from '../engine/types'
+import { CANVAS_W } from '@/engine/types'
 import { Invader } from './Invader'
 
 export type FleetShot = { x: number; y: number } | null

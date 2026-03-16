@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom'
-import { LevelLoader } from '../LevelLoader'
+import { LevelLoader } from '@/pages/game/components/GameModal/components/LevelLoader'
 import { Button, Flex, Space, Typography } from 'antd'
-import { useTypewriter } from '../../../../../../hooks/useTypewriter'
-import { Cursor } from '../../../../../../components/Cursor'
-import { KeyCap } from '../../../../../../components/KeyCap'
+import { useTypewriter } from '@/hooks/useTypewriter'
+import { Cursor } from '@/components/Cursor'
+import { KeyCap } from '@/components/KeyCap'
 import { HomeOutlined, RocketOutlined } from '@ant-design/icons'
-import { cssVariables } from '../../../../../../styles/variables'
+import { cssVariables } from '@/styles/variables'
 
 type ModalSubmitButton = {
   title: string

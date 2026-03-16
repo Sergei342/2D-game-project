@@ -1,5 +1,5 @@
 import { Modal } from 'antd'
-import { cssVariables } from '../../../../styles/variables'
+import { cssVariables } from '@/styles/variables'
 import { ModalContent } from './components/ModalContent'
 import {
   GAME_COMPLETE_TEXT,
@@ -10,7 +10,7 @@ import {
   GAME_START_TITLE,
   LEVEL_COMPLETE_TEXT,
 } from './GameModal.constants'
-import { GameEvent } from '../../../../game/engine/Game'
+import { GameEvent } from '@/game/engine/Game'
 import { ReactNode } from 'react'
 
 type GameModalProps = {
