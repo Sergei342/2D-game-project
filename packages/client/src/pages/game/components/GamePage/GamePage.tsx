@@ -1,126 +1,91 @@
-import { Modal, Button, Typography, Space, Spin, Flex } from 'antd'
-import { HomeOutlined, RocketOutlined } from '@ant-design/icons'
-import { useEffect, useState } from 'react'
-import { GAME_START_TEXT, PHRASES } from './GameStart.constants'
-import { cssVariables } from '@/styles/variables'
-import { KeyCap } from '@/components/KeyCap'
-import { useTypewriter } from '@/hooks/useTypewriter'
-import { Cursor } from '@/components/Cursor'
-import { useNavigate } from 'react-router-dom'
+import { useRef } from 'react'
+import { CANVAS_H, CANVAS_W } from '@/game/engine/types'
+import { usePage } from '@/hooks/usePage'
+import { GameModal } from '@/pages/game/components/GameModal'
+import { useFullscreen } from '@/hooks/useFullscreen'
+import { useGamePageData } from '@/pages/game/components/GamePage/useGamePageData'
 
-const { Title, Paragraph } = Typography
+export const GamePage = () => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
-type GameStartProps = {
-  open: boolean
-  onStart: () => void
-}
+  const {
+    isLoading,
+    showModal,
+    modalType,
+    initGame,
+    startNewGame,
+    restartGame,
+    continueGame,
+    loadLevel,
+  } = useGamePageData({ canvasRef })
 
-export const GameStart = ({ open, onStart }: GameStartProps) => {
-  const navigate = useNavigate()
-  const [started, setStarted] = useState(false)
-  const [step, setStep] = useState(0)
+  const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
 
-  const { value: typedText, done } = useTypewriter({
-    text: GAME_START_TEXT,
-    enabled: !started,
-  })
-  const phrase = PHRASES[step]
-
-  useEffect(() => {
-    if (!started) {
-      return
-    }
-
-    if (step < PHRASES.length - 1) {
-      const timer = setTimeout(() => {
-        setStep(prev => prev + 1)
-      }, 1000)
-
-      return () => clearTimeout(timer)
-    }
-
-    const finishTimer = setTimeout(onStart, 1000)
-
-    return () => clearTimeout(finishTimer)
-  }, [started, step, onStart])
+  usePage({ initPage: initGamePage })
 
   return (
-    <Modal
-      open={open}
-      footer={null}
-      closable={false}
-      centered
-      width="100%"
-      styles={{
-        container: {
-          padding: 0,
-        },
-        body: {
-          height: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: cssVariables.bgColor,
-        },
+    <div
+      ref={containerRef}
+      style={{
+        position: 'relative',
+        width: isFullscreen ? '100%' : `${CANVAS_W}px`,
+        height: isFullscreen ? '100%' : undefined,
+        margin: '0 auto',
+        display: isFullscreen ? 'flex' : undefined,
+        alignItems: isFullscreen ? 'center' : undefined,
+        justifyContent: isFullscreen ? 'center' : undefined,
+        background: isFullscreen
+          ? `url('/images/space-bg.png') center top / cover no-repeat`
+          : 'initial',
       }}>
-      {!started ? (
-        <Space orientation="vertical" align="center" size="large">
-          <Title style={{ marginBottom: 0 }}>👾 SPACE INVADERS</Title>
+      <GameModal
+        container={containerRef.current}
+        open={showModal}
+        type={modalType}
+        isLoading={isLoading}
+        onInitGame={initGame}
+        onLoadLevel={loadLevel}
+        onStartNewGame={startNewGame}
+        onContinueGame={continueGame}
+        onRestartGame={restartGame}
+      />
 
-          <Paragraph
-            style={{ maxWidth: 420, minHeight: 32, textAlign: 'center' }}>
-            {typedText}
-            <Cursor />
-          </Paragraph>
+      <canvas
+        ref={canvasRef}
+        width={CANVAS_W}
+        height={CANVAS_H}
+        style={{
+          width: `${CANVAS_W}px`,
+          height: `${CANVAS_H}px`,
+          display: 'block',
+          background: '#000000',
+          userSelect: 'none',
+        }}
+      />
 
-          <Space orientation="vertical" size="small">
-            <Flex align="center" gap={10}>
-              <Flex>
-                <KeyCap>←</KeyCap>
-                <KeyCap>→</KeyCap>
-              </Flex>
-              Перемещение
-            </Flex>
-
-            <Flex align="center" gap={10}>
-              <KeyCap wide>⎵ SPACE</KeyCap>
-              Огонь
-            </Flex>
-          </Space>
-
-          <Button
-            type="primary"
-            size="large"
-            icon={<RocketOutlined />}
-            style={{ opacity: done ? 1 : 0 }}
-            disabled={!done}
-            onClick={() => setStarted(true)}>
-            Поехали
-          </Button>
-
-          <Button
-            type="text"
-            size="large"
-            icon={<HomeOutlined />}
-            onClick={() => navigate('/')}>
-            На Главную
-          </Button>
-        </Space>
-      ) : (
-        <Space
-          orientation="vertical"
-          align="center"
-          size="large"
-          color={cssVariables.secondaryColor}>
-          <Spin size="large" />
-
-          <Title
-            level={4}
-            style={{ color: cssVariables.secondaryColor, marginTop: 16 }}>
-            {phrase}
-          </Title>
-        </Space>
+      {!isFullscreen && (
+        <button
+          onClick={toggleFullscreen}
+          style={{
+            position: 'absolute',
+            right: 4,
+            bottom: 4,
+            width: 28,
+            height: 28,
+            padding: 0,
+            border: 'none',
+            background: '#00ff9c',
+            cursor: 'pointer',
+            color: '#1b1950',
+            zIndex: 10,
+          }}
+          title="Полноэкранный режим">
+          ⛶
+        </button>
       )}
-    </Modal>
+    </div>
   )
 }
+
+export const initGamePage = () => Promise.resolve()
