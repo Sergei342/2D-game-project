@@ -1,6 +1,7 @@
 import { initMainPage, MainPage } from '../pages/Main'
 import { initFriendsPage, FriendsPage } from '../pages/FriendsPage'
 import { initNotFoundPage, NotFoundPage } from '../pages/NotFound'
+import { initRegisterPage, RegisterPage } from '../pages/register/Register'
 import { initLoginPage, LoginPage } from '../pages/login/Login'
 import { ProtectedRoute } from './ProtectedRoute'
 import { initProfilePage, ProfilePage } from '../pages/profile/ProfilePage'
@@ -41,6 +42,11 @@ export const routes = [
     ),
     fetchData: initFriendsPage,
     ErrorBoundary: AppErrorBoundary,
+  },
+  {
+    path: '/register',
+    Component: RegisterPage,
+    fetchData: initRegisterPage,
   },
   {
     path: '/game',
