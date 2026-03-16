@@ -31,7 +31,6 @@ export const ProfilePage = () => {
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
 
-  const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -50,14 +49,15 @@ export const ProfilePage = () => {
     profileService
       .getUser({ signal: controller.signal })
       .then((data: UserProfile | null) => {
-        if (controller.signal.aborted) return
+        if (controller.signal.aborted) {
+          return
+        }
 
         if (!data) {
           setError('Не удалось загрузить данные профиля')
           return
         }
 
-        setProfile(data)
         dispatch(setUser(data))
 
         form.setFieldsValue({
@@ -70,7 +70,9 @@ export const ProfilePage = () => {
         })
       })
       .catch(err => {
-        if (controller.signal.aborted) return
+        if (controller.signal.aborted) {
+          return
+        }
 
         if (err instanceof UnauthorizedError) {
           handleUnauthorized()
@@ -106,7 +108,6 @@ export const ProfilePage = () => {
 
       try {
         const updated = await profileService.changeAvatar(file)
-        setProfile(updated)
         dispatch(setUser(updated))
         message.success('Аватар обновлён')
       } catch (err: unknown) {
@@ -138,7 +139,6 @@ export const ProfilePage = () => {
           phone: values.phone,
         })
 
-        setProfile(updated)
         dispatch(setUser(updated))
         message.success('Профиль успешно сохранён')
       } catch (err: unknown) {
@@ -185,13 +185,11 @@ export const ProfilePage = () => {
     return <ProfileLoading>Загрузка…</ProfileLoading>
   }
 
-  if (error && !profile && !user) {
+  if (error && !user) {
     return <ProfileError>{error}</ProfileError>
   }
 
-  const avatarSrc = profileService.avatarUrl(
-    profile?.avatar ?? user?.avatar ?? null
-  )
+  const avatarSrc = profileService.avatarUrl(user?.avatar ?? null)
 
   const collapseItems = [
     {
