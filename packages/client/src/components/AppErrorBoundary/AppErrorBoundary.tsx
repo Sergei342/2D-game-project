@@ -1,7 +1,7 @@
 import { Result, Button, Typography, Space } from 'antd'
 import { BugOutlined, ReloadOutlined, HomeOutlined } from '@ant-design/icons'
 import { useRouteError, useNavigate } from 'react-router-dom'
-import { cssVariables } from '../../styles/variables'
+import { cssVariables } from '@/styles/variables'
 
 const { Paragraph, Text } = Typography
 

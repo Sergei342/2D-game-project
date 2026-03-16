@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { BASE_URL } from '../pages/login/LoginService'
+import { BASE_URL } from '@/pages/login/LoginService'
 
 interface Props {
   children: JSX.Element

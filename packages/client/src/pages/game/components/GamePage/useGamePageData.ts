@@ -1,5 +1,5 @@
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react'
-import { Game, type GameEvent } from '../../../../game/engine/Game'
+import { Game, type GameEvent } from '@/game/engine/Game'
 import { modalEvents } from './GamePage.constants'
 
 type UseGamePageDataProps = {

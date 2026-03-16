@@ -3,6 +3,7 @@ require('dotenv').config()
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
+
   testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
   setupFiles: ['./jest.setup.js'],
   moduleNameMapper: {
