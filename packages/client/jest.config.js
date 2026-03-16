@@ -5,10 +5,13 @@ module.exports = {
   testEnvironment: 'jsdom',
 
   testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
-  setupFiles: ['./jest.setup.js'],
+
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+
+  setupFiles: ['./jest.setup.js'],
+
   globals: {
     __SERVER_PORT__: process.env.SERVER_PORT,
     __EXTERNAL_SERVER_URL__: 'http://localhost:3000',
