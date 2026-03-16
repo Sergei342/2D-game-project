@@ -43,6 +43,11 @@ export const routes = [
     ErrorBoundary: AppErrorBoundary,
   },
   {
+    path: '/register',
+    Component: RegisterPage,
+    fetchData: initRegisterPage,
+  },
+  {
     path: '/game',
     Component: GamePage,
     fetchData: initGamePage,
