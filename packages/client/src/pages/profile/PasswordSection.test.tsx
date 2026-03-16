@@ -31,24 +31,12 @@ describe('PasswordSection', () => {
     jest.restoreAllMocks()
   })
 
-  it('renders old password input', () => {
-    render(<PasswordSectionWrapper onChangePassword={jest.fn()} />)
+  it('renders correctly', () => {
+    const { container } = render(
+      <PasswordSectionWrapper onChangePassword={jest.fn()} />
+    )
 
-    expect(screen.getByLabelText(OLD_PASSWORD_LABEL)).toBeInTheDocument()
-  })
-
-  it('renders new password input', () => {
-    render(<PasswordSectionWrapper onChangePassword={jest.fn()} />)
-
-    expect(screen.getByLabelText(NEW_PASSWORD_LABEL)).toBeInTheDocument()
-  })
-
-  it('renders submit button', () => {
-    render(<PasswordSectionWrapper onChangePassword={jest.fn()} />)
-
-    expect(
-      screen.getByRole('button', { name: SUBMIT_BUTTON_NAME })
-    ).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
   })
 
   it('calls onChangePassword with form values on valid submit', async () => {

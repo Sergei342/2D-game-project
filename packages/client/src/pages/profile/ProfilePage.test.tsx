@@ -91,40 +91,50 @@ describe('ProfilePage', () => {
     ;(profileService.getUser as jest.Mock).mockResolvedValue(FAKE_USER)
   })
 
-  it('shows loading indicator while fetching user data', () => {
+  it('snapshot: loading state', () => {
     const neverResolves = new Promise(() => {
       /* neverResolves - эмулирует состояние данные загружаются */
     })
 
     ;(profileService.getUser as jest.Mock).mockReturnValue(neverResolves)
 
-    renderPage()
+    const { container } = renderPage()
 
-    expect(screen.getByText('Загрузка…')).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
   })
 
-  it('shows error message when getUser returns null', async () => {
+  it('snapshot: error when getUser returns null', async () => {
     ;(profileService.getUser as jest.Mock).mockResolvedValue(null)
 
-    renderPage()
+    const { container } = renderPage()
 
     await waitFor(() => {
       expect(
         screen.getByText('Не удалось загрузить данные профиля')
       ).toBeInTheDocument()
     })
+    expect(container).toMatchSnapshot()
   })
 
-  it('shows error message when getUser rejects with a generic error', async () => {
+  it('snapshot: error when getUser rejects', async () => {
     ;(profileService.getUser as jest.Mock).mockRejectedValue(
       new Error('Сервер не отвечает')
     )
 
-    renderPage()
+    const { container } = renderPage()
 
     await waitFor(() => {
       expect(screen.getByText('Сервер не отвечает')).toBeInTheDocument()
     })
+    expect(container).toMatchSnapshot()
+  })
+
+  it('snapshot: loaded state with all sections and pre-filled data', async () => {
+    const { container } = renderPage()
+    await waitFor(() => {
+      expect(screen.getByText('Профиль')).toBeInTheDocument()
+    })
+    expect(container).toMatchSnapshot()
   })
 
   it('navigates to /login when getUser throws UnauthorizedError', async () => {
@@ -143,38 +153,12 @@ describe('ProfilePage', () => {
     )
   })
 
-  it('renders Collapse with profile, password and geo sections after loading', async () => {
-    renderPage()
-
-    await waitFor(() => {
-      expect(screen.getByText('Профиль')).toBeInTheDocument()
-    })
-
-    expect(screen.getByText('Сменить пароль')).toBeInTheDocument()
-    expect(screen.getByText('Моё местоположение')).toBeInTheDocument()
-  })
-
   it('sets document title to "Профиль"', async () => {
     renderPage()
 
     await waitFor(() => {
       expect(document.title).toBe('Профиль')
     })
-  })
-
-  it('pre-fills profile form with user data', async () => {
-    renderPage()
-
-    await waitFor(() => {
-      expect(screen.getByText('Профиль')).toBeInTheDocument()
-    })
-
-    expect(screen.getByDisplayValue('Иван')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('Иванов')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('ivan')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('ivanov')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('ivan@example.com')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('+71234567890')).toBeInTheDocument()
   })
 
   it('calls profileService.updateProfile and shows success message on save', async () => {

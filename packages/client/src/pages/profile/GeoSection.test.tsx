@@ -4,7 +4,6 @@ import '@testing-library/jest-dom'
 
 import { GeoSectionContent } from './GeoSection'
 import { useGeolocation } from '../../hooks/useGeolocation'
-import { COORD_ROUND_VALUE, OSM_BASE_URL, OSM_DEFAULT_ZOOM } from './consts'
 
 jest.mock('../../hooks/useGeolocation')
 
@@ -32,13 +31,11 @@ describe('GeoSectionContent', () => {
     jest.restoreAllMocks()
   })
 
-  it('renders the locate button', () => {
+  it('renders initial state with button, no coords and no error', () => {
     setupHook()
-    render(<GeoSectionContent />)
+    const { container } = render(<GeoSectionContent />)
 
-    expect(
-      screen.getByRole('button', { name: BUTTON_NAME })
-    ).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
   })
 
   it('calls locate on button click', async () => {
@@ -51,53 +48,39 @@ describe('GeoSectionContent', () => {
     expect(locate).toHaveBeenCalledTimes(1)
   })
 
-  it('shows status when present and not loading', () => {
-    setupHook({ status: 'Разрешение получено' })
-    render(<GeoSectionContent />)
+  it('shows loading state without status', () => {
+    setupHook({ loading: true })
+    const { container } = render(<GeoSectionContent />)
 
-    expect(screen.getByText('Разрешение получено')).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
   })
 
-  it('hides status while loading', () => {
-    setupHook({ status: 'Разрешение получено', loading: true })
-    render(<GeoSectionContent />)
+  it('shows status when present and not loading', () => {
+    setupHook({ status: 'Разрешение получено' })
+    const { container } = render(<GeoSectionContent />)
 
-    expect(screen.queryByText('Разрешение получено')).not.toBeInTheDocument()
+    expect(container).toMatchSnapshot()
+  })
+
+  it('hides status while loading even if status exists', () => {
+    setupHook({ status: 'Разрешение получено', loading: true })
+    const { container } = render(<GeoSectionContent />)
+
+    expect(container).toMatchSnapshot()
   })
 
   it('shows error message', () => {
     setupHook({ error: 'Геолокация недоступна' })
-    render(<GeoSectionContent />)
+    const { container } = render(<GeoSectionContent />)
 
-    expect(screen.getByText('Геолокация недоступна')).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
   })
 
   it('renders coords and map link when coords exist', () => {
     const coords = { latitude: 55.751244, longitude: 37.618423 }
     setupHook({ coords })
-    render(<GeoSectionContent />)
+    const { container } = render(<GeoSectionContent />)
 
-    const lat = coords.latitude.toFixed(COORD_ROUND_VALUE)
-    const lon = coords.longitude.toFixed(COORD_ROUND_VALUE)
-
-    expect(screen.getByText(new RegExp(lat))).toBeInTheDocument()
-    expect(screen.getByText(new RegExp(lon))).toBeInTheDocument()
-
-    const link = screen.getByRole('link', { name: /посмотреть на карте/i })
-    expect(link).toHaveAttribute(
-      'href',
-      `${OSM_BASE_URL}/#map=${OSM_DEFAULT_ZOOM}/${coords.latitude}/${coords.longitude}`
-    )
-    expect(link).toHaveAttribute('target', '_blank')
-    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
-  })
-
-  it('does not render coords or error when absent', () => {
-    setupHook()
-    render(<GeoSectionContent />)
-
-    expect(screen.queryByText(/широта/i)).not.toBeInTheDocument()
-    expect(screen.queryByText(/долгота/i)).not.toBeInTheDocument()
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    expect(container).toMatchSnapshot()
   })
 })

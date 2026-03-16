@@ -69,66 +69,24 @@ describe('ProfileSection', () => {
     jest.restoreAllMocks()
   })
 
-  it('renders first name input', () => {
-    render(<ProfileSectionWrapper />)
+  it('renders default state', () => {
+    const { container } = render(<ProfileSectionWrapper />)
 
-    expect(screen.getByLabelText(FIRST_NAME_LABEL)).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
   })
 
-  it('renders second name input', () => {
-    render(<ProfileSectionWrapper />)
+  it('renders with avatar src', () => {
+    const { container } = render(
+      <ProfileSectionWrapper avatarSrc="https://example.com/avatar.jpg" />
+    )
 
-    expect(screen.getByLabelText(SECOND_NAME_LABEL)).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
   })
 
-  it('renders display name input', () => {
-    render(<ProfileSectionWrapper />)
+  it('renders with saving state', () => {
+    const { container } = render(<ProfileSectionWrapper saving={true} />)
 
-    expect(screen.getByLabelText(DISPLAY_NAME_LABEL)).toBeInTheDocument()
-  })
-
-  it('renders login input', () => {
-    render(<ProfileSectionWrapper />)
-
-    expect(screen.getByLabelText(LOGIN_LABEL)).toBeInTheDocument()
-  })
-
-  it('renders email input', () => {
-    render(<ProfileSectionWrapper />)
-
-    expect(screen.getByLabelText(EMAIL_LABEL)).toBeInTheDocument()
-  })
-
-  it('renders phone input', () => {
-    render(<ProfileSectionWrapper />)
-
-    expect(screen.getByLabelText(PHONE_LABEL)).toBeInTheDocument()
-  })
-
-  it('renders submit button', () => {
-    render(<ProfileSectionWrapper />)
-
-    expect(
-      screen.getByRole('button', { name: SUBMIT_BUTTON_NAME })
-    ).toBeInTheDocument()
-  })
-
-  it('renders avatar file input with accept="image/*"', () => {
-    render(<ProfileSectionWrapper />)
-
-    const fileInput = document.querySelector(
-      'input[type="file"]'
-    ) as HTMLInputElement
-    expect(fileInput).toBeInTheDocument()
-    expect(fileInput).toHaveAttribute('accept', 'image/*')
-  })
-
-  it('renders avatar with provided src', () => {
-    render(<ProfileSectionWrapper avatarSrc="https://example.com/avatar.jpg" />)
-
-    const avatarImg = document.querySelector('img')
-    expect(avatarImg).toBeInTheDocument()
-    expect(avatarImg).toHaveAttribute('src', 'https://example.com/avatar.jpg')
+    expect(container).toMatchSnapshot()
   })
 
   it('calls onSave with form values on valid submit', async () => {
@@ -145,81 +103,6 @@ describe('ProfileSection', () => {
     })
 
     expect(onSave).toHaveBeenCalledWith(VALID_VALUES)
-  })
-
-  it('shows validation error when first name is empty', async () => {
-    const onSave = jest.fn()
-    render(<ProfileSectionWrapper onSave={onSave} />)
-
-    await userEvent.click(
-      screen.getByRole('button', { name: SUBMIT_BUTTON_NAME })
-    )
-
-    await waitFor(() => {
-      expect(screen.getByText('Введите имя')).toBeInTheDocument()
-    })
-
-    expect(onSave).not.toHaveBeenCalled()
-  })
-
-  it('shows validation error when second name is empty', async () => {
-    const onSave = jest.fn()
-    render(<ProfileSectionWrapper onSave={onSave} />)
-
-    await userEvent.click(
-      screen.getByRole('button', { name: SUBMIT_BUTTON_NAME })
-    )
-
-    await waitFor(() => {
-      expect(screen.getByText('Введите фамилию')).toBeInTheDocument()
-    })
-
-    expect(onSave).not.toHaveBeenCalled()
-  })
-
-  it('shows validation error when login is empty', async () => {
-    const onSave = jest.fn()
-    render(<ProfileSectionWrapper onSave={onSave} />)
-
-    await userEvent.click(
-      screen.getByRole('button', { name: SUBMIT_BUTTON_NAME })
-    )
-
-    await waitFor(() => {
-      expect(screen.getByText('Введите логин')).toBeInTheDocument()
-    })
-
-    expect(onSave).not.toHaveBeenCalled()
-  })
-
-  it('shows validation error when email is empty', async () => {
-    const onSave = jest.fn()
-    render(<ProfileSectionWrapper onSave={onSave} />)
-
-    await userEvent.click(
-      screen.getByRole('button', { name: SUBMIT_BUTTON_NAME })
-    )
-
-    await waitFor(() => {
-      expect(screen.getByText('Введите почту')).toBeInTheDocument()
-    })
-
-    expect(onSave).not.toHaveBeenCalled()
-  })
-
-  it('shows validation error when phone is empty', async () => {
-    const onSave = jest.fn()
-    render(<ProfileSectionWrapper onSave={onSave} />)
-
-    await userEvent.click(
-      screen.getByRole('button', { name: SUBMIT_BUTTON_NAME })
-    )
-
-    await waitFor(() => {
-      expect(screen.getByText('Введите телефон')).toBeInTheDocument()
-    })
-
-    expect(onSave).not.toHaveBeenCalled()
   })
 
   it('shows all required validation errors when all fields are empty', async () => {
@@ -297,20 +180,5 @@ describe('ProfileSection', () => {
       email: VALID_VALUES.email,
       phone: VALID_VALUES.phone,
     })
-  })
-
-  it('shows loading state on submit button when saving is true', () => {
-    render(<ProfileSectionWrapper saving={true} />)
-
-    const button = screen.getByRole('button', { name: SUBMIT_BUTTON_NAME })
-    expect(button).toBeInTheDocument()
-    expect(button.closest('button')).toHaveClass('ant-btn-loading')
-  })
-
-  it('does not show loading state when saving is false', () => {
-    render(<ProfileSectionWrapper saving={false} />)
-
-    const button = screen.getByRole('button', { name: SUBMIT_BUTTON_NAME })
-    expect(button.closest('button')).not.toHaveClass('ant-btn-loading')
   })
 })
