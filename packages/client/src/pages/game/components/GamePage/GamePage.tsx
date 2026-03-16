@@ -1,9 +1,9 @@
 import { MouseEvent, useEffect, useRef, useState } from 'react'
-import { CANVAS_H, CANVAS_W } from '@/@/game/engine/types'
-import { Game, type GameEvent } from '@/@/game/engine/Game'
-import { usePage } from '@/@/hooks/usePage'
-import { GameStart } from '@/GameStart'
-import { useFullscreen } from '@/@/hooks/useFullscreen'
+import { CANVAS_H, CANVAS_W } from '@/game/engine/types'
+import { Game, type GameEvent } from '@/game/engine/Game'
+import { usePage } from '@/hooks/usePage'
+import { GameStart } from '@/pages/game/components/GameStart'
+import { useFullscreen } from '@/hooks/useFullscreen'
 
 // TODO: userId и displayName забирать из стора Redux, удаоить из пропсов компонента
 type GamePageProps = {
