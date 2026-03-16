@@ -1,3 +1,7 @@
+export const GAME_COMPLETE_TITLE = 'Вы выиграли!'
+export const GAME_OVER_TITLE = 'Вы проиграли!'
+export const GAME_START_TITLE = 'SPACE INVADERS'
+
 export const GAME_START_TEXT =
   'Управляй кораблём, уничтожай захватчиков и не дай им добраться до Земли'
 

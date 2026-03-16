@@ -9,7 +9,7 @@ import { cssVariables } from '../../../../../../styles/variables'
 
 type ModalSubmitButton = {
   title: string
-  onSubmit: () => void
+  onSubmit: () => void | Promise<void>
 }
 
 type ModalContentProps = {

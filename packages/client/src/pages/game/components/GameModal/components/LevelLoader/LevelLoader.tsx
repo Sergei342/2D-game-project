@@ -1,7 +1,7 @@
 import { Space, Spin, Typography } from 'antd'
 import { cssVariables } from '../../../../../../styles/variables'
-import { useEffect, useState } from 'react'
-import { LOADING_PHRASES } from './LevelLoader.constants'
+import { useEffect, useRef, useState } from 'react'
+import { LOADING_PHRASES, LOADING_DELAY } from './LevelLoader.constants'
 
 type LevelLoaderProps = {
   onAction: () => void
@@ -13,18 +13,34 @@ export const LevelLoader = ({ onAction }: LevelLoaderProps) => {
   const [step, setStep] = useState(0)
   const phrase = LOADING_PHRASES[step]
 
+  const actionRef = useRef(onAction)
+
   useEffect(() => {
-    if (step < LOADING_PHRASES.length - 1) {
-      const timer = setTimeout(() => {
-        setStep(prev => prev + 1)
-      }, 1000)
+    actionRef.current = onAction
+  }, [onAction])
 
-      return () => clearTimeout(timer)
-    }
+  useEffect(() => {
+    // if (step < LOADING_PHRASES.length - 1) {
+    //   const timer = setTimeout(() => {
+    //     setStep(prev => prev + 1)
+    //   }, LOADING_DELAY)
 
-    const finishTimer = setTimeout(onAction, 1000)
+    //   return () => clearTimeout(timer)
+    // }
 
-    return () => clearTimeout(finishTimer)
+    // const finishTimer = setTimeout(onAction, LOADING_DELAY)
+
+    const timer = setTimeout(() => {
+      const next = step + 1
+
+      if (next < LOADING_PHRASES.length) {
+        setStep(next)
+      } else {
+        actionRef.current()
+      }
+    }, LOADING_DELAY)
+
+    return () => clearTimeout(timer)
   }, [step, onAction])
 
   return (

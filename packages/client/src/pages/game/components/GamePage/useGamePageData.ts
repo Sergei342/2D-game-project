@@ -39,14 +39,12 @@ export const useGamePageData = ({ canvasRef }: UseGamePageDataProps) => {
       game.destroy()
       gameRef.current = null
     }
-  }, [canvasRef, handleGameEvent])
+  }, [handleGameEvent])
 
-  const initGame = () => {
+  const initGame = async () => {
     setIsLoading(true)
 
-    console.log({ gameRef: gameRef.current })
-
-    gameRef.current?.init()
+    await gameRef.current?.init()
     gameRef.current?.run()
   }
 
