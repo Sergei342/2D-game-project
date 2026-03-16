@@ -5,9 +5,3 @@ export const MAX_AVATAR_SIZE_MB_UNITS = 1024 * 1024
 export const COORD_ROUND_VALUE = 6
 export const OSM_BASE_URL = 'https://www.openstreetmap.org'
 export const OSM_DEFAULT_ZOOM = 18
-
-export const HttpStatus = {
-  Success: 200,
-  Unauthorized: 401,
-  ServerError: 500,
-} as const
