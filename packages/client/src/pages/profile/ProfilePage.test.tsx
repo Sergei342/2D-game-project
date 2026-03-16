@@ -92,11 +92,11 @@ describe('ProfilePage', () => {
   })
 
   it('shows loading indicator while fetching user data', () => {
-    ;(profileService.getUser as jest.Mock).mockReturnValue(
-      new Promise(() => {
-        /* test */
-      })
-    )
+    const neverResolves = new Promise(() => {
+      /* neverResolves - эмулирует состояние данные загружаются */
+    })
+
+    ;(profileService.getUser as jest.Mock).mockReturnValue(neverResolves)
 
     renderPage()
 
@@ -366,9 +366,9 @@ describe('ProfilePage', () => {
         })
     )
 
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {
-      /* test */
-    })
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(jest.fn())
 
     const { unmount } = renderPage()
 
