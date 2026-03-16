@@ -1,5 +1,5 @@
 import { Space, Spin, Typography } from 'antd'
-import { cssVariables } from '../../../../../../styles/variables'
+import { cssVariables } from '@/styles/variables'
 import { useEffect, useRef, useState } from 'react'
 import { LOADING_PHRASES, LOADING_DELAY } from './LevelLoader.constants'
 

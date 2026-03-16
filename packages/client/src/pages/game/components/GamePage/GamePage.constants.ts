@@ -1,4 +1,4 @@
-import { GameEvent } from '../../../../game/engine/Game'
+import { GameEvent } from '@/game/engine/Game'
 
 export const modalEvents: GameEvent['type'][] = [
   'levelComplete',
