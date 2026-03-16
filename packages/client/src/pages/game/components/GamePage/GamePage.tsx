@@ -1,124 +1,126 @@
-import { MouseEvent, useEffect, useRef, useState } from 'react'
-import { CANVAS_H, CANVAS_W } from '@/game/engine/types'
-import { Game, type GameEvent } from '@/game/engine/Game'
-import { usePage } from '@/hooks/usePage'
-import { GameStart } from '@/pages/game/components/GameStart'
-import { useFullscreen } from '@/hooks/useFullscreen'
+import { Modal, Button, Typography, Space, Spin, Flex } from 'antd'
+import { HomeOutlined, RocketOutlined } from '@ant-design/icons'
+import { useEffect, useState } from 'react'
+import { GAME_START_TEXT, PHRASES } from './GameStart.constants'
+import { cssVariables } from '@/styles/variables'
+import { KeyCap } from '@/components/KeyCap'
+import { useTypewriter } from '@/hooks/useTypewriter'
+import { Cursor } from '@/components/Cursor'
+import { useNavigate } from 'react-router-dom'
 
-// TODO: userId и displayName забирать из стора Redux, удаоить из пропсов компонента
-type GamePageProps = {
-  userId: string
-  displayName?: string
+const { Title, Paragraph } = Typography
 
-  // можно подписаться и слать инфу в лидерборд
-  onGameEvent?: (e: GameEvent) => void
+type GameStartProps = {
+  open: boolean
+  onStart: () => void
 }
 
-export const GamePage = ({
-  userId,
-  displayName,
-  onGameEvent,
-}: GamePageProps) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const containerRef = useRef<HTMLDivElement | null>(null)
+export const GameStart = ({ open, onStart }: GameStartProps) => {
+  const navigate = useNavigate()
+  const [started, setStarted] = useState(false)
+  const [step, setStep] = useState(0)
 
-  const gameRef = useRef<Game | null>(null)
-  const [showModal, setShowModal] = useState(true)
-
-  const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
-
-  const handleStart = () => {
-    setShowModal(false)
-
-    if (gameRef.current) {
-      gameRef.current.init()
-      gameRef.current.run()
-    }
-  }
-
-  const handleClick = (e: MouseEvent<HTMLCanvasElement>) => {
-    const game = gameRef.current
-    const canvas = canvasRef.current
-    if (!game || !canvas) return
-
-    const rect = canvas.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * CANVAS_W
-    const y = ((e.clientY - rect.top) / rect.height) * CANVAS_H
-    game.handleUiClick(x, y)
-  }
+  const { value: typedText, done } = useTypewriter({
+    text: GAME_START_TEXT,
+    enabled: !started,
+  })
+  const phrase = PHRASES[step]
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const game = new Game(ctx, {
-      identity: { userId, displayName },
-      callbacks: { onEvent: onGameEvent },
-    })
-
-    gameRef.current = game
-
-    return () => {
-      game.destroy()
-      gameRef.current = null
+    if (!started) {
+      return
     }
-  }, [userId, displayName, onGameEvent])
 
-  usePage({ initPage: initGamePage })
+    if (step < PHRASES.length - 1) {
+      const timer = setTimeout(() => {
+        setStep(prev => prev + 1)
+      }, 1000)
+
+      return () => clearTimeout(timer)
+    }
+
+    const finishTimer = setTimeout(onStart, 1000)
+
+    return () => clearTimeout(finishTimer)
+  }, [started, step, onStart])
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        position: 'relative',
-        width: isFullscreen ? '100%' : `${CANVAS_W}px`,
-        height: isFullscreen ? '100%' : undefined,
-        margin: '0 auto',
-        display: isFullscreen ? 'flex' : undefined,
-        alignItems: isFullscreen ? 'center' : undefined,
-        justifyContent: isFullscreen ? 'center' : undefined,
-        background: isFullscreen ? '#000' : undefined,
+    <Modal
+      open={open}
+      footer={null}
+      closable={false}
+      centered
+      width="100%"
+      styles={{
+        container: {
+          padding: 0,
+        },
+        body: {
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: cssVariables.bgColor,
+        },
       }}>
-      <GameStart open={showModal} onStart={handleStart} />
+      {!started ? (
+        <Space orientation="vertical" align="center" size="large">
+          <Title style={{ marginBottom: 0 }}>👾 SPACE INVADERS</Title>
 
-      <canvas
-        ref={canvasRef}
-        width={CANVAS_W}
-        height={CANVAS_H}
-        onClick={handleClick}
-        style={{
-          width: `${CANVAS_W}px`,
-          height: `${CANVAS_H}px`,
-          display: 'block',
-          background: '#000',
-          userSelect: 'none',
-        }}
-      />
-      {!isFullscreen && (
-        <button
-          onClick={toggleFullscreen}
-          style={{
-            position: 'absolute',
-            right: 4,
-            bottom: 4,
-            width: 28,
-            height: 28,
-            padding: 0,
-            border: 'none',
-            background: '#00ff9c',
-            cursor: 'pointer',
-            color: '#1b1950',
-            zIndex: 10,
-          }}
-          title="Полноэкранный режим">
-          ⛶
-        </button>
+          <Paragraph
+            style={{ maxWidth: 420, minHeight: 32, textAlign: 'center' }}>
+            {typedText}
+            <Cursor />
+          </Paragraph>
+
+          <Space orientation="vertical" size="small">
+            <Flex align="center" gap={10}>
+              <Flex>
+                <KeyCap>←</KeyCap>
+                <KeyCap>→</KeyCap>
+              </Flex>
+              Перемещение
+            </Flex>
+
+            <Flex align="center" gap={10}>
+              <KeyCap wide>⎵ SPACE</KeyCap>
+              Огонь
+            </Flex>
+          </Space>
+
+          <Button
+            type="primary"
+            size="large"
+            icon={<RocketOutlined />}
+            style={{ opacity: done ? 1 : 0 }}
+            disabled={!done}
+            onClick={() => setStarted(true)}>
+            Поехали
+          </Button>
+
+          <Button
+            type="text"
+            size="large"
+            icon={<HomeOutlined />}
+            onClick={() => navigate('/')}>
+            На Главную
+          </Button>
+        </Space>
+      ) : (
+        <Space
+          orientation="vertical"
+          align="center"
+          size="large"
+          color={cssVariables.secondaryColor}>
+          <Spin size="large" />
+
+          <Title
+            level={4}
+            style={{ color: cssVariables.secondaryColor, marginTop: 16 }}>
+            {phrase}
+          </Title>
+        </Space>
       )}
-    </div>
+    </Modal>
   )
 }
-
-export const initGamePage = () => Promise.resolve()
