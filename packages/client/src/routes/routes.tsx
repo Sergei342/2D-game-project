@@ -3,7 +3,7 @@ import { initFriendsPage, FriendsPage } from '../pages/FriendsPage'
 import { initNotFoundPage, NotFoundPage } from '../pages/NotFound'
 import { initRegisterPage, RegisterPage } from '../pages/register/Register'
 import { initLoginPage, LoginPage } from '../pages/login/Login'
-import { ProtectedRoute } from './ProtectedRoute'
+import { GuestRoute, ProtectedRoute } from './ProtectedRoute'
 import { initProfilePage, ProfilePage } from '../pages/profile/ProfilePage'
 import { AppErrorBoundary } from '../components/AppErrorBoundary'
 import { GamePage, initGamePage } from '../pages/game/components/GamePage'
@@ -50,7 +50,11 @@ export const routes = [
   },
   {
     path: '/game',
-    Component: GamePage,
+    Component: () => (
+      <ProtectedRoute>
+        <GamePage />
+      </ProtectedRoute>
+    ),
     fetchData: initGamePage,
     ErrorBoundary: AppErrorBoundary,
   },
@@ -67,24 +71,40 @@ export const routes = [
   },
   {
     path: '/login',
-    Component: LoginPage,
+    Component: () => (
+      <GuestRoute>
+        <LoginPage />
+      </GuestRoute>
+    ),
     fetchData: initLoginPage,
   },
   {
     path: '/forum',
-    Component: ForumTopicsPage,
+    Component: () => (
+      <ProtectedRoute>
+        <ForumTopicsPage />
+      </ProtectedRoute>
+    ),
     fetchData: initForumTopicsPage,
     ErrorBoundary: AppErrorBoundary,
   },
   {
     path: '/forum/new',
-    Component: ForumCreateTopicPage,
+    Component: () => (
+      <ProtectedRoute>
+        <ForumCreateTopicPage />
+      </ProtectedRoute>
+    ),
     fetchData: initForumCreateTopicPage,
     ErrorBoundary: AppErrorBoundary,
   },
   {
     path: '/forum/:topicId',
-    Component: ForumTopicPage,
+    Component: () => (
+      <ProtectedRoute>
+        <ForumTopicPage />
+      </ProtectedRoute>
+    ),
     fetchData: initForumTopicPage,
     ErrorBoundary: AppErrorBoundary,
   },
@@ -96,7 +116,11 @@ export const routes = [
   },
   {
     path: '/profile',
-    Component: ProfilePage,
+    Component: () => (
+      <ProtectedRoute>
+        <ProfilePage />
+      </ProtectedRoute>
+    ),
     fetchData: initProfilePage,
     ErrorBoundary: AppErrorBoundary,
   },
