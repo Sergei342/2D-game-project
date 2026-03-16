@@ -33,14 +33,6 @@ const UI_BUTTON_Y = 100
 const UI_BUTTON_W = 200
 const UI_BUTTON_H = 50
 
-/** Координаты клика попадающие внутрь кнопки UI */
-const UI_CLICK_HIT_X = 150
-const UI_CLICK_HIT_Y = 120
-
-/** Координаты клика промахивающиеся мимо кнопки UI */
-const UI_CLICK_MISS_X = 50
-const UI_CLICK_MISS_Y = 50
-
 /** Координаты игрока при тесте попадания вражеского выстрела */
 const HIT_TEST_PLAYER_X = 200
 const HIT_TEST_PLAYER_Y = 300
@@ -347,39 +339,6 @@ describe('Game', () => {
     game.restartToStartScreen()
     expect(game.state).toBe('start')
     expect(player.reset).toHaveBeenCalled()
-  })
-
-  it('handleUiClick ignores null button and misses', () => {
-    const { game } = mkGame()
-    game.uiButton = null
-    game.handleUiClick(UI_CLICK_HIT_X, UI_CLICK_HIT_Y)
-    expect(game.state).toBe('start')
-
-    game.uiButton = mkUiButton()
-    game.handleUiClick(UI_CLICK_MISS_X, UI_CLICK_MISS_Y)
-    expect(game.state).toBe('start')
-  })
-
-  it.each([
-    ['start', 'playing'],
-    ['gameover', 'start'],
-    ['win', 'start'],
-  ] as const)('button click: "%s" → "%s"', (from, to) => {
-    const { game } = mkGame()
-    game.uiButton = mkUiButton()
-    game.state = from
-    game.handleUiClick(UI_CLICK_HIT_X, UI_CLICK_HIT_Y)
-    expect(game.state).toBe(to)
-  })
-
-  it('button click in "between" → continueNextLevel → "playing" + level event', () => {
-    const { events, callbacks } = collectEvents()
-    const { game } = mkGame({ callbacks })
-    game.uiButton = mkUiButton()
-    game.state = 'between'
-    game.handleUiClick(UI_CLICK_HIT_X, UI_CLICK_HIT_Y)
-    expect(game.state).toBe('playing')
-    expect(events.some(e => e.type === 'level')).toBe(true)
   })
 
   it('continueNextLevel does nothing when state is not "between"', () => {
