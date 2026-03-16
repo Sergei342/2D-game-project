@@ -1,0 +1,26 @@
+.error404 {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+
+  &__container {
+    margin: 0 auto;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 0 6px 0 var(--shadow);
+    min-height: 450px;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  &__title {
+    font-size: 75px;
+  }
+  &__text {
+    font-size: 26px;
+    text-align: center;
+  }
+}

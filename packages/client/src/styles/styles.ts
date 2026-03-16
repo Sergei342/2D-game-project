@@ -25,6 +25,8 @@ export const GlobalStyles = createGlobalStyle`
     --primary-color: ${cssVariables.primaryColor};
     --bg-color: ${cssVariables.bgColor};
     --placeholder: ${cssVariables.placeholder};
+    --overlayColor: ${cssVariables.overlayColor};
+    --errorColor: ${cssVariables.errorColor};
   }
 
   *, *::before, *::after {
@@ -40,7 +42,7 @@ export const GlobalStyles = createGlobalStyle`
     margin: 0;
     padding: 0;
     font-family: 'Russo One', 'Arial', -apple-system, sans-serif;
-    background-color: var(--bg-color);
+    background: var(--bg-color) url('/images/space-bg.png') center top / cover no-repeat;
     color: var(--text-color);
     overflow: hidden;
     image-rendering: pixelated;
