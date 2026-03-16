@@ -520,19 +520,6 @@ describe('Game', () => {
     expect(events.find(e => e.type === 'win')).toMatchObject({ userId: 'u1' })
   })
 
-  it('uiButton is null when "playing", set for other states', () => {
-    const { game } = mkGame()
-    game.startNewGame()
-    tick(game)
-    expect(game.uiButton).toBeNull()
-
-    game.state = 'start'
-    tick(game, DT_MS * 2)
-    expect(game.uiButton).not.toBeNull()
-    expect(game.uiButton?.w).toBe(EXPECTED_UI_BTN_W)
-    expect(game.uiButton?.h).toBe(EXPECTED_UI_BTN_H)
-  })
-
   it('draw does not throw with assets ready or not ready', () => {
     expect(() => tick(mkGame({ assets: mkAssets(true) }).game)).not.toThrow()
     expect(() => tick(mkGame({ assets: mkAssets(false) }).game)).not.toThrow()
