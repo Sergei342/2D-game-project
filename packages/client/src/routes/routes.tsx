@@ -1,7 +1,5 @@
 import { initMainPage, MainPage } from '@/pages/Main'
 import { initFriendsPage, FriendsPage } from '@/pages/FriendsPage'
-import { initNotFoundPage, NotFoundPage } from '@/pages/NotFound'
-import { initRegisterPage, RegisterPage } from '@/pages/register/Register'
 import { initLoginPage, LoginPage } from '@/pages/login/Login'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
 import { initProfilePage, ProfilePage } from '@/pages/profile/ProfilePage'
@@ -21,6 +19,7 @@ import {
   initForumTopicPage,
   ForumTopicPage,
 } from '@/pages/forum/ForumTopicPage'
+import { RegisterPage, initRegisterPage } from '@/pages/register/Register'
 export const routes = [
   {
     path: '/',
@@ -54,12 +53,6 @@ export const routes = [
     fetchData: initError500Page,
   },
   {
-    path: '/404',
-    Component: Error404Page,
-    fetchData: initError404Page,
-    ErrorBoundary: AppErrorBoundary,
-  },
-  {
     path: '/login',
     Component: LoginPage,
     fetchData: initLoginPage,
@@ -84,14 +77,20 @@ export const routes = [
   },
   {
     path: '/*',
-    Component: NotFoundPage,
-    fetchData: initNotFoundPage,
+    Component: Error404Page,
+    fetchData: initError404Page,
     ErrorBoundary: AppErrorBoundary,
   },
   {
     path: '/profile',
     Component: ProfilePage,
     fetchData: initProfilePage,
+    ErrorBoundary: AppErrorBoundary,
+  },
+  {
+    path: '/register',
+    Component: RegisterPage,
+    fetchData: initRegisterPage,
     ErrorBoundary: AppErrorBoundary,
   },
 ]
