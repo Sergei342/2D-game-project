@@ -1,15 +1,15 @@
 import { Helmet } from 'react-helmet'
 
-import { useSelector } from '../store'
-import { Header } from '../components/Header'
+import { useSelector } from '@/store'
+import { Header } from '@/components/Header'
 import {
   fetchFriendsThunk,
   selectFriends,
   selectIsLoadingFriends,
-} from '../slices/friendsSlice'
-import { fetchUserThunk, selectUser } from '../slices/userSlice'
-import { PageInitArgs } from '../routes/types'
-import { usePage } from '../hooks/usePage'
+} from '@/slices/friendsSlice'
+import { fetchUserThunk, selectUser } from '@/slices/userSlice'
+import { PageInitArgs } from '@/routes/types'
+import { usePage } from '@/hooks/usePage'
 
 export const FriendsPage = () => {
   const friends = useSelector(selectFriends)

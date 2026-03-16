@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
-import { usePage } from '../../hooks/usePage'
+import { usePage } from '@/hooks/usePage'
 import { useCallback, useEffect, useState } from 'react'
 import {
   profileService,
@@ -11,8 +11,8 @@ import {
 
 import { MAX_AVATAR_SIZE, MAX_AVATAR_SIZE_MB_UNITS } from './consts'
 import { Form, message, Collapse } from 'antd'
-import { useDispatch, useSelector } from '../../store'
-import { setUser, selectUser } from '../../slices/userSlice'
+import { useDispatch, useSelector } from '@/store'
+import { setUser, selectUser } from '@/slices/userSlice'
 
 import {
   ProfilePageWrapper,

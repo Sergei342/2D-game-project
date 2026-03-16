@@ -1,25 +1,25 @@
-import { initMainPage, MainPage } from '../pages/Main'
-import { initFriendsPage, FriendsPage } from '../pages/FriendsPage'
-import { initNotFoundPage, NotFoundPage } from '../pages/NotFound'
-import { initLoginPage, LoginPage } from '../pages/login/Login'
+import { initMainPage, MainPage } from '@/pages/Main'
+import { initFriendsPage, FriendsPage } from '@/pages/FriendsPage'
+import { initNotFoundPage, NotFoundPage } from '@/pages/NotFound'
+import { initLoginPage, LoginPage } from '@/pages/login/Login'
 import { ProtectedRoute } from './ProtectedRoute'
-import { initProfilePage, ProfilePage } from '../pages/profile/ProfilePage'
-import { AppErrorBoundary } from '../components/AppErrorBoundary'
-import { GamePage, initGamePage } from '../pages/game/components/GamePage'
-import { Error500Page, initError500Page } from '../pages/error500/Error500'
-import { Error404Page, initError404Page } from '../pages/error404/Error404'
+import { initProfilePage, ProfilePage } from '@/pages/profile/ProfilePage'
+import { AppErrorBoundary } from '@/components/AppErrorBoundary'
+import { GamePage, initGamePage } from '@/pages/game/components/GamePage'
+import { Error500Page, initError500Page } from '@/pages/error500/Error500'
+import { Error404Page, initError404Page } from '@/pages/error404/Error404'
 import {
   initForumTopicsPage,
   ForumTopicsPage,
-} from '../pages/forum/ForumTopicsPage'
+} from '@/pages/forum/ForumTopicsPage'
 import {
   initForumCreateTopicPage,
   ForumCreateTopicPage,
-} from '../pages/forum/ForumCreateTopicPage'
+} from '@/pages/forum/ForumCreateTopicPage'
 import {
   initForumTopicPage,
   ForumTopicPage,
-} from '../pages/forum/ForumTopicPage'
+} from '@/pages/forum/ForumTopicPage'
 
 export const routes = [
   {
