@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
-import { usePage } from '@/@/hooks/usePage'
+import { usePage } from '../../hooks/usePage'
 import { useCallback, useEffect, useState } from 'react'
 import {
   profileService,
@@ -10,7 +10,7 @@ import {
 } from './ProfileService'
 
 import { MAX_AVATAR_SIZE, MAX_AVATAR_SIZE_MB_UNITS } from './consts'
-import { PageInitArgs } from '@/@/routes/types'
+import { PageInitArgs } from '../../routes/types'
 import { Form, message, Collapse } from 'antd'
 
 import {
