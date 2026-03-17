@@ -15,7 +15,7 @@ export interface IAssets {
   get(key: AssetKey): HTMLImageElement
 }
 
-const DEFAULT_SOURCES: AssetSources = {
+export const DEFAULT_SOURCES: AssetSources = {
   bg: '/game-graphic/space.webp',
   player: '/game-graphic/space-invader.webp',
   invader: '/game-graphic/space-enemy.webp',

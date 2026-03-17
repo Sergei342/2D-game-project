@@ -7,7 +7,9 @@
     "preview": "node server/index.js",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "jest ./"
+    "test": "jest ./",
+    "test:coverage": "jest --coverage",
+    "test:update": "jest ./ -u"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.5",
@@ -37,6 +39,8 @@
     "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.35.1",
     "@vitejs/plugin-react": "^2.0.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/user-event": "^14.6.1",
     "eslint": "^8.23.0",
     "jest": "^28",
     "jest-environment-jsdom": "^29.0.1",

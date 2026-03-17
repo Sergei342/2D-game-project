@@ -10,9 +10,11 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
 
+  setupFiles: ['./jest.setup.js'],
+
   globals: {
     __SERVER_PORT__: process.env.SERVER_PORT,
-    __EXTERNAL_SERVER_URL__: process.env.EXTERNAL_SERVER_URL,
-    __INTERNAL_SERVER_URL__: process.env.INTERNAL_SERVER_URL,
+    __EXTERNAL_SERVER_URL__: 'http://localhost:3000',
+    __INTERNAL_SERVER_URL__: 'http://localhost:3000',
   },
 }
