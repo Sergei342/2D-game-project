@@ -5,15 +5,15 @@ import { Input } from './Input'
 import { CANVAS_H, CANVAS_W, type GameState, intersectsRect } from './types'
 import { LEVELS, type LevelConfig, type LevelId } from './Level'
 
-import type { IPlayer } from '../entities/Player'
-import { Player } from '../entities/Player'
+import type { IPlayer } from '@/game/entities/Player'
+import { Player } from '@/game/entities/Player'
 
-import type { IFleet } from '../entities/Fleet'
-import { Fleet } from '../entities/Fleet'
+import type { IFleet } from '@/game/entities/Fleet'
+import { Fleet } from '@/game/entities/Fleet'
 
-import { Bullet } from '../entities/Bullet'
-import { Shield } from '../entities/Shield'
-import { Explosion } from '../entities/Explosion'
+import { Bullet } from '@/game/entities/Bullet'
+import { Shield } from '@/game/entities/Shield'
+import { Explosion } from '@/game/entities/Explosion'
 
 export type PlayerIdentity = {
   userId: string
@@ -32,6 +32,13 @@ export type GameEvent =
       reason: 'no_lives' | 'invaders_reached'
     }
   | { type: 'win'; userId: string; score: number; level: LevelId; at: number }
+  | {
+      type: 'levelComplete'
+      userId: string
+      score: number
+      level: LevelId
+      at: number
+    }
 
 export type GameCallbacks = {
   onEvent?: (e: GameEvent) => void
@@ -282,6 +289,13 @@ export class Game {
 
         this.resetWorldForCurrentLevel()
         this.state = 'between'
+        this.emit({
+          type: 'levelComplete',
+          userId: this.identity.userId,
+          level: this.level.id,
+          score: this.player.score,
+          at: Date.now(),
+        })
       } else {
         this.state = 'win'
         this.emit({
@@ -495,65 +509,7 @@ export class Game {
 
     this.drawDamageFlash()
 
-    this.drawOverlay()
     this.drawBorder()
-  }
-
-  private drawOverlay() {
-    const ctx = this.ctx
-
-    if (this.state === 'playing') {
-      this.uiButton = null
-      return
-    }
-
-    ctx.fillStyle = 'rgba(0,0,0,0.72)'
-    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H)
-
-    ctx.textAlign = 'center'
-    ctx.fillStyle = '#fff'
-    ctx.font = 'bold 40px monospace, Arial, sans-serif'
-
-    const title =
-      this.state === 'start'
-        ? 'SPACE INVADERS'
-        : this.state === 'between'
-        ? `LEVEL ${this.level.id}`
-        : this.state === 'win'
-        ? 'YOU WIN!'
-        : 'GAME OVER'
-
-    ctx.fillText(title, CANVAS_W / 2, CANVAS_H / 2 - 90)
-
-    ctx.font = '16px monospace, Arial, sans-serif'
-    ctx.fillStyle = 'rgba(255,255,255,0.9)'
-    ctx.fillText('←/→ move   Space shoot', CANVAS_W / 2, CANVAS_H / 2 - 48)
-
-    const btnW = 240
-    const btnH = 58
-    const btnX = CANVAS_W / 2 - btnW / 2
-    const btnY = CANVAS_H / 2 + 10
-
-    this.uiButton = { x: btnX, y: btnY, w: btnW, h: btnH }
-
-    ctx.fillStyle = this.state === 'gameover' ? '#ff5a5a' : '#65d96e'
-    ctx.fillRect(btnX, btnY, btnW, btnH)
-
-    ctx.fillStyle = '#071018'
-    ctx.font = 'bold 24px monospace, Arial, sans-serif'
-
-    const btnText =
-      this.state === 'start'
-        ? 'START'
-        : this.state === 'between'
-        ? 'CONTINUE'
-        : 'RESTART'
-
-    ctx.fillText(btnText, CANVAS_W / 2, btnY + 38)
-
-    ctx.fillStyle = 'rgba(255,255,255,0.85)'
-    ctx.font = '16px monospace, Arial, sans-serif'
-    ctx.fillText(`Score: ${this.player.score}`, CANVAS_W / 2, btnY + 92)
   }
 
   private drawBorder() {
