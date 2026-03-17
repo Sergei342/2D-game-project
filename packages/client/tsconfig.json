@@ -21,6 +21,7 @@
     }
   },
   "include": ["src"],
+  "exclude": ["src/sw.ts"],
   "references": [
     { "path": "./tsconfig.node.json" },
     { "path": "./tsconfig.server.json" }
