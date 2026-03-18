@@ -1,38 +1,34 @@
-### Как запускать?
+### Игра "Space Invaders"
 
-1. Убедитесь что у вас установлен `node` и `docker`
-2. Выполните команду `yarn bootstrap` - это обязательный шаг, без него ничего работать не будет :)
-3. Выполните команду `yarn dev`
-3. Выполните команду `yarn dev --scope=client` чтобы запустить только клиент
-4. Выполните команду `yarn dev --scope=server` чтобы запустить только server
+![img.png](img.png) 
 
+### Ссылка на демонстрационное видео 5 и 6 спринтов
 
-### Как добавить зависимости?
-В этом проекте используется `monorepo` на основе [`lerna`](https://github.com/lerna/lerna)
+С отчетом о проделанной работе можно ознакомиться по ссылке [здесь](https://disk.yandex.ru/d/pb_yjGROm1UBXw)
 
-Чтобы добавить зависимость для клиента 
-```yarn lerna add {your_dep} --scope client```
+### Как запускать? (client)
 
-Для сервера
-```yarn lerna add {your_dep} --scope server```
-
-И для клиента и для сервера
-```yarn lerna add {your_dep}```
-
-
-Если вы хотите добавить dev зависимость, проделайте то же самое, но с флагом `dev`
-```yarn lerna add {your_dep} --dev --scope server```
-
+1. Убедитесь что у вас установлены указанные в client/package.json зависимости, для установки выполните команду `yarn install`
+2. Для запуска клиента выполните команду `yarn dev` либо через команду в client/package.json 
 
 ### Тесты
 
 Для клиента используется [`react-testing-library`](https://testing-library.com/docs/react-testing-library/intro/)
 
-```yarn test```
+Запуск тестов для клиента - через команду в client/package.json
+
+"test": "jest ./", - запуск тестов
+"test:coverage": "jest --coverage", - запуск тестов с покрытием
+
+(Команда ```yarn test``` запускает тесты для клиента и сервера)
 
 ### Линтинг
 
 ```yarn lint```
+
+либо через команду в client/package.json
+
+"lint": "eslint .",
 
 ### Форматирование prettier
 
@@ -41,6 +37,9 @@
 ### Production build
 
 ```yarn build```
+
+---------------
+Внимание, данный раздел на редактировании
 
 И чтобы посмотреть что получилось
 
