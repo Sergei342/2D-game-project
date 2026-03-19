@@ -1,15 +1,47 @@
-import styled from 'styled-components'
+﻿import { Button, Space, Typography, message } from 'antd'
 import { Helmet } from 'react-helmet'
+import { useNavigate } from 'react-router-dom'
 
-import { useSelector } from '../store'
-import { fetchUserThunk, selectUser } from '../slices/userSlice'
 import { Header } from '../components/Header'
 import { usePage } from '../hooks/usePage'
 import { PageInitArgs } from '../routes/types'
-import { UIKitDemo } from '../components/UIKitDemo'
-import { Button, message } from 'antd'
+import { fetchUserThunk, selectUser } from '../slices/userSlice'
+import { useSelector } from '../store'
 import { logoutUser } from './login/LoginService'
-import { useNavigate } from 'react-router-dom'
+import {
+  HeroCard,
+  MainMenu,
+  MainMenuButton,
+  PageRoot,
+  StartButton,
+  TopBar,
+} from './Main.styles'
+
+const { Title, Paragraph, Text } = Typography
+
+type QuickLink = {
+  key: string
+  title: string
+  path: string
+}
+
+const quickLinks: QuickLink[] = [
+  {
+    key: 'forum',
+    title: 'Форум',
+    path: '/friends',
+  },
+  {
+    key: 'leaderboard',
+    title: 'Лидерборд',
+    path: '/404',
+  },
+  {
+    key: 'profile',
+    title: 'Профиль',
+    path: '/profile',
+  },
+]
 
 export const MainPage = () => {
   const user = useSelector(selectUser)
@@ -28,67 +60,58 @@ export const MainPage = () => {
   }
 
   return (
-    <div>
+    <PageRoot>
       <Helmet>
         <meta charSet="utf-8" />
         <title>Главная</title>
         <meta
           name="description"
-          content="Главная страница с информацией о пользователе"
+          content="Главная страница с описанием игры и переходом по разделам"
         />
       </Helmet>
+
       <Header />
-      <Button onClick={handleLogout}>Выйти</Button>
-      <Link href="#">
-        <Icon viewBox="0 0 20 20">
-          <path d="M10 15h8c1 0 2-1 2-2V3c0-1-1-2-2-2H2C1 1 0 2 0 3v10c0 1 1 2 2 2h4v4l4-4zM5 7h2v2H5V7zm4 0h2v2H9V7zm4 0h2v2h-2V7z" />
-        </Icon>
-        <Label>Hovering my parent changes my style!</Label>
-      </Link>
 
-      {user ? (
-        <div>
-          <p>{user.name}</p>
-          <p>{user.secondName}</p>
-        </div>
-      ) : (
-        <p>Пользователь не найден!</p>
-      )}
+      <TopBar>
+        <Button onClick={handleLogout}>Выйти</Button>
+      </TopBar>
 
-      <UIKitDemo />
-    </div>
+      <HeroCard bordered={false}>
+        <Space direction="vertical" size={10} style={{ width: '100%' }}>
+          <Title level={2}>Space Invaders</Title>
+          <Paragraph>
+            Управляйте кораблем, уворачивайтесь от снарядов, поднимайтесь в
+            рейтинге и оттачивайте свой стиль игры.
+          </Paragraph>
+          {user ? (
+            <Text strong>
+              С возвращением, {user.name} {user.secondName}
+            </Text>
+          ) : (
+            <Text type="secondary">Профиль игрока пока не загружен.</Text>
+          )}
+          <StartButton
+            type="primary"
+            size="large"
+            onClick={() => navigate('/game')}>
+            Начать игру
+          </StartButton>
+        </Space>
+      </HeroCard>
+
+      <MainMenu>
+        {quickLinks.map(link => (
+          <MainMenuButton
+            key={link.key}
+            type="default"
+            onClick={() => navigate(link.path)}>
+            {link.title}
+          </MainMenuButton>
+        ))}
+      </MainMenu>
+    </PageRoot>
   )
 }
-
-const Link = styled.a`
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  background: papayawhip;
-  color: #bf4f74;
-`
-
-const Icon = styled.svg`
-  flex: none;
-  transition: fill 0.25s;
-  width: 48px;
-  height: 48px;
-
-  ${Link}:hover & {
-    fill: rebeccapurple;
-  }
-`
-
-const Label = styled.span`
-  display: flex;
-  align-items: center;
-  line-height: 1.2;
-
-  &::before {
-    content: '◀';
-    margin: 0 10px;
-  }
-`
 
 export const initMainPage = async ({ dispatch, state }: PageInitArgs) => {
   if (!selectUser(state)) {

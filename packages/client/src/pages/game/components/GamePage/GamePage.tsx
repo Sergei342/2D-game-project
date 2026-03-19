@@ -1,9 +1,9 @@
 import { useRef } from 'react'
-import { CANVAS_H, CANVAS_W } from '../../../../game/engine/types'
-import { usePage } from '../../../../hooks/usePage'
-import { GameModal } from '../GameModal'
-import { useFullscreen } from '../../../../hooks/useFullscreen'
-import { useGamePageData } from './useGamePageData'
+import { CANVAS_H, CANVAS_W } from '@/game/engine/types'
+import { usePage } from '@/hooks/usePage'
+import { GameModal } from '@/pages/game/components/GameModal'
+import { useFullscreen } from '@/hooks/useFullscreen'
+import { useGamePageData } from '@/pages/game/components/GamePage/useGamePageData'
 
 export const GamePage = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -63,6 +63,7 @@ export const GamePage = () => {
           userSelect: 'none',
         }}
       />
+
       {!isFullscreen && (
         <button
           onClick={toggleFullscreen}

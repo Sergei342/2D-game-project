@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-import { useDispatch, useSelector, useStore } from '../store'
+import { useDispatch, useSelector, useStore } from '@/store'
 import {
   setPageHasBeenInitializedOnServer,
   selectPageHasBeenInitializedOnServer,
-} from '../slices/ssrSlice'
-import { PageInitArgs, PageInitContext } from '../routes/types'
+} from '@/slices/ssrSlice'
+import { PageInitArgs, PageInitContext } from '@/routes/types'
 
 const getCookie = (name: string) => {
   const matches = document.cookie.match(

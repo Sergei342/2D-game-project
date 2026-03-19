@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { blink } from '../../styles/blink'
+import { blink } from '@/styles/blink'
 
 export const Cursor = styled.span`
   margin-left: 2px;

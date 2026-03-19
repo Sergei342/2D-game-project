@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
 import { usePage } from '../../hooks/usePage'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   profileService,
   UserProfile,
@@ -10,7 +10,6 @@ import {
 } from './ProfileService'
 
 import { MAX_AVATAR_SIZE, MAX_AVATAR_SIZE_MB_UNITS } from './consts'
-import { PageInitArgs } from '../../routes/types'
 import { Form, message, Collapse } from 'antd'
 
 import {
@@ -36,10 +35,19 @@ export const ProfilePage = () => {
   const [form] = Form.useForm()
   const [passwordForm] = Form.useForm()
 
+  const formRef = useRef(form)
+  formRef.current = form
+
+  const passwordFormRef = useRef(passwordForm)
+  passwordFormRef.current = passwordForm
+
   const handleUnauthorized = useCallback(() => {
     message.error('Сессия истекла. Перенаправляем на страницу входа…')
     navigate('/login')
   }, [navigate])
+
+  const handleUnauthorizedRef = useRef(handleUnauthorized)
+  handleUnauthorizedRef.current = handleUnauthorized
 
   useEffect(() => {
     const controller = new AbortController()
@@ -56,7 +64,7 @@ export const ProfilePage = () => {
 
         setUser(data)
 
-        form.setFieldsValue({
+        formRef.current.setFieldsValue({
           first_name: data.first_name,
           second_name: data.second_name,
           display_name: data.display_name ?? '',
@@ -69,7 +77,7 @@ export const ProfilePage = () => {
         if (controller.signal.aborted) return
 
         if (err instanceof UnauthorizedError) {
-          handleUnauthorized()
+          handleUnauthorizedRef.current()
           return
         }
 
@@ -84,7 +92,7 @@ export const ProfilePage = () => {
     return () => {
       controller.abort()
     }
-  }, [form, handleUnauthorized])
+  }, [])
 
   const handleAvatarChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +114,7 @@ export const ProfilePage = () => {
         message.success('Аватар обновлён')
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
-          handleUnauthorized()
+          handleUnauthorizedRef.current()
           return
         }
         message.error('Не удалось загрузить аватар')
@@ -114,43 +122,40 @@ export const ProfilePage = () => {
         input.value = ''
       }
     },
-    [handleUnauthorized]
+    []
   )
 
-  const handleSave = useCallback(
-    async (values: Record<string, string>) => {
-      setSaving(true)
-      setError(null)
+  const handleSave = useCallback(async (values: Record<string, string>) => {
+    setSaving(true)
+    setError(null)
 
-      try {
-        const updated = await profileService.updateProfile({
-          first_name: values.first_name,
-          second_name: values.second_name,
-          display_name: values.display_name,
-          login: values.login,
-          email: values.email,
-          phone: values.phone,
-        })
+    try {
+      const updated = await profileService.updateProfile({
+        first_name: values.first_name,
+        second_name: values.second_name,
+        display_name: values.display_name,
+        login: values.login,
+        email: values.email,
+        phone: values.phone,
+      })
 
-        setUser(updated)
-        message.success('Профиль успешно сохранён')
-      } catch (err: unknown) {
-        if (err instanceof UnauthorizedError) {
-          handleUnauthorized()
-          return
-        }
-
-        const errorMessage =
-          err instanceof Error ? err.message : 'Не удалось сохранить профиль'
-
-        setError(errorMessage)
-        message.error(errorMessage)
-      } finally {
-        setSaving(false)
+      setUser(updated)
+      message.success('Профиль успешно сохранён')
+    } catch (err: unknown) {
+      if (err instanceof UnauthorizedError) {
+        handleUnauthorizedRef.current()
+        return
       }
-    },
-    [handleUnauthorized]
-  )
+
+      const errorMessage =
+        err instanceof Error ? err.message : 'Не удалось сохранить профиль'
+
+      setError(errorMessage)
+      message.error(errorMessage)
+    } finally {
+      setSaving(false)
+    }
+  }, [])
 
   const handlePassword = useCallback(
     async (values: { oldPassword: string; newPassword: string }) => {
@@ -161,16 +166,16 @@ export const ProfilePage = () => {
         })
 
         message.success('Пароль успешно изменён')
-        passwordForm.resetFields()
+        passwordFormRef.current.resetFields()
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
-          handleUnauthorized()
+          handleUnauthorizedRef.current()
           return
         }
         message.error('Не удалось сменить пароль')
       }
     },
-    [passwordForm, handleUnauthorized]
+    []
   )
 
   if (loading) {
@@ -236,6 +241,4 @@ export const ProfilePage = () => {
   )
 }
 
-export const initProfilePage = async (_args: PageInitArgs) => {
-  // Заглушка для инициализации страницы профиля
-}
+export const initProfilePage = () => Promise.resolve()

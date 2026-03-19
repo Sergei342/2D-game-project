@@ -10,7 +10,7 @@ import {
   Flex,
 } from 'antd'
 import { UserOutlined, PlayCircleOutlined } from '@ant-design/icons'
-import { cssVariables } from '../../styles/variables'
+import { cssVariables } from '@/styles/variables'
 
 const { Title, Paragraph, Text } = Typography
 

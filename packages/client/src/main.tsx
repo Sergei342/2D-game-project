@@ -25,3 +25,9 @@ createRoot(document.getElementById('root') as HTMLElement).render(
     </ConfigProvider>
   </Provider>
 )
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => undefined)
+  })
+}
