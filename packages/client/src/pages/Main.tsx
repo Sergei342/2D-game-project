@@ -85,7 +85,7 @@ export const MainPage = () => {
           </Paragraph>
           {user ? (
             <Text strong>
-              С возвращением, {user.name} {user.secondName}
+              С возвращением, {user.first_name} {user.second_name}
             </Text>
           ) : (
             <Text type="secondary">Профиль игрока пока не загружен.</Text>

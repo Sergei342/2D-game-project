@@ -11,6 +11,8 @@ import {
 
 import { MAX_AVATAR_SIZE, MAX_AVATAR_SIZE_MB_UNITS } from './consts'
 import { Form, message, Collapse } from 'antd'
+import { useDispatch, useSelector } from '../../store'
+import { setUser, selectUser } from '../../slices/userSlice'
 
 import {
   ProfilePageWrapper,
@@ -26,8 +28,9 @@ export const ProfilePage = () => {
   usePage({ initPage: initProfilePage })
 
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const user = useSelector(selectUser)
 
-  const [user, setUser] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -55,14 +58,16 @@ export const ProfilePage = () => {
     profileService
       .getUser({ signal: controller.signal })
       .then((data: UserProfile | null) => {
-        if (controller.signal.aborted) return
+        if (controller.signal.aborted) {
+          return
+        }
 
         if (!data) {
           setError('Не удалось загрузить данные профиля')
           return
         }
 
-        setUser(data)
+        dispatch(setUser(data))
 
         formRef.current.setFieldsValue({
           first_name: data.first_name,
@@ -74,7 +79,9 @@ export const ProfilePage = () => {
         })
       })
       .catch(err => {
-        if (controller.signal.aborted) return
+        if (controller.signal.aborted) {
+          return
+        }
 
         if (err instanceof UnauthorizedError) {
           handleUnauthorizedRef.current()
@@ -92,7 +99,7 @@ export const ProfilePage = () => {
     return () => {
       controller.abort()
     }
-  }, [])
+  }, [dispatch])
 
   const handleAvatarChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,52 +117,56 @@ export const ProfilePage = () => {
 
       try {
         const updated = await profileService.changeAvatar(file)
-        setUser(updated)
+        dispatch(setUser(updated))
         message.success('Аватар обновлён')
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
           handleUnauthorizedRef.current()
           return
         }
+
         message.error('Не удалось загрузить аватар')
       } finally {
         input.value = ''
       }
     },
-    []
+    [dispatch]
   )
 
-  const handleSave = useCallback(async (values: Record<string, string>) => {
-    setSaving(true)
-    setError(null)
+  const handleSave = useCallback(
+    async (values: Record<string, string>) => {
+      setSaving(true)
+      setError(null)
 
-    try {
-      const updated = await profileService.updateProfile({
-        first_name: values.first_name,
-        second_name: values.second_name,
-        display_name: values.display_name,
-        login: values.login,
-        email: values.email,
-        phone: values.phone,
-      })
+      try {
+        const updated = await profileService.updateProfile({
+          first_name: values.first_name,
+          second_name: values.second_name,
+          display_name: values.display_name,
+          login: values.login,
+          email: values.email,
+          phone: values.phone,
+        })
 
-      setUser(updated)
-      message.success('Профиль успешно сохранён')
-    } catch (err: unknown) {
-      if (err instanceof UnauthorizedError) {
-        handleUnauthorizedRef.current()
-        return
+        dispatch(setUser(updated))
+        message.success('Профиль успешно сохранён')
+      } catch (err: unknown) {
+        if (err instanceof UnauthorizedError) {
+          handleUnauthorizedRef.current()
+          return
+        }
+
+        const errorMessage =
+          err instanceof Error ? err.message : 'Не удалось сохранить профиль'
+
+        setError(errorMessage)
+        message.error(errorMessage)
+      } finally {
+        setSaving(false)
       }
-
-      const errorMessage =
-        err instanceof Error ? err.message : 'Не удалось сохранить профиль'
-
-      setError(errorMessage)
-      message.error(errorMessage)
-    } finally {
-      setSaving(false)
-    }
-  }, [])
+    },
+    [dispatch]
+  )
 
   const handlePassword = useCallback(
     async (values: { oldPassword: string; newPassword: string }) => {
@@ -172,6 +183,7 @@ export const ProfilePage = () => {
           handleUnauthorizedRef.current()
           return
         }
+
         message.error('Не удалось сменить пароль')
       }
     },
