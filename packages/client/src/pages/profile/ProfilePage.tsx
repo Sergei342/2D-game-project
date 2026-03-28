@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
 import { usePage } from '../../hooks/usePage'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   profileService,
   UserProfile,
@@ -38,10 +38,19 @@ export const ProfilePage = () => {
   const [form] = Form.useForm()
   const [passwordForm] = Form.useForm()
 
+  const formRef = useRef(form)
+  formRef.current = form
+
+  const passwordFormRef = useRef(passwordForm)
+  passwordFormRef.current = passwordForm
+
   const handleUnauthorized = useCallback(() => {
     message.error('Сессия истекла. Перенаправляем на страницу входа…')
     navigate('/login')
   }, [navigate])
+
+  const handleUnauthorizedRef = useRef(handleUnauthorized)
+  handleUnauthorizedRef.current = handleUnauthorized
 
   useEffect(() => {
     const controller = new AbortController()
@@ -60,7 +69,7 @@ export const ProfilePage = () => {
 
         dispatch(setUser(data))
 
-        form.setFieldsValue({
+        formRef.current.setFieldsValue({
           first_name: data.first_name,
           second_name: data.second_name,
           display_name: data.display_name ?? '',
@@ -75,7 +84,7 @@ export const ProfilePage = () => {
         }
 
         if (err instanceof UnauthorizedError) {
-          handleUnauthorized()
+          handleUnauthorizedRef.current()
           return
         }
 
@@ -90,7 +99,7 @@ export const ProfilePage = () => {
     return () => {
       controller.abort()
     }
-  }, [form, handleUnauthorized, dispatch])
+  }, [dispatch])
 
   const handleAvatarChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,7 +121,7 @@ export const ProfilePage = () => {
         message.success('Аватар обновлён')
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
-          handleUnauthorized()
+          handleUnauthorizedRef.current()
           return
         }
 
@@ -121,7 +130,7 @@ export const ProfilePage = () => {
         input.value = ''
       }
     },
-    [handleUnauthorized, dispatch]
+    [dispatch]
   )
 
   const handleSave = useCallback(
@@ -143,7 +152,7 @@ export const ProfilePage = () => {
         message.success('Профиль успешно сохранён')
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
-          handleUnauthorized()
+          handleUnauthorizedRef.current()
           return
         }
 
@@ -156,7 +165,7 @@ export const ProfilePage = () => {
         setSaving(false)
       }
     },
-    [handleUnauthorized, dispatch]
+    [dispatch]
   )
 
   const handlePassword = useCallback(
@@ -168,17 +177,17 @@ export const ProfilePage = () => {
         })
 
         message.success('Пароль успешно изменён')
-        passwordForm.resetFields()
+        passwordFormRef.current.resetFields()
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
-          handleUnauthorized()
+          handleUnauthorizedRef.current()
           return
         }
 
         message.error('Не удалось сменить пароль')
       }
     },
-    [passwordForm, handleUnauthorized]
+    []
   )
 
   if (loading) {
@@ -244,6 +253,4 @@ export const ProfilePage = () => {
   )
 }
 
-export const initProfilePage = async () => {
-  // Заглушка для инициализации страницы профиля
-}
+export const initProfilePage = () => Promise.resolve()

@@ -1,5 +1,5 @@
 import type { ThemeConfig } from 'antd'
-import { cssVariables } from '../styles/variables'
+import { cssVariables } from '@/styles/variables'
 
 export const theme: ThemeConfig = {
   token: {
