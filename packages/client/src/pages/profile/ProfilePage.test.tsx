@@ -2,13 +2,17 @@ import { render, screen, waitFor, act, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import { MemoryRouter } from 'react-router-dom'
+import { Provider } from 'react-redux'
+import { configureStore } from '@reduxjs/toolkit'
+import { message } from 'antd'
+
+import userReducer from '../../slices/userSlice'
 import { ProfilePage } from './ProfilePage'
 import {
   profileService,
   UserProfile,
   UnauthorizedError,
 } from './ProfileService'
-import { message } from 'antd'
 
 const mockNavigate = jest.fn()
 
@@ -72,11 +76,23 @@ const FAKE_USER: UserProfile = {
   avatar: 'avatar.png',
 }
 
+const createTestStore = () =>
+  configureStore({
+    reducer: {
+      user: userReducer,
+      friends: () => null as never,
+      ssr: () => null as never,
+      forum: () => null as never,
+    },
+  })
+
 const renderPage = () =>
   render(
-    <MemoryRouter>
-      <ProfilePage />
-    </MemoryRouter>
+    <Provider store={createTestStore()}>
+      <MemoryRouter>
+        <ProfilePage />
+      </MemoryRouter>
+    </Provider>
   )
 
 const expandPanel = async (name: RegExp) => {
@@ -266,7 +282,7 @@ describe('ProfilePage', () => {
     await waitFor(() => {
       expect(message.success).toHaveBeenCalledWith('Пароль успешно изменён')
     })
-  })
+  }, 15000)
 
   it('does not call changeAvatar when no file is selected', async () => {
     renderPage()

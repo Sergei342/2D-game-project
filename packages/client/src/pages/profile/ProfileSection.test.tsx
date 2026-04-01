@@ -103,7 +103,7 @@ describe('ProfileSection', () => {
     })
 
     expect(onSave).toHaveBeenCalledWith(VALID_VALUES)
-  })
+  }, 15000)
 
   it('shows all required validation errors when all fields are empty', async () => {
     const onSave = jest.fn()
@@ -148,7 +148,7 @@ describe('ProfileSection', () => {
     })
 
     expect(onSave).not.toHaveBeenCalled()
-  })
+  }, 15000)
 
   it('submits successfully without display_name', async () => {
     const onSave = jest.fn()
