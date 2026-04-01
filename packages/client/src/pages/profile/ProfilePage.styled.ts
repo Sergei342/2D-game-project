@@ -5,12 +5,11 @@ import { cssVariables } from '@/styles/variables'
 const { Link: AntLink } = Typography
 
 export const ProfilePageWrapper = styled.div`
+  position: fixed;
+  inset: 0;
   display: flex;
-  width: 100%;
-  height: 100%;
   justify-content: center;
-  align-items: center;
-  overflow: hidden;
+  overflow-y: auto;
   box-sizing: border-box;
 `
 
@@ -146,14 +145,14 @@ export const ProfileSubmitRow = styled(Form.Item)`
   margin-top: 16px;
 `
 
-export const GeoSectionContainer = styled.div`
+export const WebApiSectionContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 16px;
 `
 
-export const GeoStatus = styled.div`
+export const WebApiStatus = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
@@ -162,11 +161,11 @@ export const GeoStatus = styled.div`
   background: ${cssVariables.bgColor};
 `
 
-export const GeoStatusText = styled.span`
+export const WebApiStatusText = styled.span`
   margin-left: 4px;
 `
 
-export const GeoErrorBlock = styled.div`
+export const WebApiErrorBlock = styled.div`
   padding: 12px 16px;
   border-radius: 8px;
 `
@@ -194,4 +193,30 @@ export const GeoMapLink = styled(AntLink)`
   font-size: 15px;
   font-weight: 500;
   margin-top: 4px;
+`
+
+export const NotificationSettingRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: ${cssVariables.bgColor};
+  border: 1px solid ${cssVariables.borderColor};
+`
+
+export const NotificationSettingLabel = styled.span`
+  font-size: 14px;
+`
+
+export const StatusIcon = styled.span<{ $granted: boolean }>`
+  color: ${({ $granted }) =>
+    $granted ? cssVariables.primaryColor : cssVariables.errorColor};
+  font-size: 16px;
+`
+
+export const SectionHint = styled.p`
+  color: ${cssVariables.labelColor};
+  margin: 0 0 4px;
+  font-size: 13px;
 `

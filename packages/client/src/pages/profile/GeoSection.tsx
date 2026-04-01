@@ -1,10 +1,10 @@
 import { Button, Typography } from 'antd'
 import { EnvironmentOutlined } from '@ant-design/icons'
 import {
-  GeoSectionContainer,
-  GeoStatus,
-  GeoStatusText,
-  GeoErrorBlock,
+  WebApiSectionContainer,
+  WebApiStatus,
+  WebApiStatusText,
+  WebApiErrorBlock,
   GeoResult,
   GeoCoords,
   GeoMapLink,
@@ -18,7 +18,7 @@ export const GeoSectionContent = () => {
   const { coords, loading, error, status, locate } = useGeolocation()
 
   return (
-    <GeoSectionContainer>
+    <WebApiSectionContainer>
       <Button
         type="primary"
         icon={<EnvironmentOutlined />}
@@ -29,15 +29,15 @@ export const GeoSectionContent = () => {
       </Button>
 
       {status && !loading && (
-        <GeoStatus>
-          <GeoStatusText>{status}</GeoStatusText>
-        </GeoStatus>
+        <WebApiStatus>
+          <WebApiStatusText>{status}</WebApiStatusText>
+        </WebApiStatus>
       )}
 
       {error && (
-        <GeoErrorBlock>
+        <WebApiErrorBlock>
           <Text type="danger">{error}</Text>
-        </GeoErrorBlock>
+        </WebApiErrorBlock>
       )}
 
       {coords && (
@@ -60,6 +60,6 @@ export const GeoSectionContent = () => {
           </GeoMapLink>
         </GeoResult>
       )}
-    </GeoSectionContainer>
+    </WebApiSectionContainer>
   )
 }

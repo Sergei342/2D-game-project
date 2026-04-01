@@ -1,13 +1,19 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { CANVAS_H, CANVAS_W } from '@/game/engine/types'
 import { usePage } from '@/hooks/usePage'
 import { GameModal } from '@/pages/game/components/GameModal'
 import { useFullscreen } from '@/hooks/useFullscreen'
 import { useGamePageData } from '@/pages/game/components/GamePage/useGamePageData'
+import { useNotification } from '@/hooks/useNotification'
+
+const AWAY_DELAY_MS = 3000
+const REMINDER_DELAY_MS = 60000
 
 export const GamePage = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
+
+  const { show: showNotification } = useNotification()
 
   const {
     isLoading,
@@ -18,7 +24,62 @@ export const GamePage = () => {
     restartGame,
     continueGame,
     loadLevel,
+    getSnapshot,
   } = useGamePageData({ canvasRef })
+
+  const getSnapshotRef = useRef(getSnapshot)
+  getSnapshotRef.current = getSnapshot
+
+  const showNotificationRef = useRef(showNotification)
+  showNotificationRef.current = showNotification
+
+  useEffect(() => {
+    let alertId: ReturnType<typeof setTimeout> | null = null
+    let reminderId: ReturnType<typeof setTimeout> | null = null
+
+    const clearTimers = () => {
+      if (alertId) {
+        clearTimeout(alertId)
+        alertId = null
+      }
+      if (reminderId) {
+        clearTimeout(reminderId)
+        reminderId = null
+      }
+    }
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        const snap = getSnapshotRef.current()
+        if (snap?.state !== 'playing') return
+
+        alertId = setTimeout(() => {
+          const current = getSnapshotRef.current()
+          if (current?.state === 'playing') {
+            showNotificationRef.current('Вы под обстрелом!', {
+              body: `Ваш корабль под огнём. Жизней: ${current.lives}`,
+              tag: 'game-alert',
+            })
+          }
+        }, AWAY_DELAY_MS)
+
+        reminderId = setTimeout(() => {
+          showNotificationRef.current('Вы отсутствуете минуту', {
+            body: 'Корабль всё ещё под обстрелом! Нажмите, чтобы вернуться.',
+            tag: 'game-reminder',
+          })
+        }, REMINDER_DELAY_MS)
+      } else {
+        clearTimers()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility)
+      clearTimers()
+    }
+  }, [])
 
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
 

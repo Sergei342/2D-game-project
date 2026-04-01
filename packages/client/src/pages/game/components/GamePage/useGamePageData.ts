@@ -69,6 +69,10 @@ export const useGamePageData = ({ canvasRef }: UseGamePageDataProps) => {
     setIsLoading(true)
   }
 
+  const getSnapshot = useCallback(() => {
+    return gameRef.current?.getSnapshot() ?? null
+  }, [])
+
   return {
     modalType,
     showModal,
@@ -78,5 +82,6 @@ export const useGamePageData = ({ canvasRef }: UseGamePageDataProps) => {
     continueGame,
     restartGame,
     loadLevel,
+    getSnapshot,
   }
 }
