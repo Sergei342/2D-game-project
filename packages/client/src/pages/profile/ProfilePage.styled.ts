@@ -9,6 +9,7 @@ export const ProfilePageWrapper = styled.div`
   inset: 0;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   overflow-y: auto;
   box-sizing: border-box;
 `
