@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 
-import { NotificationSectionContent } from './NotificationSection'
+import { NotificationSection } from './NotificationSection'
 import { useNotification } from '../../hooks/useNotification'
 
 jest.mock('../../hooks/useNotification')
@@ -23,7 +23,7 @@ const setupHook = (
   mockUseNotification.mockReturnValue({ ...BASE_STATE, ...overrides })
 }
 
-describe('NotificationSectionContent', () => {
+describe('NotificationSection', () => {
   afterEach(() => {
     jest.clearAllMocks()
     jest.restoreAllMocks()
@@ -31,7 +31,7 @@ describe('NotificationSectionContent', () => {
 
   it('renders default permission state with request button', () => {
     setupHook()
-    const { container } = render(<NotificationSectionContent />)
+    const { container } = render(<NotificationSection />)
 
     expect(container).toMatchSnapshot()
   })
@@ -39,7 +39,7 @@ describe('NotificationSectionContent', () => {
   it('calls requestPermission on button click', async () => {
     const requestPermission = jest.fn()
     setupHook({ requestPermission })
-    render(<NotificationSectionContent />)
+    render(<NotificationSection />)
 
     await userEvent.click(
       screen.getByRole('button', { name: /разрешить уведомления/i })
@@ -50,7 +50,7 @@ describe('NotificationSectionContent', () => {
 
   it('renders granted state with toggle and hint', () => {
     setupHook({ permission: 'granted', enabled: true })
-    const { container } = render(<NotificationSectionContent />)
+    const { container } = render(<NotificationSection />)
 
     expect(container).toMatchSnapshot()
   })
@@ -58,7 +58,7 @@ describe('NotificationSectionContent', () => {
   it('calls toggleEnabled on switch click', async () => {
     const toggleEnabled = jest.fn()
     setupHook({ permission: 'granted', enabled: true, toggleEnabled })
-    render(<NotificationSectionContent />)
+    render(<NotificationSection />)
 
     await userEvent.click(screen.getByRole('switch'))
 
@@ -67,7 +67,7 @@ describe('NotificationSectionContent', () => {
 
   it('renders denied state with disabled button and error hint', () => {
     setupHook({ permission: 'denied' })
-    const { container } = render(<NotificationSectionContent />)
+    const { container } = render(<NotificationSection />)
 
     expect(container).toMatchSnapshot()
   })

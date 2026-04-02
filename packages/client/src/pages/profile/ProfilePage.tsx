@@ -23,7 +23,7 @@ import {
 import { PasswordSection } from './PasswordSection'
 import { ProfileSection } from './ProfileSection'
 import { GeoSectionContent } from './GeoSection'
-import { NotificationSectionContent } from './NotificationSection'
+import { NotificationSection } from './NotificationSection'
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage })
@@ -233,7 +233,7 @@ export const ProfilePage = () => {
     {
       key: 'notifications',
       label: 'Уведомления',
-      children: <NotificationSectionContent />,
+      children: <NotificationSection />,
     },
   ]
 

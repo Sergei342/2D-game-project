@@ -25,7 +25,7 @@ const PERMISSION_TEXT: Record<string, string> = {
   unsupported: 'Ваш браузер не поддерживает уведомления',
 }
 
-export const NotificationSectionContent = () => {
+export const NotificationSection = () => {
   const { permission, enabled, requestPermission, toggleEnabled } =
     useNotification()
 

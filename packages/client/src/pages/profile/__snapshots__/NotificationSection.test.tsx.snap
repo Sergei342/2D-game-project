@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`NotificationSectionContent renders default permission state with request button 1`] = `
+exports[`NotificationSection renders default permission state with request button 1`] = `
 <div>
   <div
     class="sc-jrsKJM cJhYaw"
@@ -73,7 +73,7 @@ exports[`NotificationSectionContent renders default permission state with reques
 </div>
 `;
 
-exports[`NotificationSectionContent renders denied state with disabled button and error hint 1`] = `
+exports[`NotificationSection renders denied state with disabled button and error hint 1`] = `
 <div>
   <div
     class="sc-jrsKJM cJhYaw"
@@ -156,7 +156,7 @@ exports[`NotificationSectionContent renders denied state with disabled button an
 </div>
 `;
 
-exports[`NotificationSectionContent renders granted state with toggle and hint 1`] = `
+exports[`NotificationSection renders granted state with toggle and hint 1`] = `
 <div>
   <div
     class="sc-jrsKJM cJhYaw"
