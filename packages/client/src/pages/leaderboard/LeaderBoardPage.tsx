@@ -1,29 +1,27 @@
 import { useState } from 'react'
 import * as Styled from './LeaderBoardPage.styled'
+import { useSelector } from '@/store'
+import { selectUser } from '@/slices/userSlice'
+import { Button, Spin } from 'antd'
+import { API_FILED_RATING_FIELD_NAME } from '@/shared/constants'
+import { PageInitArgs } from '@/routes/types'
+import { leaderBoardApi, useGetLeaderBoardQuery } from './LeaderBoard.api'
+import { HomeOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 
 type Leader = {
-  id: string
+  id: number
   name: string
   score: number
 }
 
-const mockData: Leader[] = [
-  { id: '1', name: 'PlayerOne', score: 3200 },
-  { id: '2', name: 'AlienHunter', score: 2800 },
-  { id: '3', name: 'SpaceAce', score: 2500 },
-  { id: '4', name: 'User', score: 1500 },
-  { id: '5', name: 'Ivan', score: 700 },
-  { id: '6', name: 'Pushkin', score: 600 },
-  { id: '7', name: 'Foo', score: 500 },
-  { id: '8', name: 'Bar', score: 400 },
-  { id: '9', name: 'Baz', score: 300 },
-  { id: '10', name: 'Ship', score: 200 },
-]
-
-const currentUserId = '6'
-
 export const LeaderBoardPage = () => {
+  const navigate = useNavigate()
+
+  const { data, isLoading, error } = useGetLeaderBoardQuery()
   const [sortOrder, setSortOrder] = useState<string | null>(null)
+
+  const user = useSelector(selectUser)
 
   const columns = [
     {
@@ -56,17 +54,32 @@ export const LeaderBoardPage = () => {
     },
   ]
 
+  const leaders =
+    data?.map(({ data }) => ({
+      id: data.id,
+      name: data.login,
+      score: data[API_FILED_RATING_FIELD_NAME],
+    })) ?? []
+
+  if (isLoading) {
+    return <Spin description={'Загрузка таблицы лидеров'} />
+  }
+
+  if (error) {
+    return <div>Ошибка загрузки таблицы лидеров</div>
+  }
+
   return (
     <Styled.Wrapper>
       <Styled.TitleStyled>🏆 ТАБЛИЦА ЛИДЕРОВ</Styled.TitleStyled>
 
       <Styled.StyledTable
-        dataSource={mockData}
+        dataSource={leaders}
         columns={columns}
         pagination={false}
         rowKey="id"
         rowClassName={(record: Leader) =>
-          record.id === currentUserId ? 'current-user' : ''
+          record.id === user?.id ? 'current-user' : ''
         }
         onChange={(_, __, sorter) => {
           if (!Array.isArray(sorter)) {
@@ -74,6 +87,18 @@ export const LeaderBoardPage = () => {
           }
         }}
       />
+
+      <Button
+        type="text"
+        size="large"
+        icon={<HomeOutlined />}
+        onClick={() => navigate('/')}>
+        На Главную
+      </Button>
     </Styled.Wrapper>
   )
+}
+
+export const initLeaderBoardPage = async ({ dispatch }: PageInitArgs) => {
+  dispatch(leaderBoardApi.endpoints.getLeaderBoard.initiate())
 }

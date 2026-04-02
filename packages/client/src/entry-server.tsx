@@ -24,6 +24,7 @@ import { setPageHasBeenInitializedOnServer } from './slices/ssrSlice'
 import { ConfigProvider, theme } from 'antd'
 import { theme as appTheme } from './config/theme'
 import { GlobalStyles } from './styles/styles'
+import { api } from './api/baseApi'
 
 export const render = async (req: ExpressRequest) => {
   const { query, dataRoutes } = createStaticHandler(routes)
@@ -57,6 +58,8 @@ export const render = async (req: ExpressRequest) => {
       state: store.getState(),
       ctx: createContext(req),
     })
+
+    await Promise.all(store.dispatch(api.util.getRunningQueriesThunk()))
   } catch (e) {
     console.log('Инициализация страницы произошла с ошибкой', e)
   }

@@ -1,9 +1,22 @@
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { Game, type GameEvent } from '@/game/engine/Game'
-import { modalEvents } from './GamePage.constants'
+import { leaderBoardEvents, modalEvents } from './GamePage.constants'
+import { selectUser } from '@/slices/userSlice'
+import { useSelector } from '@/store'
+import { API_FILED_RATING_FIELD_NAME } from '@/shared/constants'
+import { useAddScoreMutation } from '@/pages/leaderboard/LeaderBoard.api'
 
 type UseGamePageDataProps = {
   canvasRef: RefObject<HTMLCanvasElement | null>
+}
+
+type LeaderBoardEvent = Extract<
+  GameEvent,
+  { type: 'score' | 'gameover' | 'win' | 'levelComplete' }
+>
+
+const isLeaderBoardEvent = (e: GameEvent): e is LeaderBoardEvent => {
+  return leaderBoardEvents.includes(e.type)
 }
 
 export const useGamePageData = ({ canvasRef }: UseGamePageDataProps) => {
@@ -13,12 +26,28 @@ export const useGamePageData = ({ canvasRef }: UseGamePageDataProps) => {
   const [showModal, setShowModal] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleGameEvent = useCallback((e: GameEvent) => {
-    if (modalEvents.includes(e.type)) {
-      setModalType(e.type)
-      setShowModal(true)
-    }
-  }, [])
+  const user = useSelector(selectUser)
+
+  const [addScore] = useAddScoreMutation()
+
+  const handleGameEvent = useCallback(
+    (e: GameEvent) => {
+      if (modalEvents.includes(e.type)) {
+        setModalType(e.type)
+        setShowModal(true)
+      }
+
+      if (isLeaderBoardEvent(e) && user) {
+        addScore({
+          data: {
+            ...user,
+            [API_FILED_RATING_FIELD_NAME]: e.score,
+          },
+        })
+      }
+    },
+    [user, addScore]
+  )
 
   useEffect(() => {
     const canvas = canvasRef.current

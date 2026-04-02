@@ -5,3 +5,5 @@ export const modalEvents: GameEvent['type'][] = [
   'win',
   'gameover',
 ]
+
+export const leaderBoardEvents: GameEvent['type'][] = ['win', 'gameover']

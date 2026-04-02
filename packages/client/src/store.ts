@@ -11,6 +11,7 @@ import friendsReducer from './slices/friendsSlice'
 import ssrReducer from './slices/ssrSlice'
 import userReducer from './slices/userSlice'
 import forumReducer, { ForumState } from './slices/forumSlice'
+import { api } from './api/baseApi'
 
 declare global {
   interface Window {
@@ -42,6 +43,7 @@ export const reducer = combineReducers({
   ssr: ssrReducer,
   user: userReducer,
   forum: forumReducer,
+  [api.reducerPath]: api.reducer,
 })
 
 export const store = configureStore({
@@ -53,6 +55,8 @@ export const store = configureStore({
           ...window.APP_INITIAL_STATE,
           forum: loadForumState() ?? window.APP_INITIAL_STATE?.forum,
         },
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware().concat(api.middleware),
 })
 
 if (typeof window !== 'undefined') {

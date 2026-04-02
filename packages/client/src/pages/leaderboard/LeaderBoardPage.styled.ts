@@ -6,12 +6,13 @@ import styled from 'styled-components'
 const { Title } = Typography
 
 export const Wrapper = styled.div`
-  min-height: 100vh;
-  color: ${cssVariables.primaryColor};
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 20px;
+  min-height: 100vh;
   padding: 10vh 20px;
+  color: ${cssVariables.primaryColor};
 `
 
 export const TitleStyled = styled(Title)`

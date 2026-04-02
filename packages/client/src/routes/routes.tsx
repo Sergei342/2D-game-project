@@ -22,6 +22,7 @@ import {
 } from '@/pages/forum/ForumTopicPage'
 import { RegisterPage, initRegisterPage } from '@/pages/register/Register'
 import { LeaderBoardPage } from '@/pages/leaderboard'
+import { initLeaderBoardPage } from '@/pages/leaderboard/LeaderBoardPage'
 export const routes = [
   {
     path: '/',
@@ -126,7 +127,12 @@ export const routes = [
   },
   {
     path: '/leaderboard',
-    Component: LeaderBoardPage,
+    Component: () => (
+      <ProtectedRoute>
+        <LeaderBoardPage />
+      </ProtectedRoute>
+    ),
+    fetchData: initLeaderBoardPage,
     ErrorBoundary: AppErrorBoundary,
   },
 ]
