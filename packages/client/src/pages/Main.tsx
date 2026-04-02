@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { Header } from '../components/Header'
 import { usePage } from '../hooks/usePage'
-import { PageInitArgs } from '../routes/types'
-import { fetchUserThunk, selectUser } from '../slices/userSlice'
+import { PageInitArgs } from '@/routes/types'
+import { clearUser, fetchUserThunk, selectUser } from '../slices/userSlice'
 import { useSelector } from '../store'
 import { logoutUser } from './login/LoginService'
 import {
@@ -16,6 +16,7 @@ import {
   StartButton,
   TopBar,
 } from './Main.styles'
+import { useDispatch } from 'react-redux'
 
 const { Title, Paragraph, Text } = Typography
 
@@ -46,11 +47,13 @@ const quickLinks: QuickLink[] = [
 export const MainPage = () => {
   const user = useSelector(selectUser)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   usePage({ initPage: initMainPage })
 
   const handleLogout = async () => {
     const success = await logoutUser()
+    dispatch(clearUser())
 
     if (success) {
       navigate('/login')
@@ -76,8 +79,8 @@ export const MainPage = () => {
         <Button onClick={handleLogout}>Выйти</Button>
       </TopBar>
 
-      <HeroCard bordered={false}>
-        <Space direction="vertical" size={10} style={{ width: '100%' }}>
+      <HeroCard variant={'borderless'}>
+        <Space orientation="vertical" size={10} style={{ width: '100%' }}>
           <Title level={2}>Space Invaders</Title>
           <Paragraph>
             Управляйте кораблем, уворачивайтесь от снарядов, поднимайтесь в

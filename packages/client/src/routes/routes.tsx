@@ -114,7 +114,11 @@ export const routes = [
   },
   {
     path: '/register',
-    Component: RegisterPage,
+    Component: () => (
+      <GuestRoute>
+        <RegisterPage />
+      </GuestRoute>
+    ),
     fetchData: initRegisterPage,
     ErrorBoundary: AppErrorBoundary,
   },

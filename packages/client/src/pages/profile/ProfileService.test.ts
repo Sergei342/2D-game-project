@@ -1,10 +1,9 @@
+import { BASE_URL, HttpStatus } from '@/shared/constants'
 import {
   profileService,
   UnauthorizedError,
   UserProfile,
 } from './ProfileService'
-import { BASE_URL } from './consts'
-import { HttpStatus } from '../../shared/constants'
 
 const mockUser: UserProfile = {
   id: 1,

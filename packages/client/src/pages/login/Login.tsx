@@ -2,16 +2,21 @@ import { Button, Form, Input, message } from 'antd'
 import './login.scss'
 import { LoginData, loginUser } from './LoginService'
 import { Link, useNavigate } from 'react-router-dom'
+import { fetchUserThunk } from '@/slices/userSlice'
+import { useDispatch } from '@/store'
 
 export const LoginPage = () => {
   const [form] = Form.useForm()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const handleSave = async (values: LoginData) => {
     try {
       const result = await loginUser(values)
 
       if (result.ok) {
+        await dispatch(fetchUserThunk()).unwrap()
+
         form.resetFields()
         navigate('/')
       } else {

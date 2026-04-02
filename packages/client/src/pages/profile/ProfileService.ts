@@ -1,5 +1,4 @@
-import { BASE_URL } from './consts'
-import { HttpStatus } from '../../shared/constants'
+import { BASE_URL, HttpStatus } from '@/shared/constants'
 
 export interface UserProfile {
   id: number
