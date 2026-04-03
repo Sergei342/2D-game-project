@@ -1,24 +1,9 @@
-import { useEffect, useState } from 'react'
-import { BASE_URL } from '../pages/login/LoginService'
+import { useSelector } from '@/store'
+import { selectIsLoadingUser, selectUser } from '@/slices/userSlice'
 
 export const useAuth = () => {
-  const [isLoading, setIsLoading] = useState(true)
-  const [isAuth, setIsAuth] = useState(false)
+  const user = useSelector(selectUser)
+  const isLoading = useSelector(selectIsLoadingUser)
 
-  useEffect(() => {
-    fetch(`${BASE_URL}user`, {
-      credentials: 'include',
-    })
-      .then(res => {
-        setIsAuth(res.ok)
-      })
-      .catch(() => {
-        setIsAuth(false)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
-  }, [])
-
-  return { isAuth, isLoading }
+  return { user, isAuth: !!user, isLoading }
 }
