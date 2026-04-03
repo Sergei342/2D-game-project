@@ -6,6 +6,8 @@ import { Cursor } from '@/components/Cursor'
 import { KeyCap } from '@/components/KeyCap'
 import { HomeOutlined, RocketOutlined } from '@ant-design/icons'
 import { cssVariables } from '@/styles/variables'
+import { useSelector } from '@/store'
+import { selectScore } from '@/slices/gameSlice'
 
 type ModalSubmitButton = {
   title: string
@@ -39,6 +41,7 @@ export const ModalContent = ({
   })
 
   const { Paragraph, Title } = Typography
+  const score = useSelector(selectScore)
 
   if (isLoading) {
     return <LevelLoader onAction={onAction} />
@@ -82,6 +85,18 @@ export const ModalContent = ({
           Огонь
         </Flex>
       </Space>
+
+      <Paragraph
+        style={{
+          maxWidth: 450,
+          minHeight: 130,
+          fontSize: 20,
+          lineHeight: 1.5,
+          textAlign: 'center',
+          whiteSpace: 'pre-line',
+        }}>
+        Счет: {score}
+      </Paragraph>
 
       <Button
         type="primary"

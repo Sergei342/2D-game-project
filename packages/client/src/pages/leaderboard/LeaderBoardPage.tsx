@@ -3,7 +3,7 @@ import * as Styled from './LeaderBoardPage.styled'
 import { useSelector } from '@/store'
 import { selectUser } from '@/slices/userSlice'
 import { Button, Spin } from 'antd'
-import { API_FILED_RATING_FIELD_NAME } from '@/shared/constants'
+import { API_FIELD_RATING_FIELD_NAME } from '@/shared/constants'
 import { PageInitArgs } from '@/routes/types'
 import { leaderBoardApi, useGetLeaderBoardQuery } from './LeaderBoard.api'
 import { HomeOutlined } from '@ant-design/icons'
@@ -58,7 +58,7 @@ export const LeaderBoardPage = () => {
     data?.map(({ data }) => ({
       id: data.id,
       name: data.login,
-      score: data[API_FILED_RATING_FIELD_NAME],
+      score: data[API_FIELD_RATING_FIELD_NAME],
     })) ?? []
 
   if (isLoading) {

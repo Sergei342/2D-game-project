@@ -1,5 +1,6 @@
 import { BASE_URL } from '@/shared/constants'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { message } from 'antd'
 
 export const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
@@ -19,6 +20,7 @@ const baseQueryWithErrorHandling: typeof baseQuery = async (
 
   if (result.error) {
     console.error('API Error:', result.error)
+    message.error(`API Error: ${result.error}`)
   }
 
   return result
