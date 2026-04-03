@@ -45,6 +45,7 @@ export const leaderBoardApi = api.injectEndpoints({
           ratingFieldName: API_FIELD_RATING_FIELD_NAME,
           teamName: API_FIELD_TEAM_NAME,
         },
+        responseHandler: 'text',
       }),
       invalidatesTags: ['LeaderBoard'],
     }),
