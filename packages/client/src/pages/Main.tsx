@@ -53,9 +53,9 @@ export const MainPage = () => {
 
   const handleLogout = async () => {
     const success = await logoutUser()
-    dispatch(clearUser())
 
     if (success) {
+      dispatch(clearUser())
       navigate('/login')
     } else {
       message.error('Не удалось выйти. Попробуйте позже.')
