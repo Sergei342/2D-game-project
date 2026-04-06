@@ -6,7 +6,7 @@ import {
 import { User } from '@/slices/userSlice'
 
 type LeaderBoardData = Pick<User, 'id' | 'login'> & {
-  [API_FIELD_RATING_FIELD_NAME]: number
+  c58SITScore: number
 }
 
 export type LeaderBoardDTO = {
@@ -22,15 +22,15 @@ export const leaderBoardApi = api.injectEndpoints({
   endpoints: builder => ({
     getLeaderBoard: builder.query<
       LeaderBoardDTO[],
-      GetLeaderBoardParams | void
+      GetLeaderBoardParams | undefined
     >({
-      query: params => ({
+      query: (params = {}) => ({
         url: '/leaderboard/all',
         method: 'POST',
         body: {
           ratingFieldName: API_FIELD_RATING_FIELD_NAME,
-          cursor: params?.cursor ?? 0,
-          limit: params?.limit ?? 10,
+          cursor: params.cursor ?? 0,
+          limit: params.limit ?? 10,
         },
       }),
       providesTags: ['LeaderBoard'],

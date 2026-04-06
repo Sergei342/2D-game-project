@@ -13,6 +13,7 @@ import userReducer from './slices/userSlice'
 import gameReducer from './slices/gameSlice'
 import forumReducer, { ForumState } from './slices/forumSlice'
 import { api } from './api/baseApi'
+import { apiErrorMiddleware } from './api/apiErrorMiddleware'
 
 declare global {
   interface Window {
@@ -58,7 +59,7 @@ export const store = configureStore({
           forum: loadForumState() ?? window.APP_INITIAL_STATE?.forum,
         },
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware().concat(api.middleware),
+    getDefaultMiddleware().concat(api.middleware, apiErrorMiddleware),
 })
 
 if (typeof window !== 'undefined') {

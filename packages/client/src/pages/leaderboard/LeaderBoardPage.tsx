@@ -3,11 +3,11 @@ import * as Styled from './LeaderBoardPage.styled'
 import { useSelector } from '@/store'
 import { selectUser } from '@/slices/userSlice'
 import { Button, Spin } from 'antd'
-import { API_FIELD_RATING_FIELD_NAME } from '@/shared/constants'
 import { PageInitArgs } from '@/routes/types'
 import { leaderBoardApi, useGetLeaderBoardQuery } from './LeaderBoard.api'
 import { HomeOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
+import { SortOrder } from 'antd/es/table/interface'
 
 type Leader = {
   id: number
@@ -18,8 +18,8 @@ type Leader = {
 export const LeaderBoardPage = () => {
   const navigate = useNavigate()
 
-  const { data, isLoading, error } = useGetLeaderBoardQuery()
-  const [sortOrder, setSortOrder] = useState<string | null>(null)
+  const { data, isLoading, error } = useGetLeaderBoardQuery(undefined)
+  const [sortOrder, setSortOrder] = useState<SortOrder>(null)
 
   const user = useSelector(selectUser)
 
@@ -58,7 +58,7 @@ export const LeaderBoardPage = () => {
     data?.map(({ data }) => ({
       id: data.id,
       name: data.login,
-      score: data[API_FIELD_RATING_FIELD_NAME],
+      score: data.c58SITScore,
     })) ?? []
 
   if (isLoading) {
@@ -84,6 +84,8 @@ export const LeaderBoardPage = () => {
         onChange={(_, __, sorter) => {
           if (!Array.isArray(sorter)) {
             setSortOrder(sorter.order ?? null)
+          } else {
+            setSortOrder(null)
           }
         }}
       />
@@ -99,6 +101,6 @@ export const LeaderBoardPage = () => {
   )
 }
 
-export const initLeaderBoardPage = async ({ dispatch }: PageInitArgs) => {
-  dispatch(leaderBoardApi.endpoints.getLeaderBoard.initiate())
+export const initLeaderBoardPage = ({ dispatch }: PageInitArgs) => {
+  dispatch(leaderBoardApi.endpoints.getLeaderBoard.initiate(undefined))
 }
