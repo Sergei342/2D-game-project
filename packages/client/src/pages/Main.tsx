@@ -35,7 +35,7 @@ const quickLinks: QuickLink[] = [
   {
     key: 'leaderboard',
     title: 'Лидерборд',
-    path: '/404',
+    path: '/leaderboard',
   },
   {
     key: 'profile',

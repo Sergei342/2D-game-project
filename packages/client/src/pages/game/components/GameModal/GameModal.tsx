@@ -12,6 +12,8 @@ import {
 } from './GameModal.constants'
 import { GameEvent } from '@/game/engine/Game'
 import { ReactNode } from 'react'
+import { useSelector } from '@/store'
+import { selectLevel } from '@/slices/gameSlice'
 
 type GameModalProps = {
   container: HTMLElement | null
@@ -39,12 +41,14 @@ export const GameModal = ({
   let content: ReactNode
   const modalContentCommonProps = { isLoading }
 
+  const level = useSelector(selectLevel)
+
   switch (type) {
     case 'levelComplete':
       content = (
         <ModalContent
           {...modalContentCommonProps}
-          title={'Уровень 2'} // TODO: подключить стор
+          title={`Уровень ${level}`}
           description={LEVEL_COMPLETE_TEXT}
           submitButton={{ title: 'Продолжить', onSubmit: onLoadLevel }}
           onAction={onContinueGame}
