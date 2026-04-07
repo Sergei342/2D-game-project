@@ -1,5 +1,12 @@
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { Game, type GameEvent } from '@/game/engine/Game'
+import { selectUser } from '@/slices/userSlice'
+import { useDispatch, useSelector } from '@/store'
+import { API_FIELD_RATING_FIELD_NAME } from '@/shared/constants'
+import { useAddScoreMutation } from '@/pages/leaderboard/LeaderBoard.api'
+import { message } from 'antd'
+import { isLeaderBoardEvent, isModalEvent } from './GamePage.types'
+import { updateGame } from '@/slices/gameSlice'
 import { modalEvents } from './GamePage.constants'
 import { useGameNotifications } from './useGameNotifications'
 
@@ -14,12 +21,37 @@ export const useGamePageData = ({ canvasRef }: UseGamePageDataProps) => {
   const [showModal, setShowModal] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleGameEvent = useCallback((e: GameEvent) => {
-    if (modalEvents.includes(e.type)) {
-      setModalType(e.type)
-      setShowModal(true)
-    }
-  }, [])
+  const dispatch = useDispatch()
+  const user = useSelector(selectUser)
+
+  const [addScore] = useAddScoreMutation()
+
+  const handleGameEvent = useCallback(
+    async (e: GameEvent) => {
+      if (isModalEvent(e)) {
+        setModalType(e.type)
+        setShowModal(true)
+        dispatch(updateGame({ score: e.score }))
+      }
+
+      if (isLeaderBoardEvent(e) && user) {
+        try {
+          await addScore({
+            data: {
+              id: user.id,
+              login: user.login,
+              [API_FIELD_RATING_FIELD_NAME]: e.score,
+            },
+          }).unwrap()
+
+          message.success('Результат отправлен в таблицу лидеров')
+        } catch (e) {
+          message.error('Ошибка отправки результата')
+        }
+      }
+    },
+    [user, addScore]
+  )
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -29,8 +61,10 @@ export const useGamePageData = ({ canvasRef }: UseGamePageDataProps) => {
     if (!ctx) return
 
     const game = new Game(ctx, {
-      // TODO: забрать юзера из стора
-      identity: { userId: 'userId', displayName: 'displayName' },
+      identity: {
+        userId: String(user?.id) ?? 'userId',
+        displayName: user?.display_name ?? user?.login ?? 'displayName',
+      },
       callbacks: { onEvent: handleGameEvent },
     })
 
@@ -58,6 +92,7 @@ export const useGamePageData = ({ canvasRef }: UseGamePageDataProps) => {
   const startNewGame = () => {
     setIsLoading(false)
     setShowModal(false)
+    dispatch(updateGame({ score: 0, level: 1 }))
     gameRef.current?.startNewGame()
   }
 

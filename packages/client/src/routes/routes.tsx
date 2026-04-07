@@ -21,6 +21,8 @@ import {
   ForumTopicPage,
 } from '@/pages/forum/ForumTopicPage'
 import { RegisterPage, initRegisterPage } from '@/pages/register/Register'
+import { LeaderBoardPage } from '@/pages/leaderboard'
+import { initLeaderBoardPage } from '@/pages/leaderboard/LeaderBoardPage'
 export const routes = [
   {
     path: '/',
@@ -65,6 +67,7 @@ export const routes = [
       </GuestRoute>
     ),
     fetchData: initLoginPage,
+    ErrorBoundary: AppErrorBoundary,
   },
   {
     path: '/forum',
@@ -114,8 +117,22 @@ export const routes = [
   },
   {
     path: '/register',
-    Component: RegisterPage,
+    Component: () => (
+      <GuestRoute>
+        <RegisterPage />
+      </GuestRoute>
+    ),
     fetchData: initRegisterPage,
+    ErrorBoundary: AppErrorBoundary,
+  },
+  {
+    path: '/leaderboard',
+    Component: () => (
+      <ProtectedRoute>
+        <LeaderBoardPage />
+      </ProtectedRoute>
+    ),
+    fetchData: initLeaderBoardPage,
     ErrorBoundary: AppErrorBoundary,
   },
 ]
