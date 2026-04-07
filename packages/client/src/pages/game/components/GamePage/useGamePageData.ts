@@ -7,6 +7,8 @@ import { useAddScoreMutation } from '@/pages/leaderboard/LeaderBoard.api'
 import { message } from 'antd'
 import { isLeaderBoardEvent, isModalEvent } from './GamePage.types'
 import { updateGame } from '@/slices/gameSlice'
+import { modalEvents } from './GamePage.constants'
+import { useGameNotifications } from './useGameNotifications'
 
 type UseGamePageDataProps = {
   canvasRef: RefObject<HTMLCanvasElement | null>
@@ -73,6 +75,12 @@ export const useGamePageData = ({ canvasRef }: UseGamePageDataProps) => {
       gameRef.current = null
     }
   }, [handleGameEvent])
+
+  const getSnapshot = useCallback(() => {
+    return gameRef.current?.getSnapshot() ?? null
+  }, [])
+
+  useGameNotifications(getSnapshot)
 
   const initGame = async () => {
     setIsLoading(true)

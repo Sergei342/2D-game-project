@@ -1,0 +1,235 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NotificationSection renders default permission state with request button 1`] = `
+<div>
+  <div
+    class="sc-jrsKJM cJhYaw"
+  >
+    <button
+      class="ant-btn css-dev-only-do-not-override-1daqxe2 css-var-root ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-block"
+      type="button"
+    >
+      <span
+        class="ant-btn-icon"
+      >
+        <span
+          aria-label="bell"
+          class="anticon anticon-bell"
+          role="img"
+        >
+          <svg
+            aria-hidden="true"
+            data-icon="bell"
+            fill="currentColor"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <path
+              d="M816 768h-24V428c0-141.1-104.3-257.7-240-277.1V112c0-22.1-17.9-40-40-40s-40 17.9-40 40v38.9c-135.7 19.4-240 136-240 277.1v340h-24c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h216c0 61.8 50.2 112 112 112s112-50.2 112-112h216c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM512 888c-26.5 0-48-21.5-48-48h96c0 26.5-21.5 48-48 48zM304 768V428c0-55.6 21.6-107.8 60.9-147.1S456.4 220 512 220c55.6 0 107.8 21.6 147.1 60.9S720 372.4 720 428v340H304z"
+            />
+          </svg>
+        </span>
+      </span>
+      <span>
+        Разрешить уведомления
+      </span>
+    </button>
+    <div
+      class="sc-kEqXeH dlLcUN"
+    >
+      <span
+        class="sc-fFSPgy eGyeZL"
+      >
+        <span
+          aria-label="close-circle"
+          class="anticon anticon-close-circle"
+          role="img"
+        >
+          <svg
+            aria-hidden="true"
+            data-icon="close-circle"
+            fill="currentColor"
+            fill-rule="evenodd"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <path
+              d="M512 64c247.4 0 448 200.6 448 448S759.4 960 512 960 64 759.4 64 512 264.6 64 512 64zm0 76c-205.4 0-372 166.6-372 372s166.6 372 372 372 372-166.6 372-372-166.6-372-372-372zm128.01 198.83c.03 0 .05.01.09.06l45.02 45.01a.2.2 0 01.05.09.12.12 0 010 .07c0 .02-.01.04-.05.08L557.25 512l127.87 127.86a.27.27 0 01.05.06v.02a.12.12 0 010 .07c0 .03-.01.05-.05.09l-45.02 45.02a.2.2 0 01-.09.05.12.12 0 01-.07 0c-.02 0-.04-.01-.08-.05L512 557.25 384.14 685.12c-.04.04-.06.05-.08.05a.12.12 0 01-.07 0c-.03 0-.05-.01-.09-.05l-45.02-45.02a.2.2 0 01-.05-.09.12.12 0 010-.07c0-.02.01-.04.06-.08L466.75 512 338.88 384.14a.27.27 0 01-.05-.06l-.01-.02a.12.12 0 010-.07c0-.03.01-.05.05-.09l45.02-45.02a.2.2 0 01.09-.05.12.12 0 01.07 0c.02 0 .04.01.08.06L512 466.75l127.86-127.86c.04-.05.06-.06.08-.06a.12.12 0 01.07 0z"
+            />
+          </svg>
+        </span>
+      </span>
+      <span
+        class="sc-iqAbyq fDpmP"
+      >
+        Разрешение не запрошено
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`NotificationSection renders denied state with disabled button and error hint 1`] = `
+<div>
+  <div
+    class="sc-jrsKJM cJhYaw"
+  >
+    <button
+      class="ant-btn css-dev-only-do-not-override-1daqxe2 css-var-root ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-block"
+      disabled=""
+      type="button"
+    >
+      <span
+        class="ant-btn-icon"
+      >
+        <span
+          aria-label="bell"
+          class="anticon anticon-bell"
+          role="img"
+        >
+          <svg
+            aria-hidden="true"
+            data-icon="bell"
+            fill="currentColor"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <path
+              d="M816 768h-24V428c0-141.1-104.3-257.7-240-277.1V112c0-22.1-17.9-40-40-40s-40 17.9-40 40v38.9c-135.7 19.4-240 136-240 277.1v340h-24c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h216c0 61.8 50.2 112 112 112s112-50.2 112-112h216c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM512 888c-26.5 0-48-21.5-48-48h96c0 26.5-21.5 48-48 48zM304 768V428c0-55.6 21.6-107.8 60.9-147.1S456.4 220 512 220c55.6 0 107.8 21.6 147.1 60.9S720 372.4 720 428v340H304z"
+            />
+          </svg>
+        </span>
+      </span>
+      <span>
+        Разблокируйте в настройках браузера
+      </span>
+    </button>
+    <div
+      class="sc-kEqXeH dlLcUN"
+    >
+      <span
+        class="sc-fFSPgy eGyeZL"
+      >
+        <span
+          aria-label="close-circle"
+          class="anticon anticon-close-circle"
+          role="img"
+        >
+          <svg
+            aria-hidden="true"
+            data-icon="close-circle"
+            fill="currentColor"
+            fill-rule="evenodd"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <path
+              d="M512 64c247.4 0 448 200.6 448 448S759.4 960 512 960 64 759.4 64 512 264.6 64 512 64zm0 76c-205.4 0-372 166.6-372 372s166.6 372 372 372 372-166.6 372-372-166.6-372-372-372zm128.01 198.83c.03 0 .05.01.09.06l45.02 45.01a.2.2 0 01.05.09.12.12 0 010 .07c0 .02-.01.04-.05.08L557.25 512l127.87 127.86a.27.27 0 01.05.06v.02a.12.12 0 010 .07c0 .03-.01.05-.05.09l-45.02 45.02a.2.2 0 01-.09.05.12.12 0 01-.07 0c-.02 0-.04-.01-.08-.05L512 557.25 384.14 685.12c-.04.04-.06.05-.08.05a.12.12 0 01-.07 0c-.03 0-.05-.01-.09-.05l-45.02-45.02a.2.2 0 01-.05-.09.12.12 0 010-.07c0-.02.01-.04.06-.08L466.75 512 338.88 384.14a.27.27 0 01-.05-.06l-.01-.02a.12.12 0 010-.07c0-.03.01-.05.05-.09l45.02-45.02a.2.2 0 01.09-.05.12.12 0 01.07 0c.02 0 .04.01.08.06L512 466.75l127.86-127.86c.04-.05.06-.06.08-.06a.12.12 0 01.07 0z"
+            />
+          </svg>
+        </span>
+      </span>
+      <span
+        class="sc-iqAbyq fDpmP"
+      >
+        Уведомления заблокированы в настройках браузера
+      </span>
+    </div>
+    <div
+      class="sc-crzpnZ fjFrgo"
+    >
+      <span
+        class="ant-typography ant-typography-danger css-dev-only-do-not-override-1daqxe2 css-var-root"
+      >
+        Чтобы включить, разрешите уведомления для этого сайта в настройках браузера (иконка замка в адресной строке)
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`NotificationSection renders granted state with toggle and hint 1`] = `
+<div>
+  <div
+    class="sc-jrsKJM cJhYaw"
+  >
+    <div
+      class="sc-kEqXeH dlLcUN"
+    >
+      <span
+        class="sc-fFSPgy fPLFAb"
+      >
+        <span
+          aria-label="check-circle"
+          class="anticon anticon-check-circle"
+          role="img"
+        >
+          <svg
+            aria-hidden="true"
+            data-icon="check-circle"
+            fill="currentColor"
+            focusable="false"
+            height="1em"
+            viewBox="64 64 896 896"
+            width="1em"
+          >
+            <path
+              d="M699 353h-46.9c-10.2 0-19.9 4.9-25.9 13.3L469 584.3l-71.2-98.8c-6-8.3-15.6-13.3-25.9-13.3H325c-6.5 0-10.3 7.4-6.5 12.7l124.6 172.8a31.8 31.8 0 0051.7 0l210.6-292c3.9-5.3.1-12.7-6.4-12.7z"
+            />
+            <path
+              d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+            />
+          </svg>
+        </span>
+      </span>
+      <span
+        class="sc-iqAbyq fDpmP"
+      >
+        Уведомления разрешены
+      </span>
+    </div>
+    <p
+      class="sc-bkbjWr hOZNix"
+    >
+      Уведомления приходят, когда вкладка не в фокусе
+    </p>
+    <div
+      class="sc-hBMVwJ bRIcbJ"
+    >
+      <span
+        class="sc-fnVZQs cMCmKU"
+      >
+        Игра без присмотра
+      </span>
+      <button
+        aria-checked="true"
+        class="ant-switch ant-switch-small css-dev-only-do-not-override-1daqxe2 css-var-root ant-switch-checked"
+        role="switch"
+        type="button"
+      >
+        <div
+          class="ant-switch-handle"
+        />
+        <span
+          class="ant-switch-inner"
+        >
+          <span
+            class="ant-switch-inner-checked"
+          />
+          <span
+            class="ant-switch-inner-unchecked"
+          />
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+`;

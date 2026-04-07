@@ -35,6 +35,8 @@ export const GlobalStyles = createGlobalStyle`
 
   html {
     height: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: ${cssVariables.primaryColor} transparent;
   }
 
   body {
@@ -75,4 +77,25 @@ export const GlobalStyles = createGlobalStyle`
     background-color: #05070d;
     box-shadow: inset 0 0 6px rgba(0, 255, 156, 0.4);
   }
+
+  /* Скроллбар */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${cssVariables.primaryColor};
+    border-radius: 3px;
+    box-shadow: 0 0 4px ${cssVariables.primaryColor};
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${cssVariables.secondaryColor};
+    box-shadow: 0 0 6px ${cssVariables.secondaryColor};
+  }
+
 `

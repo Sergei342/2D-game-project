@@ -23,6 +23,7 @@ import {
 import { PasswordSection } from './PasswordSection'
 import { ProfileSection } from './ProfileSection'
 import { GeoSectionContent } from './GeoSection'
+import { NotificationSection } from './NotificationSection'
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage })
@@ -228,6 +229,11 @@ export const ProfilePage = () => {
       key: 'geolocation',
       label: 'Моё местоположение',
       children: <GeoSectionContent />,
+    },
+    {
+      key: 'notifications',
+      label: 'Уведомления',
+      children: <NotificationSection />,
     },
   ]
 
