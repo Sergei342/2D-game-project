@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 
@@ -12,7 +12,7 @@ const mockUseNotification = jest.mocked(useNotification)
 const BASE_STATE: ReturnType<typeof useNotification> = {
   permission: 'default',
   enabled: true,
-  requestPermission: jest.fn(),
+  requestPermission: jest.fn().mockResolvedValue('default'),
   toggleEnabled: jest.fn(),
   show: jest.fn(),
 }
@@ -37,7 +37,7 @@ describe('NotificationSection', () => {
   })
 
   it('calls requestPermission on button click', async () => {
-    const requestPermission = jest.fn()
+    const requestPermission = jest.fn().mockResolvedValue('granted')
     setupHook({ requestPermission })
     render(<NotificationSection />)
 
@@ -45,7 +45,9 @@ describe('NotificationSection', () => {
       screen.getByRole('button', { name: /разрешить уведомления/i })
     )
 
-    expect(requestPermission).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(requestPermission).toHaveBeenCalledTimes(1)
+    })
   })
 
   it('renders granted state with toggle and hint', () => {
@@ -62,7 +64,9 @@ describe('NotificationSection', () => {
 
     await userEvent.click(screen.getByRole('switch'))
 
-    expect(toggleEnabled).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(toggleEnabled).toHaveBeenCalledTimes(1)
+    })
   })
 
   it('renders denied state with disabled button and error hint', () => {

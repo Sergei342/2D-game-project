@@ -14,11 +14,11 @@ import {
   StatusIcon,
   SectionHint,
 } from './ProfilePage.styled'
-import { useNotification } from '@/hooks/useNotification'
+import { useNotification, type PermissionState } from '@/hooks/useNotification'
 
 const { Text } = Typography
 
-const PERMISSION_TEXT: Record<string, string> = {
+const PERMISSION_TEXT: Record<PermissionState, string> = {
   granted: 'Уведомления разрешены',
   denied: 'Уведомления заблокированы в настройках браузера',
   default: 'Разрешение не запрошено',
