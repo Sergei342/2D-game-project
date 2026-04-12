@@ -1,16 +1,45 @@
-import React from 'react'
-import { hydrateRoot } from 'react-dom/client'
-import App from './App'
+import ReactDOM from 'react-dom/client'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { Provider } from 'react-redux'
+import { createAppStore } from './store'
+import { routes } from './routes/routes'
+import 'antd/dist/reset.css'
+import { ConfigProvider, theme } from 'antd'
+import { theme as appTheme } from './config/theme'
+import { GlobalStyles } from './styles/styles'
 
-const rootElement = document.getElementById('root')
+const root = document.getElementById('root') as HTMLElement
+const router = createBrowserRouter(routes)
 
-if (!rootElement) {
-  throw new Error('Root element was not found')
+const preloadedState = window.APP_INITIAL_STATE
+const store = createAppStore(preloadedState)
+
+delete window.APP_INITIAL_STATE
+
+const App = () => {
+  return (
+    <>
+      <GlobalStyles />
+      <ConfigProvider
+        theme={{
+          algorithm: theme.darkAlgorithm,
+          ...appTheme,
+          hashed: true,
+        }}>
+        <RouterProvider router={router} />
+      </ConfigProvider>
+    </>
+  )
 }
 
-hydrateRoot(rootElement, <App />)
+ReactDOM.hydrateRoot(
+  root,
+  <Provider store={store}>
+    <App />
+  </Provider>
+)
 
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => undefined)
   })

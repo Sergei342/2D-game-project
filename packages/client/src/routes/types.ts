@@ -21,5 +21,6 @@ export const templates = {
 export type TemplateKey = keyof typeof templates
 
 export type AppRouteObject = RouteObject & {
-  fetchData?: (args: PageInitArgs) => Promise<unknown>
+  fetchData?: (args: PageInitArgs) => Promise<unknown> | unknown
+  children?: AppRouteObject[]
 }

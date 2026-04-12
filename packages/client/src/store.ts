@@ -15,15 +15,13 @@ import forumReducer, { ForumState } from './slices/forumSlice'
 import { api } from './api/baseApi'
 import { apiErrorMiddleware } from './api/apiErrorMiddleware'
 
-declare global {
-  interface Window {
-    APP_INITIAL_STATE: RootState
-  }
-}
-
 const FORUM_STORAGE_KEY = 'forum_state_v1'
 
 const loadForumState = (): ForumState | undefined => {
+  if (typeof window === 'undefined') {
+    return undefined
+  }
+
   try {
     const raw = localStorage.getItem(FORUM_STORAGE_KEY)
     return raw ? (JSON.parse(raw) as ForumState) : undefined
@@ -33,6 +31,10 @@ const loadForumState = (): ForumState | undefined => {
 }
 
 const saveForumState = (state: ForumState) => {
+  if (typeof window === 'undefined') {
+    return
+  }
+
   try {
     localStorage.setItem(FORUM_STORAGE_KEY, JSON.stringify(state))
   } catch {
@@ -49,28 +51,53 @@ export const reducer = combineReducers({
   [api.reducerPath]: api.reducer,
 })
 
-export const store = configureStore({
-  reducer,
-  preloadedState:
-    typeof window === 'undefined'
-      ? undefined
-      : {
-          ...window.APP_INITIAL_STATE,
-          forum: loadForumState() ?? window.APP_INITIAL_STATE?.forum,
-        },
-  middleware: getDefaultMiddleware =>
-    getDefaultMiddleware().concat(api.middleware, apiErrorMiddleware),
-})
+export type RootState = ReturnType<typeof reducer>
 
-if (typeof window !== 'undefined') {
-  store.subscribe(() => {
-    saveForumState(store.getState().forum)
-  })
+declare global {
+  interface Window {
+    APP_INITIAL_STATE?: RootState
+  }
 }
 
-export type RootState = ReturnType<typeof reducer>
-export type AppDispatch = typeof store.dispatch
+const getPreloadedState = (
+  preloadedState?: RootState
+): RootState | undefined => {
+  if (typeof window === 'undefined') {
+    return preloadedState
+  }
 
-export const useDispatch: () => AppDispatch = useDispatchBase
+  const baseState = preloadedState ?? window.APP_INITIAL_STATE
+
+  if (!baseState) {
+    return undefined
+  }
+
+  return {
+    ...baseState,
+    forum: loadForumState() ?? baseState.forum,
+  }
+}
+
+export const createAppStore = (preloadedState?: RootState) => {
+  const createdStore = configureStore({
+    reducer,
+    preloadedState: getPreloadedState(preloadedState),
+    middleware: getDefaultMiddleware =>
+      getDefaultMiddleware().concat(api.middleware, apiErrorMiddleware),
+  })
+
+  if (typeof window !== 'undefined') {
+    createdStore.subscribe(() => {
+      saveForumState(createdStore.getState().forum)
+    })
+  }
+
+  return createdStore
+}
+
+export type AppStore = ReturnType<typeof createAppStore>
+export type AppDispatch = AppStore['dispatch']
+
+export const useDispatch = () => useDispatchBase<AppDispatch>()
 export const useSelector: TypedUseSelectorHook<RootState> = useSelectorBase
-export const useStore: () => typeof store = useStoreBase
+export const useStore = () => useStoreBase<AppStore>()

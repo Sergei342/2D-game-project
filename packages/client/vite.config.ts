@@ -6,10 +6,6 @@ import path from 'path'
 
 dotenv.config()
 
-const externalServerUrl =
-  process.env.EXTERNAL_SERVER_URL ?? 'http://localhost:3001'
-const internalServerUrl = process.env.INTERNAL_SERVER_URL ?? externalServerUrl
-
 export default defineConfig({
   resolve: {
     alias: {
@@ -20,8 +16,8 @@ export default defineConfig({
     port: Number(process.env.CLIENT_PORT) || 3000,
   },
   define: {
-    __EXTERNAL_SERVER_URL__: JSON.stringify(externalServerUrl),
-    __INTERNAL_SERVER_URL__: JSON.stringify(internalServerUrl),
+    __EXTERNAL_SERVER_URL__: JSON.stringify(process.env.EXTERNAL_SERVER_URL),
+    __INTERNAL_SERVER_URL__: JSON.stringify(process.env.INTERNAL_SERVER_URL),
   },
   build: {
     outDir: path.join(__dirname, 'dist/client'),
@@ -51,7 +47,7 @@ export default defineConfig({
         ],
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
     }),
   ],

@@ -16,12 +16,14 @@ export interface User {
 export interface UserState {
   data: User | null
   isLoading: boolean
+  isInitialized: boolean
   error: string | null
 }
 
 const initialState: UserState = {
   data: null,
   isLoading: false,
+  isInitialized: false,
   error: null,
 }
 
@@ -63,11 +65,13 @@ export const userSlice = createSlice({
     setUser: (state, { payload }: PayloadAction<User>) => {
       state.data = payload
       state.isLoading = false
+      state.isInitialized = true
       state.error = null
     },
     clearUser: state => {
       state.data = null
       state.isLoading = false
+      state.isInitialized = true
       state.error = null
     },
   },
@@ -80,10 +84,12 @@ export const userSlice = createSlice({
       .addCase(fetchUserThunk.fulfilled, (state, action) => {
         state.data = action.payload
         state.isLoading = false
+        state.isInitialized = true
         state.error = null
       })
       .addCase(fetchUserThunk.rejected, (state, action) => {
         state.isLoading = false
+        state.isInitialized = true
         state.data = null
         state.error = action.payload ?? 'Не удалось загрузить пользователя'
       })
@@ -94,6 +100,8 @@ export const { setUser, clearUser } = userSlice.actions
 
 export const selectUser = (state: RootState) => state.user.data
 export const selectIsLoadingUser = (state: RootState) => state.user.isLoading
+export const selectIsUserInitialized = (state: RootState) =>
+  state.user.isInitialized
 export const selectUserError = (state: RootState) => state.user.error
 
 export default userSlice.reducer

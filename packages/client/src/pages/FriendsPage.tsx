@@ -6,6 +6,7 @@ import {
   fetchFriendsThunk,
   selectFriends,
   selectIsLoadingFriends,
+  selectFriendsError,
 } from '../slices/friendsSlice'
 import { fetchUserThunk, selectUser } from '../slices/userSlice'
 import { PageInitArgs } from '../routes/types'
@@ -14,6 +15,7 @@ import { usePage } from '../hooks/usePage'
 export const FriendsPage = () => {
   const friends = useSelector(selectFriends)
   const isLoading = useSelector(selectIsLoadingFriends)
+  const error = useSelector(selectFriendsError)
   const user = useSelector(selectUser)
 
   usePage({ initPage: initFriendsPage })
@@ -43,11 +45,13 @@ export const FriendsPage = () => {
       )}
 
       {isLoading ? (
-        'Загрузка списка...'
+        <p>Загрузка списка...</p>
+      ) : error ? (
+        <p>{error}</p>
       ) : (
         <ul>
           {friends.map(friend => (
-            <li key={friend.name}>
+            <li key={`${friend.name}-${friend.secondName}`}>
               {friend.name} {friend.secondName}
             </li>
           ))}
@@ -57,12 +61,12 @@ export const FriendsPage = () => {
   )
 }
 
-export const initFriendsPage = ({ dispatch, state }: PageInitArgs) => {
+export const initFriendsPage = async ({ dispatch, state }: PageInitArgs) => {
   const queue: Promise<unknown>[] = [dispatch(fetchFriendsThunk())]
 
   if (!selectUser(state)) {
     queue.push(dispatch(fetchUserThunk()))
   }
 
-  return Promise.all(queue)
+  await Promise.all(queue)
 }

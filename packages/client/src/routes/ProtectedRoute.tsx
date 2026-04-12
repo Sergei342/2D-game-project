@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 interface Props {
@@ -7,13 +7,14 @@ interface Props {
 
 export const ProtectedRoute = ({ children }: Props) => {
   const { isAuth, isLoading } = useAuth()
+  const location = useLocation()
 
   if (isLoading) {
     return <div>Loading...</div>
   }
 
   if (!isAuth) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace state={{ from: location }} />
   }
 
   return children

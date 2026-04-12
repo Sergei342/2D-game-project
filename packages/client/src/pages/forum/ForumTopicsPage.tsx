@@ -63,7 +63,7 @@ export const ForumTopicsPage = () => {
                 </Space>
               }
               description={
-                <Space direction="vertical" size={0}>
+                <Space orientation="vertical" size={0}>
                   <Text type="secondary">{item.description}</Text>
                   <Text type="secondary">
                     {item.author} · {item.createdAt}
