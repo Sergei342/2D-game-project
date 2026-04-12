@@ -2,9 +2,12 @@
   "name": "client",
   "version": "0.0.0",
   "scripts": {
-  "dev": "tsc --project tsconfig.server.json && cross-env NODE_ENV=development EXTERNAL_SERVER_URL='http://localhost:3001' INTERNAL_SERVER_URL='http://localhost:3001' node server/index.js",
+    "dev": "tsc --project tsconfig.server.json && node server/index.js",
+    "dev:ssr": "npm run dev",
     "build": "tsc --project tsconfig.server.json && vite build && vite build --ssr src/entry-server.tsx --outDir dist/server",
+    "build:ssr": "npm run build",
     "preview": "node server/index.js",
+    "preview:ssr": "node server/index.js --prod",
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "jest ./",
