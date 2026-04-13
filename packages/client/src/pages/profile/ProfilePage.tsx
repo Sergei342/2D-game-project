@@ -85,7 +85,7 @@ export const ProfilePage = () => {
   }, [dispatch, handleUnauthorized])
 
   useEffect(() => {
-    if (!user) {
+    if (!user || loading) {
       return
     }
 
@@ -97,7 +97,7 @@ export const ProfilePage = () => {
       email: user.email,
       phone: user.phone,
     })
-  }, [form, user])
+  }, [form, user, loading])
 
   const handleAvatarChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
