@@ -100,4 +100,4 @@ export type AppDispatch = AppStore['dispatch']
 
 export const useDispatch = () => useDispatchBase<AppDispatch>()
 export const useSelector: TypedUseSelectorHook<RootState> = useSelectorBase
-export const useStore = () => useStoreBase<AppStore>()
+export const useStore = () => useStoreBase() as AppStore
