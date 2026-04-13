@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from '../store'
 import {
   fetchUserThunk,
@@ -13,28 +13,15 @@ export const useAuth = () => {
   const isLoadingUser = useSelector(selectIsLoadingUser)
   const isUserInitialized = useSelector(selectIsUserInitialized)
 
-  const hasRequestedRef = useRef(false)
-
   useEffect(() => {
-    if (user) {
-      return
+    if (!isUserInitialized && !isLoadingUser) {
+      void dispatch(fetchUserThunk())
     }
-
-    if (isLoadingUser) {
-      return
-    }
-
-    if (hasRequestedRef.current && isUserInitialized) {
-      return
-    }
-
-    hasRequestedRef.current = true
-    void dispatch(fetchUserThunk())
-  }, [dispatch, user, isLoadingUser, isUserInitialized])
+  }, [dispatch, isUserInitialized, isLoadingUser])
 
   return {
     isAuth: Boolean(user),
-    isLoading: !user && (!isUserInitialized || isLoadingUser),
+    isLoading: !isUserInitialized || isLoadingUser,
     user,
   }
 }
