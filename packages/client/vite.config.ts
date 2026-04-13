@@ -31,7 +31,6 @@ export default defineConfig({
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'sw.ts',
-      // Keep manifest generation minimal; caching logic lives in src/sw.ts.
       manifest: {
         name: 'Space Invaders',
         short_name: 'SpaceInvaders',
