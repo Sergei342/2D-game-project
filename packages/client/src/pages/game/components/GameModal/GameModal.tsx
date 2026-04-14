@@ -11,7 +11,7 @@ import {
   LEVEL_COMPLETE_TEXT,
 } from './GameModal.constants'
 import { GameEvent } from '@/game/engine/Game'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { useSelector } from '@/store'
 import { selectLevel } from '@/slices/gameSlice'
 
@@ -38,58 +38,84 @@ export const GameModal = ({
   onContinueGame,
   onRestartGame,
 }: GameModalProps) => {
-  let content: ReactNode
-  const modalContentCommonProps = { isLoading }
-
+  const [isMounted, setIsMounted] = useState(false)
   const level = useSelector(selectLevel)
 
-  switch (type) {
-    case 'levelComplete':
-      content = (
-        <ModalContent
-          {...modalContentCommonProps}
-          title={`Уровень ${level}`}
-          description={LEVEL_COMPLETE_TEXT}
-          submitButton={{ title: 'Продолжить', onSubmit: onLoadLevel }}
-          onAction={onContinueGame}
-        />
-      )
-      break
-    case 'win':
-      content = (
-        <ModalContent
-          {...modalContentCommonProps}
-          title={GAME_COMPLETE_TITLE}
-          description={GAME_COMPLETE_TEXT}
-          submitButton={{ title: 'Начать заново', onSubmit: onRestartGame }}
-          onAction={onStartNewGame}
-        />
-      )
-      break
-    case 'gameover':
-      content = (
-        <ModalContent
-          {...modalContentCommonProps}
-          title={GAME_OVER_TITLE}
-          description={GAME_OVER_TEXT}
-          submitButton={{ title: 'Начать заново', onSubmit: onRestartGame }}
-          onAction={onStartNewGame}
-          danger
-        />
-      )
-      break
-    case 'level':
-    default:
-      content = (
-        <ModalContent
-          {...modalContentCommonProps}
-          title={GAME_START_TITLE}
-          description={GAME_START_TEXT}
-          submitButton={{ title: 'Поехали', onSubmit: onInitGame }}
-          onAction={onStartNewGame}
-        />
-      )
-      break
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  const content = useMemo(() => {
+    const modalContentCommonProps = { isLoading }
+
+    let modalContent: ReactNode
+
+    switch (type) {
+      case 'levelComplete':
+        modalContent = (
+          <ModalContent
+            {...modalContentCommonProps}
+            title={`Уровень ${level}`}
+            description={LEVEL_COMPLETE_TEXT}
+            submitButton={{ title: 'Продолжить', onSubmit: onLoadLevel }}
+            onAction={onContinueGame}
+          />
+        )
+        break
+
+      case 'win':
+        modalContent = (
+          <ModalContent
+            {...modalContentCommonProps}
+            title={GAME_COMPLETE_TITLE}
+            description={GAME_COMPLETE_TEXT}
+            submitButton={{ title: 'Начать заново', onSubmit: onRestartGame }}
+            onAction={onStartNewGame}
+          />
+        )
+        break
+
+      case 'gameover':
+        modalContent = (
+          <ModalContent
+            {...modalContentCommonProps}
+            title={GAME_OVER_TITLE}
+            description={GAME_OVER_TEXT}
+            submitButton={{ title: 'Начать заново', onSubmit: onRestartGame }}
+            onAction={onStartNewGame}
+            danger
+          />
+        )
+        break
+
+      case 'level':
+      default:
+        modalContent = (
+          <ModalContent
+            {...modalContentCommonProps}
+            title={GAME_START_TITLE}
+            description={GAME_START_TEXT}
+            submitButton={{ title: 'Поехали', onSubmit: onInitGame }}
+            onAction={onStartNewGame}
+          />
+        )
+        break
+    }
+
+    return modalContent
+  }, [
+    isLoading,
+    level,
+    onContinueGame,
+    onInitGame,
+    onLoadLevel,
+    onRestartGame,
+    onStartNewGame,
+    type,
+  ])
+
+  if (!isMounted) {
+    return null
   }
 
   return (
