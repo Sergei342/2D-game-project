@@ -4,6 +4,7 @@ dotenv.config()
 
 import express from 'express'
 import { createClientAndConnect } from './db'
+import forumRouter from './routes/forum'
 
 const app = express()
 app.use(
@@ -12,9 +13,11 @@ app.use(
     credentials: true,
   })
 )
+app.use(express.json())
+
 const port = Number(process.env.SERVER_PORT) || 3001
 
-createClientAndConnect()
+app.use('/forum', forumRouter)
 
 app.get('/friends', (_, res) => {
   res.json([
@@ -41,6 +44,14 @@ app.get('/', (_, res) => {
   res.json('👋 Howdy from the server :)')
 })
 
-app.listen(port, () => {
-  console.log(`  ➜ 🎸 Server is listening on port: ${port}`)
+const startServer = async (): Promise<void> => {
+  await createClientAndConnect()
+  app.listen(port, () => {
+    console.log(`  ➜ 🎸 Server is listening on port: ${port}`)
+  })
+}
+
+startServer().catch(e => {
+  console.error('  ➜ Server startup failed:', e)
+  process.exit(1)
 })
