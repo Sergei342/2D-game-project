@@ -1,4 +1,4 @@
-import type { Response } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 import { HTTP_STATUS, ERROR_MSG } from '../constants'
 
 /**
@@ -7,10 +7,15 @@ import { HTTP_STATUS, ERROR_MSG } from '../constants'
  * Пока что middleware пропускает все запросы (заглушка), сделано,
  * чтобы закрыть ручки пока не сделана задача по мидлвари
  */
-export function authMiddleware(res: Response): void {
+export function authMiddleware(
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): void {
   const STUB_MODE = true
 
   if (STUB_MODE) {
+    next()
     return
   }
 

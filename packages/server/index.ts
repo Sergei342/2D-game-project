@@ -5,9 +5,11 @@ import path from 'path'
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
 import express from 'express'
+import swaggerUi from 'swagger-ui-express'
 import { connectToDatabase } from './db'
 import { forumRouter } from './routes/forum'
 import { authMiddleware } from './middlewares/authMiddleware'
+import { swaggerSpec } from './swagger'
 
 const app = express()
 app.use(express.json())
@@ -19,6 +21,7 @@ app.use(
 )
 const port = Number(process.env.SERVER_PORT) || 3001
 
+app.use('/swagger', swaggerUi.serve as any, swaggerUi.setup(swaggerSpec) as any)
 app.use('/api/v1/forum', authMiddleware, forumRouter)
 
 app.get('/', (_, res) => {
