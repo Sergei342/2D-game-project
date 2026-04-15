@@ -17,23 +17,30 @@ import { useDispatch, useSelector } from '@/store'
 import { addComment, deleteTopic, selectTopicById } from '@/slices/forumSlice'
 import { formatDateTime } from '@/shared/formatDateTime'
 import { getAuthorInfo } from '@/shared/getAuthorInfo'
+import { CommentReactions } from './CommentReactions'
 
 const { Title, Text } = Typography
 
 type CommentForm = { text: string }
 
 export const initForumTopicPage = async () => null
+
 export const ForumTopicPage = () => {
   usePage({ initPage: initForumTopicPage })
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { topicId } = useParams()
+  const [form] = Form.useForm<CommentForm>()
 
   const topic = useSelector(selectTopicById(topicId || ''))
 
   const onAddComment = async (values: CommentForm) => {
     if (!topicId) return
+
+    const text = values.text.trim()
+    if (!text) return
+
     const { name, avatar } = await getAuthorInfo()
 
     dispatch(
@@ -43,11 +50,13 @@ export const ForumTopicPage = () => {
           id: String(Date.now()),
           author: name,
           avatar,
-          text: values.text.trim(),
+          text,
           createdAt: formatDateTime(),
         },
       })
     )
+
+    form.resetFields()
   }
 
   const confirmDelete = () => {
@@ -107,25 +116,38 @@ export const ForumTopicPage = () => {
         <List
           dataSource={topic.comments}
           locale={{ emptyText: 'Комментариев пока нет' }}
-          renderItem={c => (
+          renderItem={comment => (
             <List.Item>
               <List.Item.Meta
                 avatar={
-                  <Avatar size={28} src={c.avatar} icon={<UserOutlined />} />
+                  <Avatar
+                    size={28}
+                    src={comment.avatar}
+                    icon={<UserOutlined />}
+                  />
                 }
                 title={
                   <Space>
-                    <Text strong>{c.author}</Text>
-                    <Text type="secondary">{c.createdAt}</Text>
+                    <Text strong>{comment.author}</Text>
+                    <Text type="secondary">{comment.createdAt}</Text>
                   </Space>
                 }
-                description={c.text}
+                description={
+                  <>
+                    {comment.text}
+                    <CommentReactions
+                      topicId={topicId || ''}
+                      comment={comment}
+                    />
+                  </>
+                }
               />
             </List.Item>
           )}
         />
 
         <Form<CommentForm>
+          form={form}
           layout="vertical"
           onFinish={onAddComment}
           style={{ marginTop: 16 }}>
