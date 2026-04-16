@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
+import { UniqueConstraintError } from 'sequelize'
 import { Reaction } from '../models/Reaction'
 import { Comment } from '../models/Comment'
-import { sanitize } from '../utils/sanitize'
 import { HTTP_STATUS, ERROR_MSG } from '../constants'
 
 /**
@@ -13,15 +13,8 @@ export const createReaction = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { commentId } = req.params
+    const commentId = Number(req.params.commentId)
     const { type, userId } = req.body
-
-    if (!type || !userId) {
-      res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: ERROR_MSG.REACTION_REQUIRED_FIELDS })
-      return
-    }
 
     const comment = await Comment.findByPk(commentId)
     if (!comment) {
@@ -31,22 +24,20 @@ export const createReaction = async (
       return
     }
 
-    const existing = await Reaction.findOne({ where: { commentId, userId } })
-    if (existing) {
-      res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: ERROR_MSG.REACTION_ALREADY_EXISTS })
-      return
-    }
-
     const reaction = await Reaction.create({
-      type: sanitize(type),
+      type,
       userId,
       commentId,
     })
 
     res.status(HTTP_STATUS.CREATED).json(reaction)
   } catch (err) {
+    if (err instanceof UniqueConstraintError) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: ERROR_MSG.REACTION_ALREADY_EXISTS })
+      return
+    }
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
   }
 }
@@ -60,15 +51,8 @@ export const updateReaction = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { commentId } = req.params
+    const commentId = Number(req.params.commentId)
     const { type, userId } = req.body
-
-    if (!type || !userId) {
-      res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: ERROR_MSG.REACTION_REQUIRED_FIELDS })
-      return
-    }
 
     const reaction = await Reaction.findOne({ where: { commentId, userId } })
     if (!reaction) {
@@ -78,7 +62,7 @@ export const updateReaction = async (
       return
     }
 
-    reaction.type = sanitize(type)
+    reaction.type = type
     await reaction.save()
 
     res.json(reaction)
@@ -96,15 +80,8 @@ export const deleteReaction = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { commentId } = req.params
+    const commentId = Number(req.params.commentId)
     const { userId } = req.body
-
-    if (!userId) {
-      res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: ERROR_MSG.REACTION_USER_REQUIRED })
-      return
-    }
 
     const reaction = await Reaction.findOne({ where: { commentId, userId } })
     if (!reaction) {

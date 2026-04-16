@@ -17,6 +17,7 @@ import {
   updateReaction,
   deleteReaction,
 } from '../controllers/reactionController'
+import { validateReactionParams } from '../middlewares/validateReactionParams'
 
 export const forumRouter = Router()
 
@@ -34,6 +35,18 @@ forumRouter.put('/comments/:id', updateComment)
 forumRouter.delete('/comments/:id', deleteComment)
 
 // Reactions
-forumRouter.post('/comments/:commentId/reactions', createReaction)
-forumRouter.put('/comments/:commentId/reactions', updateReaction)
-forumRouter.delete('/comments/:commentId/reactions', deleteReaction)
+forumRouter.post(
+  '/comments/:commentId/reactions',
+  validateReactionParams,
+  createReaction
+)
+forumRouter.put(
+  '/comments/:commentId/reactions',
+  validateReactionParams,
+  updateReaction
+)
+forumRouter.delete(
+  '/comments/:commentId/reactions',
+  validateReactionParams,
+  deleteReaction
+)

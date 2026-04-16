@@ -186,16 +186,25 @@ function formatComment(c: Comment): CommentNode {
 
 function buildCommentTree(comments: Comment[]): CommentNode[] {
   const nodeMap = new Map<number, CommentNode>()
+
+  comments.forEach(comment => {
+    nodeMap.set(comment.id, formatComment(comment))
+  })
+
   const roots: CommentNode[] = []
 
   comments.forEach(comment => {
-    const node = formatComment(comment)
-    nodeMap.set(comment.id, node)
+    const node = nodeMap.get(comment.id)
+    if (!node) {
+      return
+    }
 
-    if (comment.parentId === null) {
+    const parent = comment.parentId !== null && nodeMap.get(comment.parentId)
+
+    if (parent) {
+      parent.replies.push(node)
+    } else {
       roots.push(node)
-    } else if (nodeMap.has(comment.parentId)) {
-      nodeMap.get(comment.parentId)?.replies.push(node)
     }
   })
 
