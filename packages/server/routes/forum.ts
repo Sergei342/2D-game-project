@@ -17,22 +17,34 @@ import {
   updateReaction,
   deleteReaction,
 } from '../controllers/reactionController'
-import { validateReactionParams } from '../middlewares/validateReactionParams'
+import {
+  validateReactionParams,
+  validatePagination,
+  validateIdParam,
+} from '../middlewares/forumValidators'
 
 export const forumRouter = Router()
 
 // Topics
-forumRouter.get('/topics', getTopics)
-forumRouter.get('/topics/:id', getTopicById)
+forumRouter.get('/topics', validatePagination, getTopics)
+forumRouter.get('/topics/:id', validateIdParam('id'), getTopicById)
 forumRouter.post('/topics', createTopic)
-forumRouter.put('/topics/:id', updateTopic)
-forumRouter.delete('/topics/:id', deleteTopic)
+forumRouter.put('/topics/:id', validateIdParam('id'), updateTopic)
+forumRouter.delete('/topics/:id', validateIdParam('id'), deleteTopic)
 
 // Comments
-forumRouter.get('/topics/:topicId/comments', getComments)
-forumRouter.post('/topics/:topicId/comments', createComment)
-forumRouter.put('/comments/:id', updateComment)
-forumRouter.delete('/comments/:id', deleteComment)
+forumRouter.get(
+  '/topics/:topicId/comments',
+  validateIdParam('topicId'),
+  getComments
+)
+forumRouter.post(
+  '/topics/:topicId/comments',
+  validateIdParam('topicId'),
+  createComment
+)
+forumRouter.put('/comments/:id', validateIdParam('id'), updateComment)
+forumRouter.delete('/comments/:id', validateIdParam('id'), deleteComment)
 
 // Reactions
 forumRouter.post(

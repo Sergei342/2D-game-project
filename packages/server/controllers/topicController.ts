@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express'
+import { QueryTypes } from 'sequelize'
 import { Topic } from '../models/Topic'
 import { Comment } from '../models/Comment'
 import { Reaction } from '../models/Reaction'
@@ -10,7 +11,14 @@ import {
   ERROR_MSG,
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
+  TITLE_MIN_LENGTH,
+  TITLE_MAX_LENGTH,
+  DESCRIPTION_MIN_LENGTH,
+  DESCRIPTION_MAX_LENGTH,
+  DISPLAY_NAME_MIN_LENGTH,
+  DISPLAY_NAME_MAX_LENGTH,
 } from '../constants'
+import { isValidText } from '../middlewares/forumValidators'
 
 /**
  * GET запрос на получение топиков с пагинацией /api/v1/forum/topics?page=1&pageSize=10000
@@ -18,9 +26,9 @@ import {
  */
 export const getTopics = async (req: Request, res: Response): Promise<void> => {
   try {
-    const page = Math.max(Number(req.query.page) || 1, 1)
+    const page = req.query.page ? Number(req.query.page) : 1
     const pageSize = Math.min(
-      Math.max(Number(req.query.pageSize) || DEFAULT_PAGE_SIZE, 1),
+      req.query.pageSize ? Number(req.query.pageSize) : DEFAULT_PAGE_SIZE,
       MAX_PAGE_SIZE
     )
 
@@ -37,14 +45,37 @@ export const getTopics = async (req: Request, res: Response): Promise<void> => {
       offset: (page - 1) * pageSize,
     })
 
-    const result = await Promise.all(
-      topics.map(async topic => {
-        const commentsCount = await Comment.count({
-          where: { topicId: topic.id },
-        })
-        return { ...topic.toJSON(), commentsCount }
+    const topicIds = topics.map(topic => topic.id)
+    const countByTopicId = new Map<number, number>()
+
+    if (topicIds.length > 0) {
+      if (!Comment.sequelize) {
+        throw new Error('Sequelize instance is not available')
+      }
+
+      const counts = await Comment.sequelize.query<{
+        topicId: number
+        count: string
+      }>(
+        `SELECT "topicId", COUNT("id") AS "count"
+         FROM "comments"
+         WHERE "topicId" IN (:topicIds)
+         GROUP BY "topicId"`,
+        {
+          replacements: { topicIds },
+          type: QueryTypes.SELECT,
+        }
+      )
+
+      counts.forEach(({ topicId, count }) => {
+        countByTopicId.set(topicId, Number(count))
       })
-    )
+    }
+
+    const result = topics.map(topic => ({
+      ...topic.toJSON(),
+      commentsCount: countByTopicId.get(topic.id) ?? 0,
+    }))
 
     res.json({
       data: result,
@@ -54,7 +85,10 @@ export const getTopics = async (req: Request, res: Response): Promise<void> => {
       totalPages: Math.ceil(total / pageSize),
     })
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -67,7 +101,8 @@ export const getTopicById = async (
   res: Response
 ): Promise<void> => {
   try {
-    const topic = await Topic.findByPk(req.params.id, {
+    const id = Number(req.params.id)
+    const topic = await Topic.findByPk(id, {
       include: [
         {
           model: UserProfile,
@@ -87,7 +122,10 @@ export const getTopicById = async (
     const commentsCount = await Comment.count({ where: { topicId: topic.id } })
     res.json({ ...topic.toJSON(), commentsCount })
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -100,12 +138,42 @@ export const createTopic = async (
   res: Response
 ): Promise<void> => {
   try {
+    // TODO: после реализации authMiddleware брать authorId из req.user.id, не из body
     const { title, description, authorId, displayName, avatar } = req.body
 
-    if (!title || !description || !authorId || !displayName) {
+    if (!authorId) {
       res
         .status(HTTP_STATUS.BAD_REQUEST)
         .json({ error: ERROR_MSG.TOPIC_REQUIRED_FIELDS })
+      return
+    }
+
+    if (!isValidText(title, TITLE_MIN_LENGTH, TITLE_MAX_LENGTH)) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: ERROR_MSG.INVALID_TITLE })
+      return
+    }
+
+    if (
+      !isValidText(description, DESCRIPTION_MIN_LENGTH, DESCRIPTION_MAX_LENGTH)
+    ) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: ERROR_MSG.INVALID_DESCRIPTION })
+      return
+    }
+
+    if (
+      !isValidText(
+        displayName,
+        DISPLAY_NAME_MIN_LENGTH,
+        DISPLAY_NAME_MAX_LENGTH
+      )
+    ) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: ERROR_MSG.INVALID_DISPLAY_NAME })
       return
     }
 
@@ -113,14 +181,30 @@ export const createTopic = async (
     // обновляется только при запросах создания топиков и сообщений, но зато хоть так будет актуальный аватар и ник
     await updateUserProfile(authorId, sanitize(displayName), avatar)
 
-    const topic = await Topic.create({
+    const created = await Topic.create({
       title: sanitize(title),
       description: sanitize(description),
       authorId,
     })
-    res.status(HTTP_STATUS.CREATED).json(topic)
+
+    const topic = await Topic.findByPk(created.id, {
+      include: [
+        {
+          model: UserProfile,
+          as: 'author',
+          attributes: ['id', 'displayName', 'avatar'],
+        },
+      ],
+    })
+
+    res
+      .status(HTTP_STATUS.CREATED)
+      .json({ ...topic?.toJSON(), commentsCount: 0 })
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -133,7 +217,8 @@ export const updateTopic = async (
   res: Response
 ): Promise<void> => {
   try {
-    const topic = await Topic.findByPk(req.params.id)
+    const id = Number(req.params.id)
+    const topic = await Topic.findByPk(id)
 
     if (!topic) {
       res
@@ -144,18 +229,38 @@ export const updateTopic = async (
 
     const { title, description } = req.body
 
-    if (!title && !description) {
+    if (title === undefined && description === undefined) {
       res
         .status(HTTP_STATUS.BAD_REQUEST)
         .json({ error: ERROR_MSG.TOPIC_UPDATE_REQUIRED })
       return
     }
 
-    if (title) {
+    if (
+      title !== undefined &&
+      !isValidText(title, TITLE_MIN_LENGTH, TITLE_MAX_LENGTH)
+    ) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: ERROR_MSG.INVALID_TITLE })
+      return
+    }
+
+    if (
+      description !== undefined &&
+      !isValidText(description, DESCRIPTION_MIN_LENGTH, DESCRIPTION_MAX_LENGTH)
+    ) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: ERROR_MSG.INVALID_DESCRIPTION })
+      return
+    }
+
+    if (title !== undefined) {
       topic.title = sanitize(title)
     }
 
-    if (description) {
+    if (description !== undefined) {
       topic.description = sanitize(description)
     }
 
@@ -163,7 +268,10 @@ export const updateTopic = async (
 
     res.json(topic)
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -176,7 +284,8 @@ export const deleteTopic = async (
   res: Response
 ): Promise<void> => {
   try {
-    const topic = await Topic.findByPk(req.params.id)
+    const id = Number(req.params.id)
+    const topic = await Topic.findByPk(id)
 
     if (!topic) {
       res
@@ -192,15 +301,26 @@ export const deleteTopic = async (
     })
     const commentIds = comments.map(c => c.id)
 
-    if (commentIds.length > 0) {
-      await Reaction.destroy({ where: { commentId: commentIds } })
+    if (!Comment.sequelize) {
+      throw new Error('Sequelize instance is not available')
     }
 
-    await Comment.destroy({ where: { topicId: topic.id } })
-    await topic.destroy()
+    await Comment.sequelize.transaction(async transaction => {
+      if (commentIds.length > 0) {
+        await Reaction.destroy({
+          where: { commentId: commentIds },
+          transaction,
+        })
+      }
+      await Comment.destroy({ where: { topicId: topic.id }, transaction })
+      await topic.destroy({ transaction })
+    })
 
     res.json({ ok: true })
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
