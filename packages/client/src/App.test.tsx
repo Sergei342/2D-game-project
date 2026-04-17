@@ -8,7 +8,7 @@ global.fetch = jest.fn(() =>
 ) as unknown as typeof global.fetch
 
 const preloadedState = window.APP_INITIAL_STATE
-const store = createAppStore(preloadedState)
+const store = createAppStore({ preloadedState })
 
 test('Example test', async () => {
   render(
