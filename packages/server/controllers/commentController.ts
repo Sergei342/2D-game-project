@@ -7,6 +7,7 @@ import { Reaction } from '../models/Reaction'
 import { sanitize } from '../utils/sanitize'
 import { updateUserProfile } from '../utils/userProfileUtils'
 import { HTTP_STATUS, ERROR_MSG } from '../constants'
+import type { CommentNodeDTO } from '../types/dto'
 
 /**
  * GET запрос на получение комментариев к топику
@@ -197,32 +198,39 @@ export const deleteComment = async (
   }
 }
 
-interface CommentNode {
-  id: number
-  parentId: number | null
-  replies: CommentNode[]
-  [key: string]: unknown
+function formatComment(comment: Comment): CommentNodeDTO {
+  return {
+    id: comment.id,
+    text: comment.text,
+    authorId: comment.authorId,
+    author: comment.author
+      ? {
+          id: comment.author.id,
+          displayName: comment.author.displayName,
+          avatar: comment.author.avatar,
+        }
+      : undefined,
+    topicId: comment.topicId,
+    parentId: comment.parentId,
+    reactions: (comment.reactions ?? []).map(reaction => ({
+      id: reaction.id,
+      type: reaction.type,
+      userId: reaction.userId,
+    })),
+    replies: [],
+    createdAt: comment.createdAt,
+    updatedAt: comment.updatedAt,
+  }
 }
 
-function formatComment(c: Comment): CommentNode {
-  const json = c.toJSON() as CommentNode
-
-  delete json.topic
-  delete json.parent
-
-  json.replies = []
-
-  return json
-}
-
-function buildCommentTree(comments: Comment[]): CommentNode[] {
-  const nodeMap = new Map<number, CommentNode>()
+function buildCommentTree(comments: Comment[]): CommentNodeDTO[] {
+  const nodeMap = new Map<number, CommentNodeDTO>()
 
   comments.forEach(comment => {
     nodeMap.set(comment.id, formatComment(comment))
   })
 
-  const roots: CommentNode[] = []
+  const roots: CommentNodeDTO[] = []
 
   comments.forEach(comment => {
     const node = nodeMap.get(comment.id)
