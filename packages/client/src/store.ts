@@ -11,36 +11,13 @@ import friendsReducer from './slices/friendsSlice'
 import ssrReducer from './slices/ssrSlice'
 import userReducer from './slices/userSlice'
 import gameReducer from './slices/gameSlice'
-import forumReducer, { ForumState } from './slices/forumSlice'
+import forumReducer from './slices/forumSlice'
 import { api } from './api/baseApi'
 import { apiErrorMiddleware } from './api/apiErrorMiddleware'
-
-const FORUM_STORAGE_KEY = 'forum_state_v1'
-
-const loadForumState = (): ForumState | undefined => {
-  if (typeof window === 'undefined') {
-    return undefined
-  }
-
-  try {
-    const raw = localStorage.getItem(FORUM_STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as ForumState) : undefined
-  } catch {
-    return undefined
-  }
-}
-
-const saveForumState = (state: ForumState) => {
-  if (typeof window === 'undefined') {
-    return
-  }
-
-  try {
-    localStorage.setItem(FORUM_STORAGE_KEY, JSON.stringify(state))
-  } catch {
-    // ignore
-  }
-}
+import {
+  createNoopForumStateStorage,
+  type ForumStateStorage,
+} from './store/forumStateStorage'
 
 export const reducer = combineReducers({
   friends: friendsReducer,
@@ -53,44 +30,39 @@ export const reducer = combineReducers({
 
 export type RootState = ReturnType<typeof reducer>
 
-declare global {
-  interface Window {
-    APP_INITIAL_STATE?: RootState
-  }
+type CreateAppStoreOptions = {
+  preloadedState?: RootState
+  forumStateStorage?: ForumStateStorage
 }
 
-const getPreloadedState = (
-  preloadedState?: RootState
+const resolvePreloadedState = (
+  preloadedState: RootState | undefined,
+  forumStateStorage: ForumStateStorage
 ): RootState | undefined => {
-  if (typeof window === 'undefined') {
-    return preloadedState
-  }
-
-  const baseState = preloadedState ?? window.APP_INITIAL_STATE
-
-  if (!baseState) {
+  if (!preloadedState) {
     return undefined
   }
 
   return {
-    ...baseState,
-    forum: loadForumState() ?? baseState.forum,
+    ...preloadedState,
+    forum: forumStateStorage.load() ?? preloadedState.forum,
   }
 }
 
-export const createAppStore = (preloadedState?: RootState) => {
+export const createAppStore = ({
+  preloadedState,
+  forumStateStorage = createNoopForumStateStorage(),
+}: CreateAppStoreOptions = {}) => {
   const createdStore = configureStore({
     reducer,
-    preloadedState: getPreloadedState(preloadedState),
+    preloadedState: resolvePreloadedState(preloadedState, forumStateStorage),
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware().concat(api.middleware, apiErrorMiddleware),
   })
 
-  if (typeof window !== 'undefined') {
-    createdStore.subscribe(() => {
-      saveForumState(createdStore.getState().forum)
-    })
-  }
+  createdStore.subscribe(() => {
+    forumStateStorage.save(createdStore.getState().forum)
+  })
 
   return createdStore
 }

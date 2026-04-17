@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '@/store'
-import { SERVER_HOST } from '@/constants'
+import { fetchFriends, getFriendsErrorMessage } from '@/services/friendsApi'
 
 export interface Friend {
   name: string
   secondName: string
-  avatar: string
+  avatar: string | null
 }
 
 export interface FriendsState {
@@ -24,31 +24,12 @@ export const fetchFriendsThunk = createAsyncThunk<
   Friend[],
   void,
   { rejectValue: string }
->('user/fetchFriendsThunk', async (_, { rejectWithValue }) => {
+>('friends/fetchFriendsThunk', async (_, { rejectWithValue }) => {
   try {
-    const url = `${SERVER_HOST}/friends`
-    const response = await fetch(url, {
-      credentials: 'include',
-    })
-
-    if (!response.ok) {
-      let errorMessage = `Ошибка ${response.status}`
-
-      try {
-        const errorBody = await response.json()
-        if (errorBody?.reason) {
-          errorMessage = errorBody.reason
-        }
-      } catch {
-        // ignore
-      }
-
-      return rejectWithValue(errorMessage)
-    }
-
-    return (await response.json()) as Friend[]
-  } catch {
-    return rejectWithValue('Не удалось загрузить список друзей')
+    return await fetchFriends()
+  } catch (error) {
+    console.error('Ошибка при загрузке списка друзей', error)
+    return rejectWithValue(getFriendsErrorMessage(error))
   }
 })
 
