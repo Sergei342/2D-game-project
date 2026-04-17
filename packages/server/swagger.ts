@@ -1,4 +1,17 @@
 import swaggerJsdoc from 'swagger-jsdoc'
+import {
+  REACTION_TYPES,
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  TITLE_MIN_LENGTH,
+  TITLE_MAX_LENGTH,
+  DESCRIPTION_MIN_LENGTH,
+  DESCRIPTION_MAX_LENGTH,
+  COMMENT_TEXT_MIN_LENGTH,
+  COMMENT_TEXT_MAX_LENGTH,
+  DISPLAY_NAME_MIN_LENGTH,
+  DISPLAY_NAME_MAX_LENGTH,
+} from './constants'
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -67,13 +80,25 @@ const options: swaggerJsdoc.Options = {
           type: 'object',
           required: ['title', 'description', 'authorId', 'displayName'],
           properties: {
-            title: { type: 'string', example: 'Стратегии прохождения' },
+            title: {
+              type: 'string',
+              minLength: TITLE_MIN_LENGTH,
+              maxLength: TITLE_MAX_LENGTH,
+              example: 'Стратегии прохождения',
+            },
             description: {
               type: 'string',
+              minLength: DESCRIPTION_MIN_LENGTH,
+              maxLength: DESCRIPTION_MAX_LENGTH,
               example: 'Обсуждаем лучшие стратегии',
             },
-            authorId: { type: 'integer', example: 42 },
-            displayName: { type: 'string', example: 'PlayerOne' },
+            authorId: { type: 'integer', minimum: 1, example: 42 },
+            displayName: {
+              type: 'string',
+              minLength: DISPLAY_NAME_MIN_LENGTH,
+              maxLength: DISPLAY_NAME_MAX_LENGTH,
+              example: 'PlayerOne',
+            },
             avatar: {
               type: 'string',
               nullable: true,
@@ -83,9 +108,20 @@ const options: swaggerJsdoc.Options = {
         },
         UpdateTopicRequest: {
           type: 'object',
+          description: 'Нужно передать хотя бы одно из полей',
           properties: {
-            title: { type: 'string', example: 'Новое название' },
-            description: { type: 'string', example: 'Новое описание' },
+            title: {
+              type: 'string',
+              minLength: TITLE_MIN_LENGTH,
+              maxLength: TITLE_MAX_LENGTH,
+              example: 'Новое название',
+            },
+            description: {
+              type: 'string',
+              minLength: DESCRIPTION_MIN_LENGTH,
+              maxLength: DESCRIPTION_MAX_LENGTH,
+              example: 'Новое описание',
+            },
           },
         },
 
@@ -123,9 +159,19 @@ const options: swaggerJsdoc.Options = {
           type: 'object',
           required: ['text', 'authorId', 'displayName'],
           properties: {
-            text: { type: 'string', example: 'Отличная тема!' },
-            authorId: { type: 'integer', example: 42 },
-            displayName: { type: 'string', example: 'PlayerOne' },
+            text: {
+              type: 'string',
+              minLength: COMMENT_TEXT_MIN_LENGTH,
+              maxLength: COMMENT_TEXT_MAX_LENGTH,
+              example: 'Отличная тема!',
+            },
+            authorId: { type: 'integer', minimum: 1, example: 42 },
+            displayName: {
+              type: 'string',
+              minLength: DISPLAY_NAME_MIN_LENGTH,
+              maxLength: DISPLAY_NAME_MAX_LENGTH,
+              example: 'PlayerOne',
+            },
             avatar: {
               type: 'string',
               nullable: true,
@@ -134,6 +180,7 @@ const options: swaggerJsdoc.Options = {
             parentId: {
               type: 'integer',
               nullable: true,
+              minimum: 1,
               description: 'ID родительского комментария (для reply)',
               example: null,
             },
@@ -143,7 +190,12 @@ const options: swaggerJsdoc.Options = {
           type: 'object',
           required: ['text'],
           properties: {
-            text: { type: 'string', example: 'Отредактированный текст' },
+            text: {
+              type: 'string',
+              minLength: COMMENT_TEXT_MIN_LENGTH,
+              maxLength: COMMENT_TEXT_MAX_LENGTH,
+              example: 'Отредактированный текст',
+            },
           },
         },
 
@@ -151,23 +203,23 @@ const options: swaggerJsdoc.Options = {
           type: 'object',
           required: ['type', 'userId'],
           properties: {
-            type: { type: 'string', example: 'like' },
-            userId: { type: 'integer', example: 42 },
+            type: { type: 'string', enum: REACTION_TYPES, example: '👍' },
+            userId: { type: 'integer', minimum: 1, example: 42 },
           },
         },
         UpdateReactionRequest: {
           type: 'object',
           required: ['type', 'userId'],
           properties: {
-            type: { type: 'string', example: 'dislike' },
-            userId: { type: 'integer', example: 42 },
+            type: { type: 'string', enum: REACTION_TYPES, example: '❤️' },
+            userId: { type: 'integer', minimum: 1, example: 42 },
           },
         },
         DeleteReactionRequest: {
           type: 'object',
           required: ['userId'],
           properties: {
-            userId: { type: 'integer', example: 42 },
+            userId: { type: 'integer', minimum: 1, example: 42 },
           },
         },
       },
@@ -182,12 +234,17 @@ const options: swaggerJsdoc.Options = {
             {
               name: 'page',
               in: 'query',
-              schema: { type: 'integer', default: 1 },
+              schema: { type: 'integer', minimum: 1, default: 1 },
             },
             {
               name: 'pageSize',
               in: 'query',
-              schema: { type: 'integer', default: 10000 },
+              schema: {
+                type: 'integer',
+                minimum: 1,
+                maximum: MAX_PAGE_SIZE,
+                default: DEFAULT_PAGE_SIZE,
+              },
             },
           ],
           responses: {
@@ -198,6 +255,14 @@ const options: swaggerJsdoc.Options = {
                   schema: {
                     $ref: '#/components/schemas/TopicsPaginatedResponse',
                   },
+                },
+              },
+            },
+            400: {
+              description: 'Невалидные page или pageSize',
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/ErrorResponse' },
                 },
               },
             },
@@ -240,7 +305,8 @@ const options: swaggerJsdoc.Options = {
               },
             },
             400: {
-              description: 'Не хватает обязательных полей',
+              description:
+                'Не хватает обязательных полей или нарушены ограничения длины',
               content: {
                 'application/json': {
                   schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -343,7 +409,8 @@ const options: swaggerJsdoc.Options = {
               },
             },
             400: {
-              description: 'Не указаны title или description',
+              description:
+                'Невалидный id, не указаны title/description или нарушены ограничения длины',
               content: {
                 'application/json': {
                   schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -503,7 +570,8 @@ const options: swaggerJsdoc.Options = {
               },
             },
             400: {
-              description: 'Не хватает обязательных полей',
+              description:
+                'Не хватает обязательных полей или нарушены ограничения длины',
               content: {
                 'application/json': {
                   schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -568,7 +636,7 @@ const options: swaggerJsdoc.Options = {
               },
             },
             400: {
-              description: 'Не указан text',
+              description: 'Не указан text или нарушены ограничения длины',
               content: {
                 'application/json': {
                   schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -679,7 +747,8 @@ const options: swaggerJsdoc.Options = {
               },
             },
             400: {
-              description: 'Не хватает полей / реакция уже существует',
+              description:
+                'Невалидный commentId / тип реакции / userId, или реакция уже существует',
               content: {
                 'application/json': {
                   schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -741,7 +810,7 @@ const options: swaggerJsdoc.Options = {
               },
             },
             400: {
-              description: 'Не хватает полей',
+              description: 'Невалидный commentId / тип реакции / userId',
               content: {
                 'application/json': {
                   schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -803,7 +872,7 @@ const options: swaggerJsdoc.Options = {
               },
             },
             400: {
-              description: 'Не указан userId',
+              description: 'Невалидный commentId или userId',
               content: {
                 'application/json': {
                   schema: { $ref: '#/components/schemas/ErrorResponse' },
