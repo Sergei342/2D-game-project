@@ -42,7 +42,10 @@ export const getComments = async (
 
     res.json(buildCommentTree(comments))
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -57,6 +60,7 @@ export const createComment = async (
 ): Promise<void> => {
   try {
     const { topicId } = req.params
+    // TODO: после реализации authMiddleware брать authorId из req.user.id, не из body
     const { text, authorId, displayName, avatar, parentId } = req.body
 
     if (!text || !authorId || !displayName) {
@@ -95,7 +99,10 @@ export const createComment = async (
 
     res.status(HTTP_STATUS.CREATED).json(comment)
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -132,7 +139,10 @@ export const updateComment = async (
 
     res.json(comment)
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -162,7 +172,10 @@ export const deleteComment = async (
 
     res.json({ ok: true })
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 

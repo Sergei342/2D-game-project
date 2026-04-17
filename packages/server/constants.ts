@@ -26,6 +26,7 @@ export const ERROR_MSG = {
   REACTION_REQUIRED_FIELDS: 'type and userId are required',
   REACTION_INVALID_TYPE: 'Invalid reaction type',
   REACTION_USER_REQUIRED: 'userId is required',
+  INTERNAL_ERROR: 'Internal server error',
 } as const
 
 export const REACTION_TYPES: string[] = ['👍', '❤️', '😂', '😢', '😡']

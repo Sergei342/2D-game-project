@@ -54,7 +54,10 @@ export const getTopics = async (req: Request, res: Response): Promise<void> => {
       totalPages: Math.ceil(total / pageSize),
     })
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -87,7 +90,10 @@ export const getTopicById = async (
     const commentsCount = await Comment.count({ where: { topicId: topic.id } })
     res.json({ ...topic.toJSON(), commentsCount })
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -100,6 +106,7 @@ export const createTopic = async (
   res: Response
 ): Promise<void> => {
   try {
+    // TODO: после реализации authMiddleware брать authorId из req.user.id, не из body
     const { title, description, authorId, displayName, avatar } = req.body
 
     if (!title || !description || !authorId || !displayName) {
@@ -120,7 +127,10 @@ export const createTopic = async (
     })
     res.status(HTTP_STATUS.CREATED).json(topic)
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -163,7 +173,10 @@ export const updateTopic = async (
 
     res.json(topic)
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -201,6 +214,9 @@ export const deleteTopic = async (
 
     res.json({ ok: true })
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }

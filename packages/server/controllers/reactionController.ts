@@ -4,6 +4,8 @@ import { Reaction } from '../models/Reaction'
 import { Comment } from '../models/Comment'
 import { HTTP_STATUS, ERROR_MSG } from '../constants'
 
+// TODO: после реализации authMiddleware брать userId из req.user.id, не из body
+
 /**
  * POST запрос на добавление reaction /api/v1/forum/comments/:commentId/reactions
  *
@@ -38,7 +40,10 @@ export const createReaction = async (
         .json({ error: ERROR_MSG.REACTION_ALREADY_EXISTS })
       return
     }
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -67,7 +72,10 @@ export const updateReaction = async (
 
     res.json(reaction)
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
 
@@ -94,6 +102,9 @@ export const deleteReaction = async (
     await reaction.destroy()
     res.json({ ok: true })
   } catch (err) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: String(err) })
+    console.error(err)
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: ERROR_MSG.INTERNAL_ERROR })
   }
 }
