@@ -30,8 +30,7 @@ export default defineConfig({
     VitePWA({
       strategies: 'injectManifest',
       srcDir: 'src',
-      filename: 'sw.js',
-      // Keep manifest generation minimal; caching logic lives in src/sw.ts.
+      filename: 'sw.ts',
       manifest: {
         name: 'Space Invaders',
         short_name: 'SpaceInvaders',

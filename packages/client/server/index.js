@@ -55,40 +55,38 @@ async function createServer() {
     app.get('*', async (req, res, next) => {
         const url = req.originalUrl;
         try {
-            // Получаем файл client/index.html который мы правили ранее
-            // Создаём переменные
             let render;
             let template;
             if (vite) {
                 template = await promises_1.default.readFile(path_1.default.resolve(clientPath, 'index.html'), 'utf-8');
-                // Применяем встроенные HTML-преобразования vite и плагинов
                 template = await vite.transformIndexHtml(url, template);
-                // Загружаем модуль клиента, который писали выше,
-                // он будет рендерить HTML-код
                 render = (await vite.ssrLoadModule(path_1.default.join(clientPath, 'src/entry-server.tsx'))).render;
             }
             else {
                 template = await promises_1.default.readFile(path_1.default.join(clientPath, 'dist/client/index.html'), 'utf-8');
-                // Получаем путь до сбилдженого модуля клиента, чтобы не тащить средства сборки клиента на сервер
                 const pathToServer = path_1.default.join(clientPath, 'dist/server/entry-server.js');
-                // Импортируем этот модуль и вызываем с инишл стейтом
                 render = (await Promise.resolve().then(() => __importStar(require(pathToServer)))).render;
             }
-            // Получаем HTML-строку из JSX
             const { html: appHtml, initialState, helmet, styleTags, } = await render(req);
-            // Заменяем комментарий на сгенерированную HTML-строку
             const html = template
                 .replace('<!--ssr-styles-->', styleTags)
-                .replace(`<!--ssr-helmet-->`, `${helmet.meta.toString()} ${helmet.title.toString()} ${helmet.link.toString()}`)
-                .replace(`<!--ssr-outlet-->`, appHtml)
-                .replace(`<!--ssr-initial-state-->`, `<script>window.APP_INITIAL_STATE = ${(0, serialize_javascript_1.default)(initialState, {
+                .replace('<!--ssr-helmet-->', `${helmet.meta.toString()} ${helmet.title.toString()} ${helmet.link.toString()}`)
+                .replace('<!--ssr-outlet-->', appHtml)
+                .replace('<!--ssr-initial-state-->', `<script>window.APP_INITIAL_STATE = ${(0, serialize_javascript_1.default)(initialState, {
                 isJSON: true,
             })}</script>`);
-            // Завершаем запрос и отдаём HTML-страницу
             res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
         }
         catch (e) {
-            vite.ssrFixStacktrace(e);
+            if (e instanceof Response) {
+                const location = e.headers.get('Location');
+                if (location && e.status >= 300 && e.status < 400) {
+                    return res.redirect(e.status, location);
+                }
+                const body = await e.text().catch(() => e.statusText);
+                return res.status(e.status).send(body || e.statusText);
+            }
+            vite === null || vite === void 0 ? void 0 : vite.ssrFixStacktrace(e);
             next(e);
         }
     });

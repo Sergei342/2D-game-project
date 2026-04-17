@@ -1,4 +1,3 @@
-import React from 'react'
 import ReactDOM from 'react-dom/server'
 import { Provider } from 'react-redux'
 import { ServerStyleSheet } from 'styled-components'
@@ -10,15 +9,15 @@ import {
   StaticRouterProvider,
 } from 'react-router-dom/server'
 import { matchRoutes } from 'react-router-dom'
-import { configureStore } from '@reduxjs/toolkit'
 
 import {
   createContext,
   createFetchRequest,
   createUrl,
 } from './entry-server.utils'
-import { reducer } from './store'
+import { createAppStore } from './store'
 import { routes } from './routes/routes'
+import { AppRouteObject } from './routes/types'
 import './index.css'
 import { setPageHasBeenInitializedOnServer } from './slices/ssrSlice'
 import { ConfigProvider, theme } from 'antd'
@@ -35,29 +34,25 @@ export const render = async (req: ExpressRequest) => {
     throw context
   }
 
-  const store = configureStore({
-    reducer,
-  })
-
+  const store = createAppStore()
   const url = createUrl(req)
 
-  const foundRoutes = matchRoutes(routes, url)
+  const foundRoutes = matchRoutes(routes, url) as Array<{
+    route: AppRouteObject
+  }> | null
+
   if (!foundRoutes) {
     throw new Error('Страница не найдена!')
   }
 
-  const [
-    {
-      route: { fetchData },
-    },
-  ] = foundRoutes
-
   try {
-    await fetchData?.({
-      dispatch: store.dispatch,
-      state: store.getState(),
-      ctx: createContext(req),
-    })
+    for (const { route } of foundRoutes) {
+      await route.fetchData?.({
+        dispatch: store.dispatch,
+        state: store.getState(),
+        ctx: createContext(req),
+      })
+    }
 
     await Promise.all(store.dispatch(api.util.getRunningQueriesThunk()))
   } catch (e) {
@@ -68,6 +63,7 @@ export const render = async (req: ExpressRequest) => {
 
   const router = createStaticRouter(dataRoutes, context)
   const sheet = new ServerStyleSheet()
+
   try {
     const html = ReactDOM.renderToString(
       sheet.collectStyles(
@@ -85,7 +81,6 @@ export const render = async (req: ExpressRequest) => {
       )
     )
     const styleTags = sheet.getStyleTags()
-
     const helmet = Helmet.renderStatic()
 
     return {

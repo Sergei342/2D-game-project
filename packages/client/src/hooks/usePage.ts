@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useDispatch, useSelector, useStore } from '@/store'
 import {
   setPageHasBeenInitializedOnServer,
@@ -23,7 +23,7 @@ const createContext = (): PageInitContext => ({
 })
 
 type PageProps = {
-  initPage: (data: PageInitArgs) => Promise<unknown>
+  initPage: (data: PageInitArgs) => Promise<unknown> | unknown
 }
 
 export const usePage = ({ initPage }: PageProps) => {
@@ -33,11 +33,19 @@ export const usePage = ({ initPage }: PageProps) => {
   )
   const store = useStore()
 
+  const shouldSkipFirstClientInit = useRef(pageHasBeenInitializedOnServer)
+
   useEffect(() => {
-    if (pageHasBeenInitializedOnServer) {
+    if (shouldSkipFirstClientInit.current) {
+      shouldSkipFirstClientInit.current = false
       dispatch(setPageHasBeenInitializedOnServer(false))
       return
     }
-    initPage({ dispatch, state: store.getState(), ctx: createContext() })
-  }, [])
+
+    void initPage({
+      dispatch,
+      state: store.getState(),
+      ctx: createContext(),
+    })
+  }, [dispatch, initPage, store])
 }

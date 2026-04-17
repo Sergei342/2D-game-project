@@ -40,7 +40,7 @@ export const ForumCreateTopicPage = () => {
 
   return (
     <Card>
-      <Space direction="vertical" style={{ width: '100%' }} size={16}>
+      <Space orientation="vertical" style={{ width: '100%' }} size={16}>
         <Title level={3} style={{ margin: 0 }}>
           Создание топика
         </Title>

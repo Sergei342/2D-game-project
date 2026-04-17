@@ -5,7 +5,7 @@ const App = () => {
   const user = useSelector(selectUser)
 
   return (
-    <div>
+    <main>
       {user ? (
         <div>
           <p>{user.first_name}</p>
@@ -14,7 +14,7 @@ const App = () => {
       ) : (
         <p>Пользователь не найден!</p>
       )}
-    </div>
+    </main>
   )
 }
 

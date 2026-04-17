@@ -1,3 +1,5 @@
+import type { AppRouteObject } from './types'
+
 import { initLoginPage, LoginPage } from '../pages/login/Login'
 import { GuestRoute, ProtectedRoute } from './ProtectedRoute'
 import { initProfilePage, ProfilePage } from '../pages/profile/ProfilePage'
@@ -23,7 +25,8 @@ import {
 import { RegisterPage, initRegisterPage } from '@/pages/register/Register'
 import { LeaderBoardPage } from '@/pages/leaderboard'
 import { initLeaderBoardPage } from '@/pages/leaderboard/LeaderBoardPage'
-export const routes = [
+
+export const routes: AppRouteObject[] = [
   {
     path: '/',
     Component: () => (
@@ -100,12 +103,6 @@ export const routes = [
     ErrorBoundary: AppErrorBoundary,
   },
   {
-    path: '/*',
-    Component: Error404Page,
-    fetchData: initError404Page,
-    ErrorBoundary: AppErrorBoundary,
-  },
-  {
     path: '/profile',
     Component: () => (
       <ProtectedRoute>
@@ -133,6 +130,12 @@ export const routes = [
       </ProtectedRoute>
     ),
     fetchData: initLeaderBoardPage,
+    ErrorBoundary: AppErrorBoundary,
+  },
+  {
+    path: '/*',
+    Component: Error404Page,
+    fetchData: initError404Page,
     ErrorBoundary: AppErrorBoundary,
   },
 ]

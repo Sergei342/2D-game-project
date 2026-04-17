@@ -25,7 +25,10 @@ export const PasswordSection = ({
         label="Старый пароль"
         name="oldPassword"
         rules={[{ required: true, message: 'Введите текущий пароль' }]}>
-        <Input.Password placeholder="Текущий пароль" />
+        <Input.Password
+          placeholder="Текущий пароль"
+          autoComplete="current-password"
+        />
       </Form.Item>
 
       <Form.Item
@@ -35,7 +38,10 @@ export const PasswordSection = ({
           { required: true, message: 'Введите новый пароль' },
           { min: 6, message: 'Минимум 6 символов' },
         ]}>
-        <Input.Password placeholder="Новый пароль" />
+        <Input.Password
+          placeholder="Новый пароль"
+          autoComplete="new-password"
+        />
       </Form.Item>
 
       <ProfileSubmitRow>

@@ -6,7 +6,7 @@ import { Header } from '../components/Header'
 import { usePage } from '../hooks/usePage'
 import { PageInitArgs } from '@/routes/types'
 import { clearUser, fetchUserThunk, selectUser } from '../slices/userSlice'
-import { useSelector } from '../store'
+import { useDispatch, useSelector } from '../store'
 import { logoutUser } from './login/LoginService'
 import {
   HeroCard,
@@ -16,7 +16,6 @@ import {
   StartButton,
   TopBar,
 } from './Main.styles'
-import { useDispatch } from 'react-redux'
 
 const { Title, Paragraph, Text } = Typography
 
@@ -30,7 +29,7 @@ const quickLinks: QuickLink[] = [
   {
     key: 'forum',
     title: 'Форум',
-    path: '/friends',
+    path: '/forum',
   },
   {
     key: 'leaderboard',
@@ -79,7 +78,7 @@ export const MainPage = () => {
         <Button onClick={handleLogout}>Выйти</Button>
       </TopBar>
 
-      <HeroCard variant={'borderless'}>
+      <HeroCard variant="borderless">
         <Space orientation="vertical" size={10} style={{ width: '100%' }}>
           <Title level={2}>Space Invaders</Title>
           <Paragraph>
@@ -118,6 +117,6 @@ export const MainPage = () => {
 
 export const initMainPage = async ({ dispatch, state }: PageInitArgs) => {
   if (!selectUser(state)) {
-    return dispatch(fetchUserThunk())
+    await dispatch(fetchUserThunk())
   }
 }

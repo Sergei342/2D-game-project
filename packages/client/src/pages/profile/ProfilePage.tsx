@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
 import { usePage } from '../../hooks/usePage'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   profileService,
   UserProfile,
@@ -39,19 +39,10 @@ export const ProfilePage = () => {
   const [form] = Form.useForm()
   const [passwordForm] = Form.useForm()
 
-  const formRef = useRef(form)
-  formRef.current = form
-
-  const passwordFormRef = useRef(passwordForm)
-  passwordFormRef.current = passwordForm
-
   const handleUnauthorized = useCallback(() => {
     message.error('Сессия истекла. Перенаправляем на страницу входа…')
     navigate('/login')
   }, [navigate])
-
-  const handleUnauthorizedRef = useRef(handleUnauthorized)
-  handleUnauthorizedRef.current = handleUnauthorized
 
   useEffect(() => {
     const controller = new AbortController()
@@ -69,15 +60,6 @@ export const ProfilePage = () => {
         }
 
         dispatch(setUser(data))
-
-        formRef.current.setFieldsValue({
-          first_name: data.first_name,
-          second_name: data.second_name,
-          display_name: data.display_name ?? '',
-          login: data.login,
-          email: data.email,
-          phone: data.phone,
-        })
       })
       .catch(err => {
         if (controller.signal.aborted) {
@@ -85,7 +67,7 @@ export const ProfilePage = () => {
         }
 
         if (err instanceof UnauthorizedError) {
-          handleUnauthorizedRef.current()
+          handleUnauthorized()
           return
         }
 
@@ -100,7 +82,22 @@ export const ProfilePage = () => {
     return () => {
       controller.abort()
     }
-  }, [dispatch])
+  }, [dispatch, handleUnauthorized])
+
+  useEffect(() => {
+    if (!user || loading) {
+      return
+    }
+
+    form.setFieldsValue({
+      first_name: user.first_name,
+      second_name: user.second_name,
+      display_name: user.display_name ?? '',
+      login: user.login,
+      email: user.email,
+      phone: user.phone,
+    })
+  }, [form, user, loading])
 
   const handleAvatarChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,6 +110,7 @@ export const ProfilePage = () => {
 
       if (file.size > MAX_AVATAR_SIZE * MAX_AVATAR_SIZE_MB_UNITS) {
         message.error(`Файл слишком большой. Максимум ${MAX_AVATAR_SIZE} МБ`)
+        input.value = ''
         return
       }
 
@@ -122,7 +120,7 @@ export const ProfilePage = () => {
         message.success('Аватар обновлён')
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
-          handleUnauthorizedRef.current()
+          handleUnauthorized()
           return
         }
 
@@ -131,7 +129,7 @@ export const ProfilePage = () => {
         input.value = ''
       }
     },
-    [dispatch]
+    [dispatch, handleUnauthorized]
   )
 
   const handleSave = useCallback(
@@ -153,7 +151,7 @@ export const ProfilePage = () => {
         message.success('Профиль успешно сохранён')
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
-          handleUnauthorizedRef.current()
+          handleUnauthorized()
           return
         }
 
@@ -166,7 +164,7 @@ export const ProfilePage = () => {
         setSaving(false)
       }
     },
-    [dispatch]
+    [dispatch, handleUnauthorized]
   )
 
   const handlePassword = useCallback(
@@ -178,17 +176,17 @@ export const ProfilePage = () => {
         })
 
         message.success('Пароль успешно изменён')
-        passwordFormRef.current.resetFields()
+        passwordForm.resetFields()
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
-          handleUnauthorizedRef.current()
+          handleUnauthorized()
           return
         }
 
         message.error('Не удалось сменить пароль')
       }
     },
-    []
+    [handleUnauthorized, passwordForm]
   )
 
   if (loading) {
@@ -205,6 +203,7 @@ export const ProfilePage = () => {
     {
       key: 'profile',
       label: 'Профиль',
+      forceRender: true,
       children: (
         <ProfileSection
           avatarSrc={avatarSrc}
@@ -218,6 +217,7 @@ export const ProfilePage = () => {
     {
       key: 'password',
       label: 'Сменить пароль',
+      forceRender: true,
       children: (
         <PasswordSection
           form={passwordForm}

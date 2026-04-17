@@ -42,26 +42,37 @@ self.addEventListener('activate', event => {
   )
 })
 
-const cacheFirst = async (request: Request) => {
+const cacheFirst = async (request: Request): Promise<Response> => {
   const cached = await caches.match(request)
   if (cached) return cached
 
   const response = await fetch(request)
   const cache = await caches.open(RUNTIME_NAME)
-  cache.put(request, response.clone()).catch(() => undefined)
+  void cache.put(request, response.clone()).catch(() => undefined)
   return response
 }
 
-const networkFirst = async (request: Request) => {
+const networkFirst = async (request: Request): Promise<Response> => {
   const cache = await caches.open(RUNTIME_NAME)
+
   try {
     const response = await fetch(request)
-    cache.put(request, response.clone()).catch(() => undefined)
+    void cache.put(request, response.clone()).catch(() => undefined)
     return response
   } catch {
     const cached = await cache.match(request)
     if (cached) return cached
-    return caches.match('/index.html')
+
+    const appShell = await caches.match('/index.html')
+    if (appShell) return appShell
+
+    return new Response('Offline', {
+      status: 503,
+      statusText: 'Service Unavailable',
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+      },
+    })
   }
 }
 

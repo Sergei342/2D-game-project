@@ -83,21 +83,30 @@ const createTestStore = () =>
       friends: () => null as never,
       ssr: () => null as never,
       forum: () => null as never,
+      game: () => null as never,
     },
   })
 
-const renderPage = () =>
-  render(
-    <Provider store={createTestStore()}>
-      <MemoryRouter>
-        <ProfilePage />
-      </MemoryRouter>
-    </Provider>
-  )
+const renderPage = async () => {
+  let view!: ReturnType<typeof render>
+
+  await act(async () => {
+    view = render(
+      <Provider store={createTestStore()}>
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>
+      </Provider>
+    )
+  })
+
+  return view
+}
 
 const expandPanel = async (name: RegExp) => {
-  const header = screen.getByText(name)
-  await userEvent.click(header)
+  const user = userEvent.setup()
+  const header = await screen.findByText(name)
+  await user.click(header)
 }
 
 describe('ProfilePage', () => {
@@ -107,14 +116,14 @@ describe('ProfilePage', () => {
     ;(profileService.getUser as jest.Mock).mockResolvedValue(FAKE_USER)
   })
 
-  it('snapshot: loading state', () => {
+  it('snapshot: loading state', async () => {
     const neverResolves = new Promise(() => {
       /* neverResolves - эмулирует состояние данные загружаются */
     })
 
     ;(profileService.getUser as jest.Mock).mockReturnValue(neverResolves)
 
-    const { container } = renderPage()
+    const { container } = await renderPage()
 
     expect(container).toMatchSnapshot()
   })
@@ -122,13 +131,12 @@ describe('ProfilePage', () => {
   it('snapshot: error when getUser returns null', async () => {
     ;(profileService.getUser as jest.Mock).mockResolvedValue(null)
 
-    const { container } = renderPage()
+    const { container } = await renderPage()
 
-    await waitFor(() => {
-      expect(
-        screen.getByText('Не удалось загрузить данные профиля')
-      ).toBeInTheDocument()
-    })
+    expect(
+      await screen.findByText('Не удалось загрузить данные профиля')
+    ).toBeInTheDocument()
+
     expect(container).toMatchSnapshot()
   })
 
@@ -137,20 +145,26 @@ describe('ProfilePage', () => {
       new Error('Сервер не отвечает')
     )
 
-    const { container } = renderPage()
+    const { container } = await renderPage()
 
-    await waitFor(() => {
-      expect(screen.getByText('Сервер не отвечает')).toBeInTheDocument()
-    })
+    expect(await screen.findByText('Сервер не отвечает')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
   })
 
-  it('snapshot: loaded state with all sections and pre-filled data', async () => {
-    const { container } = renderPage()
-    await waitFor(() => {
-      expect(screen.getByText('Профиль')).toBeInTheDocument()
-    })
-    expect(container).toMatchSnapshot()
+  it('renders loaded state with all sections and pre-filled data', async () => {
+    await renderPage()
+
+    expect(await screen.findByText('Профиль')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Иван')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Иванов')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('ivan')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('ivanov')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('ivan@example.com')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('+71234567890')).toBeInTheDocument()
+
+    expect(screen.getByText('Сменить пароль')).toBeInTheDocument()
+    expect(screen.getByText('Моё местоположение')).toBeInTheDocument()
+    expect(screen.getByText('Уведомления')).toBeInTheDocument()
   })
 
   it('navigates to /login when getUser throws UnauthorizedError', async () => {
@@ -158,7 +172,7 @@ describe('ProfilePage', () => {
       new UnauthorizedError()
     )
 
-    renderPage()
+    await renderPage()
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/login')
@@ -170,7 +184,7 @@ describe('ProfilePage', () => {
   })
 
   it('sets document title to "Профиль"', async () => {
-    renderPage()
+    await renderPage()
 
     await waitFor(() => {
       expect(document.title).toBe('Профиль')
@@ -181,18 +195,16 @@ describe('ProfilePage', () => {
     const updatedUser = { ...FAKE_USER, first_name: 'Пётр' }
     ;(profileService.updateProfile as jest.Mock).mockResolvedValue(updatedUser)
 
-    renderPage()
+    const user = userEvent.setup()
 
-    await waitFor(() => {
-      expect(screen.getByDisplayValue('Иван')).toBeInTheDocument()
-    })
+    await renderPage()
 
-    const firstNameInput = screen.getByDisplayValue('Иван')
-    await userEvent.clear(firstNameInput)
-    await userEvent.type(firstNameInput, 'Пётр')
+    const firstNameInput = await screen.findByDisplayValue('Иван')
+    await user.clear(firstNameInput)
+    await user.type(firstNameInput, 'Пётр')
 
-    const saveButton = screen.getByRole('button', { name: /сохранить/i })
-    await userEvent.click(saveButton)
+    const saveButton = await screen.findByRole('button', { name: /сохранить/i })
+    await user.click(saveButton)
 
     await waitFor(() => {
       expect(profileService.updateProfile).toHaveBeenCalledTimes(1)
@@ -212,14 +224,14 @@ describe('ProfilePage', () => {
       new Error('Ошибка сервера')
     )
 
-    renderPage()
+    const user = userEvent.setup()
 
-    await waitFor(() => {
-      expect(screen.getByDisplayValue('Иван')).toBeInTheDocument()
-    })
+    await renderPage()
 
-    const saveButton = screen.getByRole('button', { name: /сохранить/i })
-    await userEvent.click(saveButton)
+    await screen.findByDisplayValue('Иван')
+
+    const saveButton = await screen.findByRole('button', { name: /сохранить/i })
+    await user.click(saveButton)
 
     await waitFor(() => {
       expect(profileService.updateProfile).toHaveBeenCalledTimes(1)
@@ -235,14 +247,14 @@ describe('ProfilePage', () => {
       new UnauthorizedError()
     )
 
-    renderPage()
+    const user = userEvent.setup()
 
-    await waitFor(() => {
-      expect(screen.getByDisplayValue('Иван')).toBeInTheDocument()
-    })
+    await renderPage()
 
-    const saveButton = screen.getByRole('button', { name: /сохранить/i })
-    await userEvent.click(saveButton)
+    await screen.findByDisplayValue('Иван')
+
+    const saveButton = await screen.findByRole('button', { name: /сохранить/i })
+    await user.click(saveButton)
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/login')
@@ -252,22 +264,21 @@ describe('ProfilePage', () => {
   it('calls profileService.changePassword on valid password submit', async () => {
     ;(profileService.changePassword as jest.Mock).mockResolvedValue(undefined)
 
-    renderPage()
+    const user = userEvent.setup()
 
-    await waitFor(() => {
-      expect(screen.getByText('Сменить пароль')).toBeInTheDocument()
-    })
+    await renderPage()
+
+    expect(await screen.findByText('Сменить пароль')).toBeInTheDocument()
 
     await expandPanel(/Сменить пароль/)
 
-    await waitFor(() => {
-      expect(screen.getByLabelText('Старый пароль')).toBeInTheDocument()
-    })
+    const oldPasswordInput = await screen.findByLabelText('Старый пароль')
+    const newPasswordInput = await screen.findByLabelText('Новый пароль')
 
-    await userEvent.type(screen.getByLabelText('Старый пароль'), 'oldPass123')
-    await userEvent.type(screen.getByLabelText('Новый пароль'), 'newPass456')
-    await userEvent.click(
-      screen.getByRole('button', { name: /изменить пароль/i })
+    await user.type(oldPasswordInput, 'oldPass123')
+    await user.type(newPasswordInput, 'newPass456')
+    await user.click(
+      await screen.findByRole('button', { name: /изменить пароль/i })
     )
 
     await waitFor(() => {
@@ -285,11 +296,9 @@ describe('ProfilePage', () => {
   }, 15000)
 
   it('does not call changeAvatar when no file is selected', async () => {
-    renderPage()
+    await renderPage()
 
-    await waitFor(() => {
-      expect(screen.getByText('Профиль')).toBeInTheDocument()
-    })
+    expect(await screen.findByText('Профиль')).toBeInTheDocument()
 
     const fileInput = document.querySelector(
       'input[type="file"]'
@@ -306,11 +315,9 @@ describe('ProfilePage', () => {
     const updatedUser = { ...FAKE_USER, avatar: 'new-avatar.png' }
     ;(profileService.changeAvatar as jest.Mock).mockResolvedValue(updatedUser)
 
-    renderPage()
+    await renderPage()
 
-    await waitFor(() => {
-      expect(screen.getByText('Профиль')).toBeInTheDocument()
-    })
+    expect(await screen.findByText('Профиль')).toBeInTheDocument()
 
     const fileInput = document.querySelector(
       'input[type="file"]'
@@ -336,11 +343,9 @@ describe('ProfilePage', () => {
       new Error('upload failed')
     )
 
-    renderPage()
+    await renderPage()
 
-    await waitFor(() => {
-      expect(screen.getByText('Профиль')).toBeInTheDocument()
-    })
+    expect(await screen.findByText('Профиль')).toBeInTheDocument()
 
     const fileInput = document.querySelector(
       'input[type="file"]'
@@ -358,7 +363,7 @@ describe('ProfilePage', () => {
   })
 
   it('does not update state after unmount (aborted fetch)', async () => {
-    let resolveGetUser: (v: UserProfile) => void
+    let resolveGetUser!: (v: UserProfile) => void
     ;(profileService.getUser as jest.Mock).mockImplementation(
       () =>
         new Promise<UserProfile>(resolve => {
@@ -370,7 +375,7 @@ describe('ProfilePage', () => {
       .spyOn(console, 'error')
       .mockImplementation(jest.fn())
 
-    const { unmount } = renderPage()
+    const { unmount } = await renderPage()
 
     expect(screen.getByText('Загрузка…')).toBeInTheDocument()
 
@@ -384,12 +389,9 @@ describe('ProfilePage', () => {
   })
 
   it('passes correct avatarSrc from profileService.avatarUrl', async () => {
-    renderPage()
+    await renderPage()
 
-    await waitFor(() => {
-      expect(screen.getByText('Профиль')).toBeInTheDocument()
-    })
-
+    expect(await screen.findByText('Профиль')).toBeInTheDocument()
     expect(profileService.avatarUrl).toHaveBeenCalledWith('avatar.png')
   })
 
@@ -397,12 +399,9 @@ describe('ProfilePage', () => {
     const userWithoutAvatar = { ...FAKE_USER, avatar: null }
     ;(profileService.getUser as jest.Mock).mockResolvedValue(userWithoutAvatar)
 
-    renderPage()
+    await renderPage()
 
-    await waitFor(() => {
-      expect(screen.getByText('Профиль')).toBeInTheDocument()
-    })
-
+    expect(await screen.findByText('Профиль')).toBeInTheDocument()
     expect(profileService.avatarUrl).toHaveBeenCalledWith(null)
   })
 })

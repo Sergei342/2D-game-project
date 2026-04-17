@@ -69,7 +69,7 @@ export const ForumTopicPage = () => {
   if (!topic) {
     return (
       <Card>
-        <Space direction="vertical" size={12}>
+        <Space orientation="vertical" size={12}>
           <Title level={4} style={{ margin: 0 }}>
             Топик не найден
           </Title>
@@ -80,9 +80,9 @@ export const ForumTopicPage = () => {
   }
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size={16}>
+    <Space orientation="vertical" style={{ width: '100%' }} size={16}>
       <Card>
-        <Space direction="vertical" style={{ width: '100%' }} size={6}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={6}>
           <Space style={{ width: '100%', justifyContent: 'space-between' }}>
             <Title level={3} style={{ margin: 0 }}>
               {topic.title}
