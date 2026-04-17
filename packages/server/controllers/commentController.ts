@@ -6,7 +6,15 @@ import { UserProfile } from '../models/UserProfile'
 import { Reaction } from '../models/Reaction'
 import { sanitize } from '../utils/sanitize'
 import { updateUserProfile } from '../utils/userProfileUtils'
-import { HTTP_STATUS, ERROR_MSG } from '../constants'
+import {
+  HTTP_STATUS,
+  ERROR_MSG,
+  COMMENT_TEXT_MIN_LENGTH,
+  COMMENT_TEXT_MAX_LENGTH,
+  DISPLAY_NAME_MIN_LENGTH,
+  DISPLAY_NAME_MAX_LENGTH,
+} from '../constants'
+import { isValidText } from '../middlewares/forumValidators'
 import type { CommentNodeDTO } from '../types/dto'
 
 /**
@@ -19,7 +27,7 @@ export const getComments = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { topicId } = req.params
+    const topicId = Number(req.params.topicId)
 
     const topic = await Topic.findByPk(topicId)
     if (!topic) {
@@ -61,14 +69,34 @@ export const createComment = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { topicId } = req.params
+    const topicId = Number(req.params.topicId)
     // TODO: после реализации authMiddleware брать authorId из req.user.id, не из body
     const { text, authorId, displayName, avatar, parentId } = req.body
 
-    if (!text || !authorId || !displayName) {
+    if (!authorId) {
       res
         .status(HTTP_STATUS.BAD_REQUEST)
         .json({ error: ERROR_MSG.COMMENT_REQUIRED_FIELDS })
+      return
+    }
+
+    if (!isValidText(text, COMMENT_TEXT_MIN_LENGTH, COMMENT_TEXT_MAX_LENGTH)) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: ERROR_MSG.INVALID_COMMENT_TEXT })
+      return
+    }
+
+    if (
+      !isValidText(
+        displayName,
+        DISPLAY_NAME_MIN_LENGTH,
+        DISPLAY_NAME_MAX_LENGTH
+      )
+    ) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: ERROR_MSG.INVALID_DISPLAY_NAME })
       return
     }
 
@@ -82,7 +110,7 @@ export const createComment = async (
 
     if (parentId) {
       const parent = await Comment.findByPk(parentId)
-      if (!parent || parent.topicId !== Number(topicId)) {
+      if (!parent || parent.topicId !== topicId) {
         res
           .status(HTTP_STATUS.NOT_FOUND)
           .json({ error: ERROR_MSG.COMMENT_PARENT_NOT_FOUND })
@@ -129,7 +157,8 @@ export const updateComment = async (
   res: Response
 ): Promise<void> => {
   try {
-    const comment = await Comment.findByPk(req.params.id)
+    const id = Number(req.params.id)
+    const comment = await Comment.findByPk(id)
 
     if (!comment) {
       res
@@ -140,10 +169,10 @@ export const updateComment = async (
 
     const { text } = req.body
 
-    if (!text) {
+    if (!isValidText(text, COMMENT_TEXT_MIN_LENGTH, COMMENT_TEXT_MAX_LENGTH)) {
       res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: ERROR_MSG.COMMENT_TEXT_REQUIRED })
+        .json({ error: ERROR_MSG.INVALID_COMMENT_TEXT })
       return
     }
 
@@ -169,7 +198,8 @@ export const deleteComment = async (
   res: Response
 ): Promise<void> => {
   try {
-    const comment = await Comment.findByPk(req.params.id)
+    const id = Number(req.params.id)
+    const comment = await Comment.findByPk(id)
 
     if (!comment) {
       res
