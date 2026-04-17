@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express'
+import { QueryTypes } from 'sequelize'
 import { Comment } from '../models/Comment'
 import { Topic } from '../models/Topic'
 import { UserProfile } from '../models/UserProfile'
@@ -90,11 +91,22 @@ export const createComment = async (
 
     await updateUserProfile(authorId, sanitize(displayName), avatar)
 
-    const comment = await Comment.create({
+    const created = await Comment.create({
       text: sanitize(text),
       authorId,
       topicId,
       parentId: parentId ?? null,
+    })
+
+    const comment = await Comment.findByPk(created.id, {
+      include: [
+        {
+          model: UserProfile,
+          as: 'author',
+          attributes: ['id', 'displayName', 'avatar'],
+        },
+        { model: Reaction, attributes: ['id', 'type', 'userId'] },
+      ],
     })
 
     res.status(HTTP_STATUS.CREATED).json(comment)
@@ -167,8 +179,14 @@ export const deleteComment = async (
 
     const allIds = await collectDescendantIds(comment.id)
 
-    await Reaction.destroy({ where: { commentId: allIds } })
-    await Comment.destroy({ where: { id: allIds } })
+    if (!Comment.sequelize) {
+      throw new Error('Sequelize instance is not available')
+    }
+
+    await Comment.sequelize.transaction(async transaction => {
+      await Reaction.destroy({ where: { commentId: allIds }, transaction })
+      await Comment.destroy({ where: { id: allIds }, transaction })
+    })
 
     res.json({ ok: true })
   } catch (err) {
@@ -225,16 +243,19 @@ function buildCommentTree(comments: Comment[]): CommentNode[] {
 }
 
 async function collectDescendantIds(rootId: number): Promise<number[]> {
-  const queue = [rootId]
-
-  for (let i = 0; i < queue.length; i++) {
-    const children = await Comment.findAll({
-      where: { parentId: queue[i] },
-      attributes: ['id'],
-    })
-
-    queue.push(...children.map(child => child.id))
+  if (!Comment.sequelize) {
+    throw new Error('Sequelize instance is not available')
   }
 
-  return queue
+  const rows = await Comment.sequelize.query<{ id: number }>(
+    `WITH RECURSIVE tree AS (
+       SELECT id FROM comments WHERE id = :rootId
+       UNION ALL
+       SELECT c.id FROM comments c JOIN tree t ON c."parentId" = t.id
+     )
+     SELECT id FROM tree`,
+    { replacements: { rootId }, type: QueryTypes.SELECT }
+  )
+
+  return rows.map(r => r.id)
 }

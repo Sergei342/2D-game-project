@@ -120,12 +120,25 @@ export const createTopic = async (
     // обновляется только при запросах создания топиков и сообщений, но зато хоть так будет актуальный аватар и ник
     await updateUserProfile(authorId, sanitize(displayName), avatar)
 
-    const topic = await Topic.create({
+    const created = await Topic.create({
       title: sanitize(title),
       description: sanitize(description),
       authorId,
     })
-    res.status(HTTP_STATUS.CREATED).json(topic)
+
+    const topic = await Topic.findByPk(created.id, {
+      include: [
+        {
+          model: UserProfile,
+          as: 'author',
+          attributes: ['id', 'displayName', 'avatar'],
+        },
+      ],
+    })
+
+    res
+      .status(HTTP_STATUS.CREATED)
+      .json({ ...topic?.toJSON(), commentsCount: 0 })
   } catch (err) {
     console.error(err)
     res
@@ -205,12 +218,20 @@ export const deleteTopic = async (
     })
     const commentIds = comments.map(c => c.id)
 
-    if (commentIds.length > 0) {
-      await Reaction.destroy({ where: { commentId: commentIds } })
+    if (!Comment.sequelize) {
+      throw new Error('Sequelize instance is not available')
     }
 
-    await Comment.destroy({ where: { topicId: topic.id } })
-    await topic.destroy()
+    await Comment.sequelize.transaction(async transaction => {
+      if (commentIds.length > 0) {
+        await Reaction.destroy({
+          where: { commentId: commentIds },
+          transaction,
+        })
+      }
+      await Comment.destroy({ where: { topicId: topic.id }, transaction })
+      await topic.destroy({ transaction })
+    })
 
     res.json({ ok: true })
   } catch (err) {
