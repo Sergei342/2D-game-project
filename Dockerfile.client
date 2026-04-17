@@ -1,11 +1,18 @@
-ARG NODE_VERSION=18
-ARG CLIENT_PORT=3001
+ARG NODE_VERSION=20
+ARG CLIENT_PORT=3000
+ARG EXTERNAL_SERVER_URL=http://localhost:3001
+ARG INTERNAL_SERVER_URL=http://server:3001
 
-FROM node:$NODE_VERSION-buster as base
+FROM node:$NODE_VERSION-bookworm as base
 
 WORKDIR /app
 
 FROM base as builder
+
+ARG EXTERNAL_SERVER_URL
+ARG INTERNAL_SERVER_URL
+ENV EXTERNAL_SERVER_URL=$EXTERNAL_SERVER_URL
+ENV INTERNAL_SERVER_URL=$INTERNAL_SERVER_URL
 
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
@@ -15,7 +22,7 @@ COPY . .
 RUN yarn lerna bootstrap
 RUN rm -rf /app/packages/client/dist/ && yarn build --scope=client
 
-FROM node:$NODE_VERSION-buster-slim as production
+FROM node:$NODE_VERSION-bookworm-slim as production
 WORKDIR /app
 
 COPY --from=builder /app/packages/client/dist/ /app/dist/

@@ -1,5 +1,5 @@
 import { Button, Form, Input, message } from 'antd'
-import './login.scss'
+import './Login.scss'
 import { LoginData, loginUser } from './LoginService'
 import { Link, useNavigate } from 'react-router-dom'
 import { fetchUserThunk } from '@/slices/userSlice'
