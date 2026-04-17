@@ -1,4 +1,8 @@
-import { Client } from 'pg'
+import { Sequelize, type SequelizeOptions } from 'sequelize-typescript'
+import { UserProfile } from './models/UserProfile'
+import { Topic } from './models/Topic'
+import { Comment } from './models/Comment'
+import { Reaction } from './models/Reaction'
 
 const {
   POSTGRES_USER,
@@ -8,32 +12,34 @@ const {
   POSTGRES_HOST,
 } = process.env
 
-export const createClientAndConnect = async (): Promise<Client | null> => {
+const sequelizeOptions: SequelizeOptions = {
+  host: POSTGRES_HOST,
+  port: Number(POSTGRES_PORT),
+  username: POSTGRES_USER,
+  password: POSTGRES_PASSWORD,
+  database: POSTGRES_DB,
+  dialect: 'postgres',
+  models: [UserProfile, Topic, Comment, Reaction],
+}
+
+const sequelize = new Sequelize(sequelizeOptions)
+
+export async function connectToDatabase(): Promise<void> {
   const maxRetries = 10
   const retryDelay = 3000
 
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const client = new Client({
-        user: POSTGRES_USER,
-        host: POSTGRES_HOST,
-        database: POSTGRES_DB,
-        password: POSTGRES_PASSWORD,
-        port: Number(POSTGRES_PORT),
-      })
+      await sequelize.authenticate()
+      await sequelize.sync({ alter: true }) // пока так, в других здаачах должны быть миграции
 
-      await client.connect()
-
-      const res = await client.query('SELECT NOW()')
-      console.log('  ➜ 🎸 Connected to the database at:', res?.rows?.[0].now)
-
-      return client
+      console.log('  ➜ 🎸 Connected to the database')
+      return
     } catch (e) {
       console.log(`  ➜ Waiting for database... attempt ${i + 1}/${maxRetries}`)
       await new Promise(resolve => setTimeout(resolve, retryDelay))
     }
   }
 
-  console.error('  ➜ Could not connect to database after max retries')
-  return null
+  throw new Error('Could not connect to database after max retries')
 }

@@ -1,11 +1,18 @@
+import 'reflect-metadata'
 import dotenv from 'dotenv'
 import cors from 'cors'
-dotenv.config()
+import path from 'path'
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
 import express from 'express'
-import { createClientAndConnect } from './db'
+import swaggerUi from 'swagger-ui-express'
+import { connectToDatabase } from './db'
+import { forumRouter } from './routes/forum'
+import { authMiddleware } from './middlewares/authMiddleware'
+import { swaggerSpec } from './swagger'
 
 const app = express()
+app.use(express.json())
 app.use(
   cors({
     origin: 'http://localhost:3000',
@@ -14,33 +21,20 @@ app.use(
 )
 const port = Number(process.env.SERVER_PORT) || 3001
 
-createClientAndConnect()
-
-app.get('/friends', (_, res) => {
-  res.json([
-    { name: 'Саша', secondName: 'Панов' },
-    { name: 'Лёша', secondName: 'Садовников' },
-    { name: 'Серёжа', secondName: 'Иванов' },
-  ])
-})
-
-app.get('/auth/user', (_, res) => {
-  res.json({
-    id: 1,
-    first_name: 'Федя',
-    second_name: 'Пупкин',
-    display_name: null,
-    login: 'fedya',
-    avatar: null,
-    email: 'fedyaInvader@mail.ru',
-    phone: '+79998887766',
-  })
-})
+app.use('/swagger', swaggerUi.serve as any, swaggerUi.setup(swaggerSpec) as any)
+app.use('/api/v1/forum', authMiddleware, forumRouter)
 
 app.get('/', (_, res) => {
   res.json('👋 Howdy from the server :)')
 })
 
-app.listen(port, () => {
-  console.log(`  ➜ 🎸 Server is listening on port: ${port}`)
-})
+// Сначала подключаемся к БД, потом стартуем Express
+async function start(): Promise<void> {
+  await connectToDatabase()
+
+  app.listen(port, () => {
+    console.log(`  ➜ 🎸 Server is listening on port: ${port}`)
+  })
+}
+
+start()
