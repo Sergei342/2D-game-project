@@ -15,7 +15,7 @@ const app = express()
 app.use(express.json())
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: [`${process.env.CORS_ORIGIN}`, 'http://localhost:3000', 'http://client:3000'],
     credentials: true,
   })
 )

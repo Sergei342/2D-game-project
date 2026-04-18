@@ -1,11 +1,10 @@
-import { Button, Card, Form, Input, Space, Typography } from 'antd'
+import { Button, Card, Form, Input, message, Space, Typography } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
-import { usePage } from '@/hooks/usePage'
-import { useDispatch } from '@/store'
-import { addTopic } from '@/slices/forumSlice'
-import { formatDateTime } from '@/shared/formatDateTime'
-import { getAuthorInfo } from '@/shared/getAuthorInfo'
+import { useAddTopicMutation } from './Forum.api'
+import { useSelector } from '@/store'
+import { selectUser } from '@/slices/userSlice'
+import { getAuthorName } from '@/shared/getAuthorName'
 
 const { Title } = Typography
 
@@ -17,25 +16,26 @@ type FormValues = {
 export const initForumCreateTopicPage = async () => null
 
 export const ForumCreateTopicPage = () => {
-  usePage({ initPage: initForumCreateTopicPage })
-
   const navigate = useNavigate()
-  const dispatch = useDispatch()
 
-  const onFinish = async (values: FormValues) => {
-    const { name } = await getAuthorInfo()
+  const user = useSelector(selectUser)
+  const [addTopic] = useAddTopicMutation()
 
-    dispatch(
-      addTopic({
-        id: String(Date.now()),
-        title: values.title.trim(),
-        description: values.description.trim(),
-        author: name,
-        createdAt: formatDateTime(),
+  const onFinish = async ({ title, description }: FormValues) => {
+    if (user) {
+      await addTopic({
+        data: {
+          title: title.trim(),
+          description: description.trim(),
+          authorId: user?.id,
+          displayName: getAuthorName(user),
+          avatar: user?.avatar,
+        },
       })
-    )
 
-    navigate('/forum')
+      message.success(`Топик "${title}" успешно создан`)
+      navigate('/forum')
+    }
   }
 
   return (

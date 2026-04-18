@@ -1,54 +1,56 @@
 import {
   Button,
   Card,
-  Form,
-  Input,
-  List,
+  // Form,
+  // Input,
+  // List,
   Modal,
   Space,
   Typography,
-  Avatar,
+  // Avatar,
+  Spin,
 } from 'antd'
-import { UserOutlined } from '@ant-design/icons'
+// import { UserOutlined } from '@ant-design/icons'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { usePage } from '@/hooks/usePage'
-import { useDispatch, useSelector } from '@/store'
-import { addComment, deleteTopic, selectTopicById } from '@/slices/forumSlice'
-import { formatDateTime } from '@/shared/formatDateTime'
-import { getAuthorInfo } from '@/shared/getAuthorInfo'
+import { useGetTopicQuery, useRemoveTopicMutation } from './Forum.api'
+import { getAuthorName } from '@/shared/getAuthorName'
 
 const { Title, Text } = Typography
 
-type CommentForm = { text: string }
+// type CommentForm = { text: string }
 
 export const initForumTopicPage = async () => null
 export const ForumTopicPage = () => {
-  usePage({ initPage: initForumTopicPage })
-
-  const dispatch = useDispatch()
   const navigate = useNavigate()
   const { topicId } = useParams()
+  const [removeTopic] = useRemoveTopicMutation()
 
-  const topic = useSelector(selectTopicById(topicId || ''))
+  const {
+    data: topic,
+    isLoading,
+    error,
+  } = useGetTopicQuery({ topicId: Number(topicId) })
 
-  const onAddComment = async (values: CommentForm) => {
-    if (!topicId) return
-    const { name, avatar } = await getAuthorInfo()
+  // const onAddComment = async (values: CommentForm) => {
+  //   if (!topicId) return
+  //   // const { name, avatar } = await getAuthorInfo()
 
-    dispatch(
-      addComment({
-        topicId,
-        comment: {
-          id: String(Date.now()),
-          author: name,
-          avatar,
-          text: values.text.trim(),
-          createdAt: formatDateTime(),
-        },
-      })
-    )
-  }
+  //   // TODO: добавить комментарий подключить api
+  //   console.log('add comment', values);
+  //   // dispatch(
+  //   //   addComment({
+  //   //     topicId,
+  //   //     comment: {
+  //   //       id: String(Date.now()),
+  //   //       author: name,
+  //   //       avatar,
+  //   //       text: values.text.trim(),
+  //   //       createdAt: formatDateTime(),
+  //   //     },
+  //   //   })
+  //   // )
+  // }
 
   const confirmDelete = () => {
     if (!topicId || !topic) return
@@ -60,10 +62,18 @@ export const ForumTopicPage = () => {
       cancelText: 'Отмена',
       okButtonProps: { danger: true },
       onOk: () => {
-        dispatch(deleteTopic({ topicId }))
+        removeTopic({ topicId: topic.id })
         navigate('/forum')
       },
     })
+  }
+
+  if (isLoading) {
+    return <Spin description={'Загрузка страницы топика'} />
+  }
+
+  if (error) {
+    return <div>Ошибка загрузки страницы топика</div>
   }
 
   if (!topic) {
@@ -97,15 +107,16 @@ export const ForumTopicPage = () => {
           </Space>
 
           <Text type="secondary">
-            {topic.author} · {topic.createdAt}
+            {getAuthorName(topic.author)} · {topic.createdAt}
           </Text>
           <Text>{topic.description}</Text>
         </Space>
       </Card>
 
-      <Card title={`Комментарии (${topic.comments.length})`}>
+      {/* TODO: добавить комментарии из api */}
+      {/* <Card title={`Комментарии (${topic.commentsCount})`}>
         <List
-          dataSource={topic.comments}
+          dataSource={[]}
           locale={{ emptyText: 'Комментариев пока нет' }}
           renderItem={c => (
             <List.Item>
@@ -139,7 +150,7 @@ export const ForumTopicPage = () => {
             Отправить
           </Button>
         </Form>
-      </Card>
+      </Card> */}
     </Space>
   )
 }

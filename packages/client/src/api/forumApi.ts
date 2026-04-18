@@ -1,20 +1,18 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import fetch from 'cross-fetch'
 import { API_CONFIG } from './constants'
 
 export const baseQuery = fetchBaseQuery({
-  baseUrl: API_CONFIG.main,
+  baseUrl: API_CONFIG.forum,
   credentials: 'include',
-  fetchFn: fetch,
   prepareHeaders: headers => {
     headers.set('Content-Type', 'application/json')
     return headers
   },
 })
 
-export const api = createApi({
-  reducerPath: 'api',
+export const apiForum = createApi({
+  reducerPath: 'apiForum',
   baseQuery,
-  tagTypes: ['User', 'LeaderBoard'],
+  tagTypes: ['Topics', 'Topic'],
   endpoints: () => ({}),
 })

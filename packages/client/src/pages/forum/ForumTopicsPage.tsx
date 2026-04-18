@@ -1,29 +1,38 @@
-import { Badge, Button, Card, List, Modal, Space, Typography } from 'antd'
+import { Badge, Button, Card, List, Modal, Space, Spin, Typography } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { usePage } from '@/hooks/usePage'
-import { useDispatch, useSelector } from '@/store'
-import { deleteTopic, selectTopics } from '@/slices/forumSlice'
+import { useGetTopicsQuery, useRemoveTopicMutation } from './Forum.api'
+import { getAuthorName } from '@/shared/getAuthorName'
+import { useSelector } from '@/store'
+import { selectUser } from '@/slices/userSlice'
 
 const { Title, Text } = Typography
 
-export const initForumTopicsPage = async () => null
-
 export const ForumTopicsPage = () => {
-  usePage({ initPage: initForumTopicsPage })
-
   const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const topics = useSelector(selectTopics)
+  const user = useSelector(selectUser)
+  const [removeTopic] = useRemoveTopicMutation()
 
-  const confirmDelete = (topicId: string, title: string) => {
+  const { data, isLoading, error } = useGetTopicsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  })
+
+  const confirmDelete = (topicId: number, title: string) => {
     Modal.confirm({
       title: 'Удалить топик?',
       content: `Топик «${title}» будет удалён вместе с комментариями.`,
       okText: 'Удалить',
       cancelText: 'Отмена',
       okButtonProps: { danger: true },
-      onOk: () => dispatch(deleteTopic({ topicId })),
+      onOk: () => removeTopic({ topicId }),
     })
+  }
+
+  if (isLoading) {
+    return <Spin description={'Загрузка страницы форума'} />
+  }
+
+  if (error) {
+    return <div>Ошибка загрузки страницы форума</div>
   }
 
   return (
@@ -39,37 +48,49 @@ export const ForumTopicsPage = () => {
 
       <List
         style={{ marginTop: 16 }}
-        dataSource={topics}
+        dataSource={data?.data ?? []}
         locale={{ emptyText: 'Пока нет топиков' }}
         renderItem={item => (
           <List.Item
             style={{ cursor: 'pointer' }}
             onClick={() => navigate(`/forum/${item.id}`)}
-            actions={[
-              <Button
-                danger
-                onClick={e => {
-                  e.stopPropagation()
-                  confirmDelete(item.id, item.title)
-                }}>
-                Удалить
-              </Button>,
-            ]}>
+            actions={
+              item.authorId === user?.id
+                ? [
+                    <Button
+                      onClick={e => {
+                        e.stopPropagation()
+                        //TODO: добавить api редактирования топика
+                        console.log('edit topic')
+                      }}>
+                      Редактировать
+                    </Button>,
+                    <Button
+                      danger
+                      onClick={e => {
+                        e.stopPropagation()
+                        confirmDelete(item.id, item.title)
+                      }}>
+                      Удалить
+                    </Button>,
+                  ]
+                : undefined
+            }>
             <List.Item.Meta
               title={
                 <Space>
                   <span>{item.title}</span>
-                  <Badge count={item.comments.length} showZero />
+                  <Badge count={item.commentsCount} showZero />
                 </Space>
               }
               description={
                 <Space orientation="vertical" size={0}>
                   <Text type="secondary">{item.description}</Text>
                   <Text type="secondary">
-                    {item.author} · {item.createdAt}
+                    {getAuthorName(item.author)} · {item.createdAt}
                   </Text>
                   <Text type="secondary">
-                    Комментарии: {item.comments.length}
+                    Комментарии: {item.commentsCount}
                   </Text>
                 </Space>
               }
