@@ -58,17 +58,43 @@ export const GlobalStyles = createGlobalStyle`
     line-height: 1.14;
   }
 
+  h3.ant-typography {
+    font-family: ${cssVariables.fontFamilyTitle};
+  }
+
+  .ant-typography strong {
+    letter-spacing: 1px;
+  }
+
     /* Неоновый glow */
   .arcade-glow {
     text-shadow:
-      0 0 4px #00ff9c,
-      0 0 8px #00ff9c;
+      0 0 4px ${cssVariables.primaryColor},
+      0 0 8px ${cssVariables.primaryColor} !important;
   }
 
   /* Кнопки */
   .ant-btn-primary {
-    box-shadow: 0 0 10px #00ff9c;
+    box-shadow: 0 0 10px ${cssVariables.primaryColor} !important;
     text-transform: uppercase;
+  }
+
+  .ant-btn-default:not(.ant-btn-dangerous) {
+    background-color: transparent;
+
+    &:hover {
+      background-color: ${cssVariables.primaryColor} !important;
+      color: ${cssVariables.textColor} !important;
+    }
+  }
+
+  .ant-btn-default.ant-btn-dangerous {
+    background-color: transparent !important;
+
+    &:hover {
+      background-color: ${cssVariables.errorColor} !important;
+      color: ${cssVariables.textColor} !important;
+    }
   }
 
   /* Инпуты */

@@ -13,6 +13,6 @@ export const baseQuery = fetchBaseQuery({
 export const apiForum = createApi({
   reducerPath: 'apiForum',
   baseQuery,
-  tagTypes: ['Topics', 'Topic'],
+  tagTypes: ['Topics', 'Topic', 'Comments'],
   endpoints: () => ({}),
 })

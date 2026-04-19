@@ -16,6 +16,7 @@ import { ForumTopicPage } from '@/pages/forum/ForumTopicPage'
 import { RegisterPage, initRegisterPage } from '@/pages/register/Register'
 import { LeaderBoardPage } from '@/pages/leaderboard'
 import { initLeaderBoardPage } from '@/pages/leaderboard/LeaderBoardPage'
+import { ForumEditTopicPage } from '@/pages/forum/ForumEditTopicPage'
 
 export const routes: AppRouteObject[] = [
   {
@@ -86,6 +87,15 @@ export const routes: AppRouteObject[] = [
     Component: () => (
       <ProtectedRoute>
         <ForumTopicPage />
+      </ProtectedRoute>
+    ),
+    ErrorBoundary: AppErrorBoundary,
+  },
+  {
+    path: '/forum/:topicId/edit',
+    Component: () => (
+      <ProtectedRoute>
+        <ForumEditTopicPage />
       </ProtectedRoute>
     ),
     ErrorBoundary: AppErrorBoundary,
