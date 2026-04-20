@@ -5,6 +5,7 @@ import { signInWithYandex } from '@/pages/login/OAuthService'
 import { fetchUserThunk } from '@/slices/userSlice'
 import { useDispatch } from '@/store'
 import { OAUTH_REDIRECT_URI } from '@/shared/constants'
+import './Oauth.scss'
 
 export const OAuthPage = () => {
   const [searchParams] = useSearchParams()
@@ -39,13 +40,7 @@ export const OAuthPage = () => {
   }, [])
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-      }}>
+    <div className="oauth">
       <Spin size="large" tip="Авторизация через Яндекс..." />
     </div>
   )
