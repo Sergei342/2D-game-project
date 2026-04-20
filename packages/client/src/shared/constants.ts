@@ -9,3 +9,6 @@ export const VITE_FORUM_API = import.meta.env.VITE_FORUM_API
 
 export const API_FIELD_TEAM_NAME = 'C58_Space_Invaders'
 export const API_FIELD_RATING_FIELD_NAME = 'c58SITScore'
+
+export const YANDEX_OAUTH_URL = 'https://oauth.yandex.ru/authorize'
+export const OAUTH_REDIRECT_URI = `${window.location.origin}/oauth`
