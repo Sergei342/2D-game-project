@@ -15,7 +15,7 @@ import {
   createFetchRequest,
   createUrl,
 } from './entry-server.utils'
-import { createAppStore } from './store'
+import { store } from './store'
 import { routes } from './routes/routes'
 import { AppRouteObject } from './routes/types'
 import './index.css'
@@ -34,7 +34,6 @@ export const render = async (req: ExpressRequest) => {
     throw context
   }
 
-  const store = createAppStore()
   const url = createUrl(req)
 
   const foundRoutes = matchRoutes(routes, url) as Array<{

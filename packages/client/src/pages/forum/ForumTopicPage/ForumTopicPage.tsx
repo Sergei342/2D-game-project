@@ -19,6 +19,7 @@ export const ForumTopicPage = () => {
     isLoadingComments,
     isLoadingAddComment,
     isLoadingUpdateComment,
+    isSubmitDisabled,
     comments,
     activeCommentId,
     form,
@@ -100,7 +101,8 @@ export const ForumTopicPage = () => {
           <Button
             type="primary"
             htmlType="submit"
-            loading={isLoadingAddComment || isLoadingUpdateComment}>
+            loading={isLoadingAddComment || isLoadingUpdateComment}
+            disabled={isSubmitDisabled}>
             {formMode.type === 'edit' ? 'Сохранить' : 'Отправить'}
           </Button>
         </Form>

@@ -175,6 +175,7 @@ export const useForumTopicPageData = () => {
     isLoadingComments,
     isLoadingAddComment,
     isLoadingUpdateComment,
+    isSubmitDisabled: !topicIdNum || !user,
     error,
     topic,
     comments,
