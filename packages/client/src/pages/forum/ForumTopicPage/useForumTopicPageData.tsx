@@ -10,16 +10,10 @@ import {
   useGetTopicCommentsQuery,
   useGetTopicQuery,
   useRemoveCommentMutation,
-  useRemoveTopicMutation,
   useUpdateCommentMutation,
 } from '../Forum.api'
 import { getAuthorName } from '@/shared/getAuthorName'
-
-type CommentForm = { text: string }
-type CommentFormMode =
-  | { type: 'create' }
-  | { type: 'reply'; commentId: number }
-  | { type: 'edit'; commentId: number; text: string }
+import { CommentForm, CommentFormMode } from './ForumTopicPage.types'
 
 export const useForumTopicPageData = () => {
   const navigate = useNavigate()
@@ -31,8 +25,6 @@ export const useForumTopicPageData = () => {
   const textareaRef = useRef<TextAreaRef | null>(null)
 
   const [form] = Form.useForm<CommentForm>()
-
-  const [removeTopic] = useRemoveTopicMutation()
 
   const [addComment, { isLoading: isLoadingAddComment }] =
     useAddCommentMutation()
@@ -93,6 +85,7 @@ export const useForumTopicPageData = () => {
 
   const handleReplyComment = useCallback(
     (commentId: number) => {
+      form.resetFields()
       setFormMode({ type: 'reply', commentId })
       focusTextarea()
     },
@@ -147,28 +140,6 @@ export const useForumTopicPageData = () => {
     [form, focusTextarea]
   )
 
-  const confirmDeleteTopic = useCallback(() => {
-    if (!topicIdNum || !topic) {
-      return
-    }
-
-    Modal.confirm({
-      title: 'Удалить топик?',
-      content: `Топик «${topic.title}» будет удалён вместе с комментариями`,
-      okText: 'Удалить',
-      cancelText: 'Отмена',
-      okButtonProps: { danger: true },
-      onOk: async () => {
-        try {
-          await removeTopic({ topicId: topic.id }).unwrap()
-          navigate('/forum')
-        } catch {
-          message.error('При удалении топика произошла ошибка')
-        }
-      },
-    })
-  }, [removeTopic, topic, navigate])
-
   const confirmDeleteComment = useCallback(
     (commentId: number) => {
       Modal.confirm({
@@ -212,7 +183,6 @@ export const useForumTopicPageData = () => {
     activeCommentId,
     formMode,
     form,
-    confirmDeleteTopic,
     confirmDeleteComment,
     onSubmit: handleSubmit,
     onReplyComment: handleReplyComment,

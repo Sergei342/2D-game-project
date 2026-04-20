@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.0.0",
   "scripts": {
-    "dev": "tsc --project tsconfig.server.json && node server/index.js",
+    "dev": "tsc --project tsconfig.server.json && cross-env NODE_ENV=development EXTERNAL_SERVER_URL='http://localhost:3001' INTERNAL_SERVER_URL='http://localhost:3001' node server/index.js",
     "dev:ssr": "npm run dev",
     "build:ssr": "npm run build",
     "build": "tsc --project tsconfig.server.json && vite build && vite build --ssr src/entry-server.tsx --outDir dist/server",
@@ -45,6 +45,7 @@
     "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.35.1",
     "@vitejs/plugin-react": "^2.0.1",
+    "babel-plugin-styled-components": "^2.1.4",
     "eslint": "^8.23.0",
     "jest": "^28",
     "jest-environment-jsdom": "^29.0.1",

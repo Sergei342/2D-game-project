@@ -26,7 +26,23 @@ export default defineConfig({
     format: 'cjs',
   },
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: [
+          [
+            'styled-components',
+            {
+              displayName: true,
+              fileName: true,
+              ssr: true,
+              pure: true,
+            },
+          ],
+        ],
+        babelrc: false,
+        configFile: false,
+      },
+    }),
     VitePWA({
       strategies: 'injectManifest',
       srcDir: 'src',

@@ -2,8 +2,9 @@ import { Button, Card, Form, Input, Space, Typography, Spin, Flex } from 'antd'
 
 import { TopicComment } from './components/TopicComment'
 import { useForumTopicPageData } from './useForumTopicPageData'
-import { formatISODate } from '@/shared/date'
 import { cssVariables } from '@/styles/variables'
+import { TopicHeader } from './components/TopicHeader'
+import { FormModeInfo } from './components/FormModeInfo'
 
 const { Title, Text } = Typography
 
@@ -22,7 +23,6 @@ export const ForumTopicPage = () => {
     activeCommentId,
     form,
     formMode,
-    confirmDeleteTopic,
     confirmDeleteComment,
     onReplyComment,
     onEditComment,
@@ -54,29 +54,7 @@ export const ForumTopicPage = () => {
 
   return (
     <Space orientation="vertical" style={{ width: '100%' }} size={16}>
-      <Card
-        variant="borderless"
-        style={{ backgroundColor: cssVariables.bgContainerLight }}>
-        <Space orientation="vertical" style={{ width: '100%' }} size={6}>
-          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-            <Title level={3} style={{ margin: 0 }}>
-              {topic.title}
-            </Title>
-
-            <Space>
-              <Button onClick={goToForumTopicsPage}>К списку</Button>
-              <Button danger onClick={confirmDeleteTopic}>
-                Удалить
-              </Button>
-            </Space>
-          </Space>
-
-          <Text type="secondary">
-            {topic.author.displayName} · {formatISODate(topic.createdAt)}
-          </Text>
-          <Text>{topic.description}</Text>
-        </Space>
-      </Card>
+      <TopicHeader topic={topic} />
 
       <Card
         title={`Комментарии (${comments?.length ?? 0})`}
@@ -106,20 +84,7 @@ export const ForumTopicPage = () => {
           )}
         </div>
 
-        {formMode.type !== 'create' && (
-          <div style={{ marginBottom: 8 }}>
-            <Text type="secondary">
-              {formMode.type === 'reply' &&
-                `Ответ на комментарий #${formMode.commentId}`}
-
-              {formMode.type === 'edit' &&
-                `Редактирование комментария #${formMode.commentId}`}
-            </Text>
-            <Button type="link" size="small" onClick={onCancelMode}>
-              Отмена
-            </Button>
-          </div>
-        )}
+        <FormModeInfo formMode={formMode} onCancelMode={onCancelMode} />
 
         <Form form={form} layout="vertical" onFinish={onSubmit}>
           <Form.Item
