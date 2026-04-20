@@ -25,6 +25,10 @@ export const formatISODate = (isoDate: string): string => {
 
   const date = new Date(isoDate)
 
+  if (isNaN(date.getTime())) {
+    return 'Invalid Date'
+  }
+
   return formatDate(date)
 }
 

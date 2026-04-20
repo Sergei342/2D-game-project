@@ -73,6 +73,8 @@ type CreateCommentData = {
   avatar: string | null
 }
 
+const PAGE_SIZE_DEFAULT = 10
+
 export const forumApi = apiForum.injectEndpoints({
   endpoints: builder => ({
     getTopics: builder.query<GetTopicsResponse, GetTopicsParams | undefined>({
@@ -81,7 +83,7 @@ export const forumApi = apiForum.injectEndpoints({
         method: 'GET',
         params: {
           page: params.page ?? 1,
-          pageSize: params.pageSize ?? 10,
+          pageSize: params.pageSize ?? PAGE_SIZE_DEFAULT,
         },
       }),
       providesTags: ['Topics'],

@@ -65,6 +65,16 @@ jest.mock('antd', () => {
   }
 })
 
+jest.mock('@/shared/constants', () => ({
+  FORUM_API: 'forum-api-url',
+  BASE_URL: 'base-api-url',
+  HttpStatus: {
+    Success: 200,
+    Unauthorized: 401,
+    ServerError: 500,
+  },
+}))
+
 const FAKE_USER: UserProfile = {
   id: 1,
   first_name: 'Иван',

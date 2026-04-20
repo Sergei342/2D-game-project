@@ -7,6 +7,11 @@ global.fetch = jest.fn(() =>
   Promise.resolve({ json: () => Promise.resolve(null) })
 ) as unknown as typeof global.fetch
 
+jest.mock('@/shared/constants', () => ({
+  FORUM_API: 'forum-api-url',
+  BASE_URL: 'base-api-url',
+}))
+
 test('Example test', async () => {
   render(
     <Provider store={store}>
