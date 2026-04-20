@@ -2,10 +2,10 @@ import { Button, Card, Form, Input, Space, Typography } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 import { usePage } from '@/hooks/usePage'
-import { useDispatch } from '@/store'
-import { addTopic } from '@/slices/forumSlice'
-import { formatDateTime } from '@/shared/formatDateTime'
-import { getAuthorInfo } from '@/shared/getAuthorInfo'
+import { useSelector } from '@/store'
+import { selectUser } from '@/slices/userSlice'
+import { useCreateTopicMutation } from '@/api/forumApi'
+import { profileService } from '@/pages/profile/ProfileService'
 
 const { Title } = Typography
 
@@ -20,27 +20,33 @@ export const ForumCreateTopicPage = () => {
   usePage({ initPage: initForumCreateTopicPage })
 
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const user = useSelector(selectUser)
+  const [createTopic, { isLoading }] = useCreateTopicMutation()
 
   const onFinish = async (values: FormValues) => {
-    const { name } = await getAuthorInfo()
+    if (!user) return
 
-    dispatch(
-      addTopic({
-        id: String(Date.now()),
-        title: values.title.trim(),
-        description: values.description.trim(),
-        author: name,
-        createdAt: formatDateTime(),
-      })
-    )
+    const displayName =
+      user.display_name ||
+      [user.first_name, user.second_name].filter(Boolean).join(' ') ||
+      user.login
+
+    const avatarUrl = profileService.avatarUrl(user.avatar)
+
+    await createTopic({
+      title: values.title.trim(),
+      description: values.description.trim(),
+      authorId: user.id,
+      displayName,
+      avatar: avatarUrl,
+    }).unwrap()
 
     navigate('/forum')
   }
 
   return (
     <Card>
-      <Space orientation="vertical" style={{ width: '100%' }} size={16}>
+      <Space direction="vertical" style={{ width: '100%' }} size={16}>
         <Title level={3} style={{ margin: 0 }}>
           Создание топика
         </Title>
@@ -62,7 +68,11 @@ export const ForumCreateTopicPage = () => {
 
           <Space>
             <Button onClick={() => navigate(-1)}>Назад</Button>
-            <Button type="primary" htmlType="submit">
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={isLoading}
+              disabled={!user}>
               Создать
             </Button>
           </Space>
