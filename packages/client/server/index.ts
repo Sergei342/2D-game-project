@@ -13,6 +13,10 @@ const port = process.env.PORT || 3000
 const clientPath = path.join(__dirname, '..')
 const isDev = process.env.NODE_ENV === 'development'
 
+const SSR_ROUTES: ReadonlyArray<string> = ['/']
+
+const isSsrPath = (pathname: string): boolean => SSR_ROUTES.includes(pathname)
+
 async function createServer() {
   const app = express()
 
@@ -35,15 +39,9 @@ async function createServer() {
 
   app.get('*', async (req, res, next) => {
     const url = req.originalUrl
+    const isSsrRoute = isSsrPath(req.path)
 
     try {
-      let render: (req: ExpressRequest) => Promise<{
-        html: string
-        initialState: unknown
-        helmet: HelmetData
-        styleTags: string
-      }>
-
       let template: string
 
       if (vite) {
@@ -52,16 +50,34 @@ async function createServer() {
           'utf-8'
         )
         template = await vite.transformIndexHtml(url, template)
+      } else {
+        template = await fs.readFile(
+          path.join(clientPath, 'dist/client/index.html'),
+          'utf-8'
+        )
+      }
+
+      if (!isSsrRoute) {
+        return res
+          .status(200)
+          .set({ 'Content-Type': 'text/html' })
+          .end(template)
+      }
+
+      let render: (req: ExpressRequest) => Promise<{
+        html: string
+        initialState: unknown
+        helmet: HelmetData
+        styleTags: string
+      }>
+
+      if (vite) {
         render = (
           await vite.ssrLoadModule(
             path.join(clientPath, 'src/entry-server.tsx')
           )
         ).render
       } else {
-        template = await fs.readFile(
-          path.join(clientPath, 'dist/client/index.html'),
-          'utf-8'
-        )
         const pathToServer = path.join(
           clientPath,
           'dist/server/entry-server.js'

@@ -41,12 +41,19 @@ const App = () => {
   )
 }
 
-ReactDOM.hydrateRoot(
-  root,
+const hasServerRenderedMarkup = root.children.length > 0
+
+const appTree = (
   <Provider store={store}>
     <App />
   </Provider>
 )
+
+if (hasServerRenderedMarkup) {
+  ReactDOM.hydrateRoot(root, appTree)
+} else {
+  ReactDOM.createRoot(root).render(appTree)
+}
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
