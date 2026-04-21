@@ -1,5 +1,6 @@
 export const cssVariables = {
   fontFamily: "'Russo One', 'Arial', -apple-system, sans-serif",
+  fontFamilyTitle: "'Seymour One', 'Arial', -apple-system, sans-serif",
   textColor: '#d6ffe9',
   labelColor: '#587bA9',
   bgColor: '#1b1950',
@@ -10,4 +11,5 @@ export const cssVariables = {
   secondaryColor: '#e5c45c',
   overlayColor: '#00000045',
   errorColor: '#ff4d4f',
+  bgContainerLight: 'rgb(26 23 123 / 70%)',
 }

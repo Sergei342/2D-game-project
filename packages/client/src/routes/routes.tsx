@@ -1,20 +1,22 @@
 import type { AppRouteObject } from './types'
 
-import { LoginPage } from '../pages/login/Login'
+import { initLoginPage, LoginPage } from '../pages/login/Login'
 import { GuestRoute, ProtectedRoute } from './ProtectedRoute'
-import { ProfilePage } from '../pages/profile/ProfilePage'
+import { initProfilePage, ProfilePage } from '../pages/profile/ProfilePage'
 import { AppErrorBoundary } from '../components/AppErrorBoundary'
-import { GamePage } from '../pages/game/components/GamePage'
-import { Error500Page } from '../pages/error500/Error500'
-import { Error404Page } from '../pages/error404/Error404'
+import { GamePage, initGamePage } from '../pages/game/components/GamePage'
+import { Error500Page, initError500Page } from '../pages/error500/Error500'
+import { Error404Page, initError404Page } from '../pages/error404/Error404'
 import { initMainPage, MainPage } from '@/pages/Main'
-import { FriendsPage } from '@/pages/FriendsPage'
+import { initFriendsPage, FriendsPage } from '@/pages/FriendsPage'
 
 import { ForumTopicsPage } from '@/pages/forum/ForumTopicsPage'
 import { ForumCreateTopicPage } from '@/pages/forum/ForumCreateTopicPage'
 import { ForumTopicPage } from '@/pages/forum/ForumTopicPage'
-import { RegisterPage } from '@/pages/register/Register'
+import { RegisterPage, initRegisterPage } from '@/pages/register/Register'
 import { LeaderBoardPage } from '@/pages/leaderboard'
+import { initLeaderBoardPage } from '@/pages/leaderboard/LeaderBoardPage'
+import { ForumEditTopicPage } from '@/pages/forum/ForumEditTopicPage'
 
 export const routes: AppRouteObject[] = [
   {
@@ -81,6 +83,15 @@ export const routes: AppRouteObject[] = [
     Component: () => (
       <ProtectedRoute>
         <ForumTopicPage />
+      </ProtectedRoute>
+    ),
+    ErrorBoundary: AppErrorBoundary,
+  },
+  {
+    path: '/forum/:topicId/edit',
+    Component: () => (
+      <ProtectedRoute>
+        <ForumEditTopicPage />
       </ProtectedRoute>
     ),
     ErrorBoundary: AppErrorBoundary,

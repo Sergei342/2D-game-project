@@ -11,65 +11,40 @@ import friendsReducer from './slices/friendsSlice'
 import ssrReducer from './slices/ssrSlice'
 import userReducer from './slices/userSlice'
 import gameReducer from './slices/gameSlice'
-import forumReducer from './slices/forumSlice'
 import { api } from './api/baseApi'
 import { apiErrorMiddleware } from './api/apiErrorMiddleware'
-import {
-  createNoopForumStateStorage,
-  type ForumStateStorage,
-} from './store/forumStateStorage'
+import { apiForum } from './api/forumApi'
+
+declare global {
+  interface Window {
+    APP_INITIAL_STATE: RootState
+  }
+}
 
 export const reducer = combineReducers({
   friends: friendsReducer,
   ssr: ssrReducer,
   user: userReducer,
-  forum: forumReducer,
   game: gameReducer,
   [api.reducerPath]: api.reducer,
+  [apiForum.reducerPath]: apiForum.reducer,
+})
+
+export const store = configureStore({
+  reducer,
+  preloadedState:
+    typeof window === 'undefined' ? undefined : window.APP_INITIAL_STATE,
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware().concat(
+      api.middleware,
+      apiForum.middleware,
+      apiErrorMiddleware
+    ),
 })
 
 export type RootState = ReturnType<typeof reducer>
+export type AppDispatch = typeof store.dispatch
 
-type CreateAppStoreOptions = {
-  preloadedState?: RootState
-  forumStateStorage?: ForumStateStorage
-}
-
-const resolvePreloadedState = (
-  preloadedState: RootState | undefined,
-  forumStateStorage: ForumStateStorage
-): RootState | undefined => {
-  if (!preloadedState) {
-    return undefined
-  }
-
-  return {
-    ...preloadedState,
-    forum: forumStateStorage.load() ?? preloadedState.forum,
-  }
-}
-
-export const createAppStore = ({
-  preloadedState,
-  forumStateStorage = createNoopForumStateStorage(),
-}: CreateAppStoreOptions = {}) => {
-  const createdStore = configureStore({
-    reducer,
-    preloadedState: resolvePreloadedState(preloadedState, forumStateStorage),
-    middleware: getDefaultMiddleware =>
-      getDefaultMiddleware().concat(api.middleware, apiErrorMiddleware),
-  })
-
-  createdStore.subscribe(() => {
-    forumStateStorage.save(createdStore.getState().forum)
-  })
-
-  return createdStore
-}
-
-export type AppStore = ReturnType<typeof createAppStore>
-export type AppDispatch = AppStore['dispatch']
-
-export const useDispatch = () => useDispatchBase<AppDispatch>()
+export const useDispatch: () => AppDispatch = useDispatchBase
 export const useSelector: TypedUseSelectorHook<RootState> = useSelectorBase
-export const useStore = () => useStoreBase() as AppStore
+export const useStore: () => typeof store = useStoreBase
