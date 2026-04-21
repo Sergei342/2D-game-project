@@ -13,7 +13,6 @@ import {
   deleteComment,
 } from '../controllers/commentController'
 import {
-  getReactions,
   createReaction,
   updateReaction,
   deleteReaction,
@@ -48,12 +47,6 @@ forumRouter.put('/comments/:id', validateIdParam('id'), updateComment)
 forumRouter.delete('/comments/:id', validateIdParam('id'), deleteComment)
 
 // Reactions
-// GET не требует userId из тела — для него достаточно validateIdParam
-forumRouter.get(
-  '/comments/:commentId/reactions',
-  validateIdParam('commentId'),
-  getReactions
-)
 forumRouter.post(
   '/comments/:commentId/reactions',
   validateReactionParams,

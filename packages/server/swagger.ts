@@ -718,63 +718,6 @@ const options: swaggerJsdoc.Options = {
       },
 
       '/comments/{commentId}/reactions': {
-        get: {
-          tags: ['reactions'],
-          summary: 'Получить реакции комментария',
-          parameters: [
-            {
-              name: 'commentId',
-              in: 'path',
-              required: true,
-              schema: { type: 'integer' },
-            },
-          ],
-          responses: {
-            200: {
-              description: 'Список реакций',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'array',
-                    items: { $ref: '#/components/schemas/ReactionItem' },
-                  },
-                },
-              },
-            },
-            400: {
-              description: 'Невалидный commentId',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/ErrorResponse' },
-                },
-              },
-            },
-            403: {
-              description: 'Не авторизован',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/ErrorResponse' },
-                },
-              },
-            },
-            404: {
-              description: 'Комментарий не найден',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/ErrorResponse' },
-                },
-              },
-            },
-            500: {
-              description: 'Внутренняя ошибка сервера',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/ErrorResponse' },
-                },
-              },
-            },
-          },
-        },
         post: {
           tags: ['reactions'],
           summary: 'Добавить реакцию',
