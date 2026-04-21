@@ -2,7 +2,7 @@ import { Badge, Button, Card, List, Modal, Space, Spin, Typography } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 import { usePage } from '@/hooks/usePage'
-import { useSelector } from '@/store'
+import { useSelector, type AppDispatch } from '@/store'
 import { selectUser } from '@/slices/userSlice'
 import { formatDateTime } from '@/shared/formatDateTime'
 import {
@@ -13,10 +13,11 @@ import {
 
 const { Title, Text } = Typography
 
-export const initForumTopicsPage = async (
-  _: unknown,
+export const initForumTopicsPage = async ({
+  dispatch,
+}: {
   dispatch: AppDispatch
-) => {
+}) => {
   await dispatch(forumApi.endpoints.getTopics.initiate())
 }
 
@@ -88,7 +89,7 @@ export const ForumTopicsPage = () => {
                   </Space>
                 }
                 description={
-                  <Space direction="vertical" size={0}>
+                  <Space orientation="vertical" size={0}>
                     <Text type="secondary">{item.description}</Text>
                     <Text type="secondary">
                       {item.author?.displayName ??

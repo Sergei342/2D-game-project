@@ -31,10 +31,13 @@ const { Title, Text } = Typography
 
 type CommentForm = { text: string }
 
-export const initForumTopicPage = async (
-  { params }: { params?: { topicId?: string } },
+export const initForumTopicPage = async ({
+  params,
+  dispatch,
+}: {
+  params?: { topicId?: string }
   dispatch: AppDispatch
-) => {
+}) => {
   const topicId = Number(params?.topicId)
   if (Number.isNaN(topicId)) return
 
@@ -85,7 +88,7 @@ const CommentNode: React.FC<CommentNodeProps> = ({
           <CommentReactions
             commentId={comment.id}
             topicId={topicId}
-            reactions={comment.reactions}
+            reactions={comment.reactions ?? []}
             currentUserId={currentUserId}
           />
         </div>
@@ -153,7 +156,7 @@ export const ForumTopicPage = () => {
   if (Number.isNaN(topicId)) {
     return (
       <Card>
-        <Space direction="vertical">
+        <Space orientation="vertical">
           <Text type="danger">Некорректный ID топика</Text>
           <Button onClick={() => navigate('/forum')}>К списку</Button>
         </Space>
@@ -164,7 +167,7 @@ export const ForumTopicPage = () => {
   if (isCommentsError) {
     return (
       <Card>
-        <Space direction="vertical">
+        <Space orientation="vertical">
           <Text type="danger">Не удалось загрузить комментарии</Text>
           <Button onClick={() => navigate('/forum')}>К списку</Button>
         </Space>
@@ -173,9 +176,9 @@ export const ForumTopicPage = () => {
   }
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size={16}>
+    <Space orientation="vertical" style={{ width: '100%' }} size={16}>
       <Card>
-        <Space direction="vertical" style={{ width: '100%' }} size={6}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={6}>
           <Space style={{ width: '100%', justifyContent: 'space-between' }}>
             <Button onClick={() => navigate('/forum')}>← К списку</Button>
           </Space>

@@ -2,7 +2,7 @@ import React from 'react'
 import { Button, Space, Tooltip } from 'antd'
 import {
   REACTION_TYPES,
-  ReactionDTO,
+  type ReactionDTO,
   useAddReactionMutation,
   useUpdateReactionMutation,
   useDeleteReactionMutation,
@@ -11,25 +11,14 @@ import {
 interface CommentReactionsProps {
   commentId: number
   topicId: number
-  reactions: ReactionDTO[]
+  reactions?: ReactionDTO[]
   currentUserId: number | null
 }
 
-/**
- * Отображает строку эмодзи-реакций для одного комментария.
- *
- * Логика клика:
- *  - пользователь ещё не ставил реакцию → POST (добавить)
- *  - кликнул по той же эмодзи, что уже стоит → DELETE (убрать)
- *  - кликнул по другой эмодзи → PUT (заменить)
- *
- * Показываются только эмодзи из REACTION_TYPES. Счётчик отображается
- * рядом с кнопкой, если у неё count > 0.
- */
 export const CommentReactions: React.FC<CommentReactionsProps> = ({
   commentId,
   topicId,
-  reactions,
+  reactions = [],
   currentUserId,
 }) => {
   const [addReaction, { isLoading: isAdding }] = useAddReactionMutation()
@@ -40,29 +29,38 @@ export const CommentReactions: React.FC<CommentReactionsProps> = ({
 
   const isMutating = isAdding || isUpdating || isDeleting
 
-  // Реакция текущего пользователя на этот комментарий (если есть)
-  const userReaction: ReactionDTO | undefined = currentUserId
+  const userReaction = currentUserId
     ? reactions.find(r => r.userId === currentUserId)
     : undefined
 
-  // Количество реакций каждого типа
   const countByType: Record<string, number> = {}
   for (const type of REACTION_TYPES) {
     countByType[type] = reactions.filter(r => r.type === type).length
   }
 
-  const handleClick = (type: string) => {
+  const handleClick = async (type: string) => {
     if (!currentUserId || isMutating) return
 
     if (!userReaction) {
-      // Реакции нет → добавить
-      addReaction({ commentId, type, userId: currentUserId, topicId })
+      await addReaction({
+        commentId,
+        type,
+        userId: currentUserId,
+        topicId,
+      }).unwrap()
     } else if (userReaction.type === type) {
-      // Та же эмодзи → убрать
-      deleteReaction({ commentId, userId: currentUserId, topicId })
+      await deleteReaction({
+        commentId,
+        userId: currentUserId,
+        topicId,
+      }).unwrap()
     } else {
-      // Другая эмодзи → заменить
-      updateReaction({ commentId, type, userId: currentUserId, topicId })
+      await updateReaction({
+        commentId,
+        type,
+        userId: currentUserId,
+        topicId,
+      }).unwrap()
     }
   }
 
@@ -80,10 +78,10 @@ export const CommentReactions: React.FC<CommentReactionsProps> = ({
             }>
             <Button
               size="small"
-              type={isActive ? 'primary' : 'text'}
-              style={{ padding: '0 6px', fontSize: 16, minWidth: 36 }}
+              type={isActive ? 'primary' : 'default'}
+              style={{ padding: '0 8px', fontSize: 16, minWidth: 44 }}
               disabled={!currentUserId || isMutating}
-              onClick={() => handleClick(type)}>
+              onClick={() => void handleClick(type)}>
               {type}
               {count > 0 ? (
                 <span style={{ marginLeft: 4, fontSize: 12 }}>{count}</span>
