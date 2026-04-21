@@ -5,6 +5,7 @@ import { store, useDispatch } from './store'
 import { routes } from './routes/routes'
 import 'antd/dist/reset.css'
 import { ConfigProvider, theme } from 'antd'
+import { StyleProvider } from '@ant-design/cssinjs'
 import { theme as appTheme } from './config/theme'
 import { GlobalStyles } from './styles/styles'
 import { useEffect } from 'react'
@@ -23,19 +24,24 @@ const App = () => {
   return (
     <>
       <GlobalStyles />
-      <ConfigProvider
-        theme={{
-          algorithm: theme.darkAlgorithm,
-          ...appTheme,
-          hashed: true,
-        }}>
-        <RouterProvider router={router} />
-      </ConfigProvider>
+      <StyleProvider>
+        <ConfigProvider
+          theme={{
+            algorithm: theme.darkAlgorithm,
+            ...appTheme,
+            hashed: true,
+          }}>
+          <RouterProvider router={router} />
+        </ConfigProvider>
+      </StyleProvider>
     </>
   )
 }
 
-const hasServerRenderedMarkup = root.children.length > 0
+const hasServerRenderedMarkup =
+  typeof window !== 'undefined' &&
+  (window as unknown as { APP_INITIAL_STATE?: unknown }).APP_INITIAL_STATE !==
+    undefined
 
 const appTree = (
   <Provider store={store}>
