@@ -2,17 +2,20 @@ ARG NODE_VERSION=20
 ARG CLIENT_PORT=3000
 ARG EXTERNAL_SERVER_URL=http://localhost:3001
 ARG INTERNAL_SERVER_URL=http://server:3001
+ARG VITE_FORUM_API=http://localhost:3001/api/v1/forum
 
-FROM node:$NODE_VERSION-bookworm as base
+FROM node:$NODE_VERSION-bookworm AS base
 
 WORKDIR /app
 
-FROM base as builder
+FROM base AS builder
 
 ARG EXTERNAL_SERVER_URL
 ARG INTERNAL_SERVER_URL
+ARG VITE_FORUM_API
 ENV EXTERNAL_SERVER_URL=$EXTERNAL_SERVER_URL
 ENV INTERNAL_SERVER_URL=$INTERNAL_SERVER_URL
+ENV VITE_FORUM_API=$VITE_FORUM_API
 
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
@@ -20,9 +23,9 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 RUN yarn lerna bootstrap
-RUN rm -rf /app/packages/client/dist/ && yarn build --scope=client
+RUN rm -rf /app/packages/client/dist/ && yarn lerna run build --scope=client
 
-FROM node:$NODE_VERSION-bookworm-slim as production
+FROM node:$NODE_VERSION-bookworm-slim AS production
 WORKDIR /app
 
 COPY --from=builder /app/packages/client/dist/ /app/dist/
