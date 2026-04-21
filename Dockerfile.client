@@ -20,7 +20,7 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 RUN yarn lerna bootstrap
-RUN rm -rf /app/packages/client/dist/ && yarn build --scope=client
+RUN rm -rf /app/packages/client/dist/ && yarn lerna run build --scope=client
 
 FROM node:$NODE_VERSION-bookworm-slim as production
 WORKDIR /app
