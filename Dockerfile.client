@@ -3,11 +3,11 @@ ARG CLIENT_PORT=3000
 ARG EXTERNAL_SERVER_URL=http://localhost:3001
 ARG INTERNAL_SERVER_URL=http://server:3001
 
-FROM node:$NODE_VERSION-bookworm as base
+FROM node:$NODE_VERSION-bookworm AS base
 
 WORKDIR /app
 
-FROM base as builder
+FROM base AS builder
 
 ARG EXTERNAL_SERVER_URL
 ARG INTERNAL_SERVER_URL
@@ -22,7 +22,7 @@ COPY . .
 RUN yarn lerna bootstrap
 RUN rm -rf /app/packages/client/dist/ && yarn lerna run build --scope=client
 
-FROM node:$NODE_VERSION-bookworm-slim as production
+FROM node:$NODE_VERSION-bookworm-slim AS production
 WORKDIR /app
 
 COPY --from=builder /app/packages/client/dist/ /app/dist/
