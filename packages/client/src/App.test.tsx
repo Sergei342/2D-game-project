@@ -8,7 +8,12 @@ global.fetch = jest.fn(() =>
 ) as unknown as typeof global.fetch
 
 const preloadedState = window.APP_INITIAL_STATE
-const store = createAppStore({ preloadedState })
+const store = createAppStore(preloadedState)
+
+jest.mock('@/shared/constants', () => ({
+  FORUM_API: 'forum-api-url',
+  BASE_URL: 'base-api-url',
+}))
 
 test('Example test', async () => {
   render(

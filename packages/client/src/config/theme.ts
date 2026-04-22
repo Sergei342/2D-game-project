@@ -10,6 +10,7 @@ export const theme: ThemeConfig = {
     colorPrimaryBg: cssVariables.primaryColor,
     colorTextBase: cssVariables.textColor,
     colorTextHeading: cssVariables.primaryColor,
+    colorTextDescription: cssVariables.placeholder,
     colorBgContainerDisabled: 'transparent',
     colorBgLayout: cssVariables.bgColor,
     colorSplit: 'transparent',
@@ -33,6 +34,7 @@ export const theme: ThemeConfig = {
     },
     Button: {
       controlHeight: 40,
+      controlHeightSM: 28,
       fontSize: 12,
     },
     Input: {
@@ -43,6 +45,9 @@ export const theme: ThemeConfig = {
       darkItemBg: cssVariables.bgColor,
       darkItemSelectedBg: cssVariables.borderColor,
       darkItemSelectedColor: cssVariables.bgColor,
+    },
+    Card: {
+      colorBgContainer: 'transparent',
     },
   },
 }

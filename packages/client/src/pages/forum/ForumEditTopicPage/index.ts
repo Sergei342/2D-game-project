@@ -1,0 +1,1 @@
+export { ForumEditTopicPage } from './ForumEditTopicPage'

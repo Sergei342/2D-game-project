@@ -7,7 +7,6 @@ import { useAddScoreMutation } from '@/pages/leaderboard/LeaderBoard.api'
 import { message } from 'antd'
 import { isLeaderBoardEvent, isModalEvent } from './GamePage.types'
 import { updateGame } from '@/slices/gameSlice'
-import { modalEvents } from './GamePage.constants'
 import { useGameNotifications } from './useGameNotifications'
 
 type UseGamePageDataProps = {

@@ -15,7 +15,6 @@ import {
   createFetchRequest,
   createUrl,
 } from './entry-server.utils'
-import { createAppStore } from './store'
 import { routes } from './routes/routes'
 import { AppRouteObject } from './routes/types'
 import './index.css'
@@ -24,6 +23,11 @@ import { ConfigProvider, theme } from 'antd'
 import { theme as appTheme } from './config/theme'
 import { GlobalStyles } from './styles/styles'
 import { api } from './api/baseApi'
+import { apiForum } from './api/forumApi'
+import { getApiConfig } from './api/utils'
+import 'antd/dist/reset.css'
+import { StyleProvider, createCache, extractStyle } from '@ant-design/cssinjs'
+import { createAppStore } from './store'
 
 export const render = async (req: ExpressRequest) => {
   const { query, dataRoutes } = createStaticHandler(routes)
@@ -34,8 +38,8 @@ export const render = async (req: ExpressRequest) => {
     throw context
   }
 
-  const store = createAppStore()
   const url = createUrl(req)
+  const store = createAppStore()
 
   const foundRoutes = matchRoutes(routes, url) as Array<{
     route: AppRouteObject
@@ -54,7 +58,10 @@ export const render = async (req: ExpressRequest) => {
       })
     }
 
-    await Promise.all(store.dispatch(api.util.getRunningQueriesThunk()))
+    await Promise.all([
+      store.dispatch(api.util.getRunningQueriesThunk()),
+      store.dispatch(apiForum.util.getRunningQueriesThunk()),
+    ])
   } catch (e) {
     console.log('Инициализация страницы произошла с ошибкой', e)
   }
@@ -63,30 +70,34 @@ export const render = async (req: ExpressRequest) => {
 
   const router = createStaticRouter(dataRoutes, context)
   const sheet = new ServerStyleSheet()
+  const cache = createCache()
 
   try {
     const html = ReactDOM.renderToString(
       sheet.collectStyles(
-        <Provider store={store}>
-          <GlobalStyles />
-          <ConfigProvider
-            theme={{
-              algorithm: theme.darkAlgorithm,
-              ...appTheme,
-              hashed: true,
-            }}>
-            <StaticRouterProvider router={router} context={context} />
-          </ConfigProvider>
-        </Provider>
+        <StyleProvider cache={cache}>
+          <Provider store={store}>
+            <GlobalStyles />
+            <ConfigProvider
+              theme={{
+                algorithm: theme.darkAlgorithm,
+                ...appTheme,
+                hashed: true,
+              }}>
+              <StaticRouterProvider router={router} context={context} />
+            </ConfigProvider>
+          </Provider>
+        </StyleProvider>
       )
     )
+    const antdStyle = extractStyle(cache)
     const styleTags = sheet.getStyleTags()
     const helmet = Helmet.renderStatic()
 
     return {
       html,
       helmet,
-      styleTags,
+      styleTags: styleTags + antdStyle,
       initialState: store.getState(),
     }
   } finally {
