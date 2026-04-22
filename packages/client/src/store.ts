@@ -13,6 +13,7 @@ import userReducer from './slices/userSlice'
 import gameReducer from './slices/gameSlice'
 import forumReducer from './slices/forumSlice'
 import { api } from './api/baseApi'
+import { forumApi } from './api/forumApi'
 import { apiErrorMiddleware } from './api/apiErrorMiddleware'
 import {
   createNoopForumStateStorage,
@@ -26,6 +27,7 @@ export const reducer = combineReducers({
   forum: forumReducer,
   game: gameReducer,
   [api.reducerPath]: api.reducer,
+  [forumApi.reducerPath]: forumApi.reducer,
 })
 
 export type RootState = ReturnType<typeof reducer>
@@ -57,7 +59,11 @@ export const createAppStore = ({
     reducer,
     preloadedState: resolvePreloadedState(preloadedState, forumStateStorage),
     middleware: getDefaultMiddleware =>
-      getDefaultMiddleware().concat(api.middleware, apiErrorMiddleware),
+      getDefaultMiddleware().concat(
+        api.middleware,
+        forumApi.middleware,
+        apiErrorMiddleware
+      ),
   })
 
   createdStore.subscribe(() => {
