@@ -2,7 +2,11 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import { HelmetData } from 'react-helmet'
-import express, { Request as ExpressRequest } from 'express'
+import express, {
+  Request as ExpressRequest,
+  Response as ExpressResponse,
+  NextFunction,
+} from 'express'
 import path from 'path'
 import fs from 'fs/promises'
 import { createServer as createViteServer, ViteDevServer } from 'vite'
@@ -33,80 +37,112 @@ async function createServer() {
     )
   }
 
-  app.get('*', async (req, res, next) => {
-    const url = req.originalUrl
+  app.get(
+    '/',
+    async (req: ExpressRequest, res: ExpressResponse, next: NextFunction) => {
+      const url = req.originalUrl
 
-    try {
-      let render: (req: ExpressRequest) => Promise<{
-        html: string
-        initialState: unknown
-        helmet: HelmetData
-        styleTags: string
-      }>
+      try {
+        let render: (req: ExpressRequest) => Promise<{
+          html: string
+          initialState: unknown
+          helmet: HelmetData
+          styleTags: string
+        }>
 
-      let template: string
+        let template: string
 
-      if (vite) {
-        template = await fs.readFile(
-          path.resolve(clientPath, 'index.html'),
-          'utf-8'
-        )
-        template = await vite.transformIndexHtml(url, template)
-        render = (
-          await vite.ssrLoadModule(
-            path.join(clientPath, 'src/entry-server.tsx')
+        if (vite) {
+          template = await fs.readFile(
+            path.resolve(clientPath, 'index.html'),
+            'utf-8'
           )
-        ).render
-      } else {
-        template = await fs.readFile(
-          path.join(clientPath, 'dist/client/index.html'),
-          'utf-8'
-        )
-        const pathToServer = path.join(
-          clientPath,
-          'dist/server/entry-server.js'
-        )
-        render = (await import(pathToServer)).render
-      }
-
-      const {
-        html: appHtml,
-        initialState,
-        helmet,
-        styleTags,
-      } = await render(req)
-
-      const html = template
-        .replace('<!--ssr-styles-->', styleTags)
-        .replace(
-          '<!--ssr-helmet-->',
-          `${helmet.meta.toString()} ${helmet.title.toString()} ${helmet.link.toString()}`
-        )
-        .replace('<!--ssr-outlet-->', appHtml)
-        .replace(
-          '<!--ssr-initial-state-->',
-          `<script>window.APP_INITIAL_STATE = ${serialize(initialState, {
-            isJSON: true,
-          })}</script>`
-        )
-
-      res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
-    } catch (e) {
-      if (e instanceof Response) {
-        const location = e.headers.get('Location')
-
-        if (location && e.status >= 300 && e.status < 400) {
-          return res.redirect(e.status, location)
+          template = await vite.transformIndexHtml(url, template)
+          render = (
+            await vite.ssrLoadModule(
+              path.join(clientPath, 'src/entry-server.tsx')
+            )
+          ).render
+        } else {
+          template = await fs.readFile(
+            path.join(clientPath, 'dist/client/index.html'),
+            'utf-8'
+          )
+          const pathToServer = path.join(
+            clientPath,
+            'dist/server/entry-server.js'
+          )
+          render = (await import(pathToServer)).render
         }
 
-        const body = await e.text().catch(() => e.statusText)
-        return res.status(e.status).send(body || e.statusText)
-      }
+        const {
+          html: appHtml,
+          initialState,
+          helmet,
+          styleTags,
+        } = await render(req)
 
-      vite?.ssrFixStacktrace(e as Error)
-      next(e)
+        const html = template
+          .replace('<!--ssr-styles-->', styleTags)
+          .replace(
+            '<!--ssr-helmet-->',
+            `${helmet.meta.toString()} ${helmet.title.toString()} ${helmet.link.toString()}`
+          )
+          .replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`)
+          .replace(
+            '<!--ssr-initial-state-->',
+            `<script>window.APP_INITIAL_STATE = ${serialize(initialState, {
+              isJSON: true,
+            })}</script>`
+          )
+
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
+      } catch (e) {
+        if (e instanceof Response) {
+          const location = e.headers.get('Location')
+
+          if (location && e.status >= 300 && e.status < 400) {
+            return res.redirect(e.status, location)
+          }
+
+          const body = await e.text().catch(() => e.statusText)
+          return res.status(e.status).send(body || e.statusText)
+        }
+
+        vite?.ssrFixStacktrace(e as Error)
+        next(e)
+      }
     }
-  })
+  )
+
+  app.get(
+    '*',
+    async (req: ExpressRequest, res: ExpressResponse, next: NextFunction) => {
+      const url = req.originalUrl
+
+      try {
+        let template: string
+
+        if (vite) {
+          template = await fs.readFile(
+            path.resolve(clientPath, 'index.html'),
+            'utf-8'
+          )
+          template = await vite.transformIndexHtml(url, template)
+        } else {
+          template = await fs.readFile(
+            path.join(clientPath, 'dist/client/index.html'),
+            'utf-8'
+          )
+        }
+
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(template)
+      } catch (e) {
+        vite?.ssrFixStacktrace(e as Error)
+        next(e)
+      }
+    }
+  )
 
   app.listen(port, () => {
     console.log(`Client is listening on port: ${port}`)

@@ -59,7 +59,7 @@ export const ProfileSection = ({
         layout="horizontal"
         labelCol={{ flex: '180px' }}
         wrapperCol={{ flex: 1 }}
-        onFinish={onSave}>
+        onFinish={values => onSave(values as Record<string, string>)}>
         <Form.Item
           label="Имя"
           name="first_name"

@@ -239,6 +239,8 @@ export const ProfilePage = () => {
 
   return (
     <div className="App">
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+      {/* @ts-ignore */}
       <Helmet>
         <meta charSet="utf-8" />
         <title>Профиль</title>

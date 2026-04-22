@@ -20,7 +20,9 @@ export const PasswordSection = ({
       layout="horizontal"
       labelCol={{ flex: '180px' }}
       wrapperCol={{ flex: 1 }}
-      onFinish={onChangePassword}>
+      onFinish={values =>
+        onChangePassword(values as { oldPassword: string; newPassword: string })
+      }>
       <Form.Item
         label="Старый пароль"
         name="oldPassword"
