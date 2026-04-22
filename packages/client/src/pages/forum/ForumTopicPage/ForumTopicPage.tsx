@@ -1,10 +1,21 @@
-import { Button, Card, Form, Input, Space, Typography, Spin, Flex } from 'antd'
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  Space,
+  Typography,
+  Spin,
+  Flex,
+  Result,
+} from 'antd'
 
 import { TopicComment } from './components/TopicComment'
 import { useForumTopicPageData } from './useForumTopicPageData'
 import { cssVariables } from '@/styles/variables'
 import { TopicHeader } from './components/TopicHeader'
 import { FormModeInfo } from './components/FormModeInfo'
+import * as Styled from './ForumTopicPage.styled'
 
 const { Title, Text } = Typography
 
@@ -15,21 +26,26 @@ export const ForumTopicPage = () => {
     error,
     topic,
     commentsRef,
+    commentRefs,
     textareaRef,
     isLoadingComments,
-    isLoadingAddComment,
-    isLoadingUpdateComment,
+    isSubmitting,
     isSubmitDisabled,
     comments,
+    commentsError,
     activeCommentId,
+    flashCommentId,
     form,
     formMode,
+    refetchGetTopic,
+    refetchGetComments,
     confirmDeleteComment,
     onReplyComment,
     onEditComment,
     onSubmit,
     onCancelMode,
     goToForumTopicsPage,
+    onAnimationEndFlashing,
   } = useForumTopicPageData()
 
   if (isLoading) {
@@ -37,7 +53,21 @@ export const ForumTopicPage = () => {
   }
 
   if (error) {
-    return <div>Ошибка загрузки страницы топика</div>
+    return (
+      <Result
+        status="error"
+        title="Не удалось загрузить топик"
+        subTitle="Проверьте соединение или попробуйте снова"
+        extra={
+          <Space>
+            <Button type="primary" onClick={refetchGetTopic}>
+              Повторить
+            </Button>
+            <Button onClick={goToForumTopicsPage}>К списку топиков</Button>
+          </Space>
+        }
+      />
+    )
   }
 
   if (!topic) {
@@ -54,18 +84,23 @@ export const ForumTopicPage = () => {
   }
 
   return (
-    <Space orientation="vertical" style={{ width: '100%' }} size={16}>
+    <Styled.Container>
       <TopicHeader topic={topic} />
 
       <Card
         title={`Комментарии (${comments?.length ?? 0})`}
         variant="borderless"
         style={{ backgroundColor: cssVariables.bgContainerLight }}>
-        <div
-          ref={commentsRef}
-          style={{ maxHeight: '40vh', overflowY: 'auto', marginBottom: 16 }}>
+        <Styled.Comments ref={commentsRef}>
           {isLoadingComments ? (
-            <Spin />
+            <Spin description={'Загрузка комментариев топика'} />
+          ) : commentsError ? (
+            <Result
+              status="warning"
+              title="Не удалось загрузить комментарии"
+              subTitle="Попробуйте снова"
+              extra={<Button onClick={refetchGetComments}>Повторить</Button>}
+            />
           ) : !comments?.length ? (
             <Text type="secondary">Комментариев пока нет</Text>
           ) : (
@@ -73,40 +108,51 @@ export const ForumTopicPage = () => {
               {comments.map(c => (
                 <TopicComment
                   key={c.id}
+                  commentRefs={commentRefs}
                   comment={c}
                   activeReplyId={activeCommentId}
-                  currentUserId={user?.id ?? null}
+                  flashId={flashCommentId}
+                  currentUserId={user?.id}
                   onReply={onReplyComment}
                   onEdit={onEditComment}
                   onDelete={confirmDeleteComment}
+                  onAnimationEndFlashing={onAnimationEndFlashing}
                 />
               ))}
             </Flex>
           )}
-        </div>
+        </Styled.Comments>
 
         <FormModeInfo formMode={formMode} onCancelMode={onCancelMode} />
 
-        <Form form={form} layout="vertical" onFinish={onSubmit}>
-          <Form.Item
-            label="Добавить комментарий"
-            name="text"
-            rules={[{ required: true, message: 'Введите текст комментария' }]}>
-            <Input.TextArea
-              ref={textareaRef}
-              rows={3}
-              style={{ resize: 'none' }}
-            />
-          </Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={isLoadingAddComment || isLoadingUpdateComment}
-            disabled={isSubmitDisabled}>
-            {formMode.type === 'edit' ? 'Сохранить' : 'Отправить'}
-          </Button>
-        </Form>
+        {!!user && (
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={onSubmit}
+            disabled={isSubmitting}>
+            <Form.Item
+              label="Добавить комментарий"
+              name="text"
+              rules={[
+                { required: true, message: 'Введите текст комментария' },
+              ]}>
+              <Input.TextArea
+                ref={textareaRef}
+                rows={3}
+                style={{ resize: 'none' }}
+              />
+            </Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={isSubmitting}
+              disabled={isSubmitDisabled}>
+              {formMode.type === 'edit' ? 'Сохранить' : 'Отправить'}
+            </Button>
+          </Form>
+        )}
       </Card>
-    </Space>
+    </Styled.Container>
   )
 }

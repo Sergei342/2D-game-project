@@ -3,7 +3,10 @@ import {
   Button,
   Card,
   Flex,
+  message,
   Modal,
+  Pagination,
+  Result,
   Space,
   Spin,
   Tooltip,
@@ -16,16 +19,22 @@ import { selectUser } from '@/slices/userSlice'
 import * as Styled from './ForumTopicsPage.styled'
 import { cssVariables } from '@/styles/variables'
 import { formatISODate, isUpdated } from '@/shared/date'
+import { useState } from 'react'
 const { Title, Text } = Typography
 
 export const ForumTopicsPage = () => {
   const navigate = useNavigate()
   const user = useSelector(selectUser)
+  const [page, setPage] = useState(1)
+
   const [removeTopic] = useRemoveTopicMutation()
 
-  const { data, isLoading, error } = useGetTopicsQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  })
+  const {
+    data,
+    isLoading,
+    error,
+    refetch: refetchGetTopics,
+  } = useGetTopicsQuery({ page })
 
   const confirmDelete = (topicId: number, title: string) => {
     Modal.confirm({
@@ -34,7 +43,14 @@ export const ForumTopicsPage = () => {
       okText: 'Удалить',
       cancelText: 'Отмена',
       okButtonProps: { danger: true },
-      onOk: () => removeTopic({ topicId }),
+      onOk: async () => {
+        try {
+          await removeTopic({ topicId }).unwrap()
+          message.success(`Топик "${title}" успешно удален`)
+        } catch {
+          message.error(`При удалении топика "${title}" произошла ошибка`)
+        }
+      },
     })
   }
 
@@ -43,7 +59,20 @@ export const ForumTopicsPage = () => {
   }
 
   if (error) {
-    return <div>Ошибка загрузки страницы форума</div>
+    return (
+      <Result
+        status="error"
+        title="Не удалось загрузить список топиков"
+        subTitle="Проверьте соединение или попробуйте снова"
+        extra={
+          <Space>
+            <Button type="primary" onClick={refetchGetTopics}>
+              Повторить
+            </Button>
+          </Space>
+        }
+      />
+    )
   }
 
   return (
@@ -57,17 +86,21 @@ export const ForumTopicsPage = () => {
         </Button>
       </Styled.PageHeader>
 
-      <Flex
-        vertical
-        gap={20}
-        style={{
-          padding: '0 8px',
-          marginTop: 16,
-          borderRadius: 8,
-        }}>
-        {!data?.data?.length && <Text type="secondary">Пока нет топиков</Text>}
+      <Styled.Topics>
+        {!data?.items?.length && (
+          <Result
+            status="info"
+            title="Пока нет топиков"
+            subTitle="Создайте первый топик"
+            extra={
+              <Button type="primary" onClick={() => navigate('/forum/new')}>
+                Создать топик
+              </Button>
+            }
+          />
+        )}
 
-        {(data?.data ?? []).map(item => (
+        {(data?.items ?? []).map(item => (
           <Card
             key={item.id}
             hoverable
@@ -99,8 +132,6 @@ export const ForumTopicsPage = () => {
                   </strong>{' '}
                   · {formatISODate(item.createdAt)}
                 </Text>
-
-                <Text type="secondary">Комментарии: {item.commentsCount}</Text>
               </Flex>
 
               {item.authorId === user?.id && (
@@ -126,7 +157,17 @@ export const ForumTopicsPage = () => {
             </Flex>
           </Card>
         ))}
-      </Flex>
+      </Styled.Topics>
+
+      {data && data.total > data.size && (
+        <Pagination
+          style={{ marginTop: 16, textAlign: 'center' }}
+          current={data.page}
+          pageSize={data.size}
+          total={data.total}
+          onChange={newPage => setPage(newPage)}
+        />
+      )}
     </Styled.Container>
   )
 }

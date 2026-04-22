@@ -2,7 +2,7 @@ import { selectUser } from '@/slices/userSlice'
 import { useSelector } from '@/store'
 import { Form, message, Modal } from 'antd'
 import { TextAreaRef } from 'antd/es/input/TextArea'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   CommentDTO,
@@ -18,10 +18,13 @@ import { CommentForm, CommentFormMode } from './ForumTopicPage.types'
 export const useForumTopicPageData = () => {
   const navigate = useNavigate()
   const { topicId } = useParams()
-  const topicIdNum = Number(topicId)
+  const parsedTopicId = Number(topicId)
+  const isValidTopicId = Number.isFinite(parsedTopicId)
+
   const user = useSelector(selectUser)
 
   const commentsRef = useRef<HTMLDivElement | null>(null)
+  const commentRefs = useRef<Record<number, HTMLDivElement | null>>({})
   const textareaRef = useRef<TextAreaRef | null>(null)
 
   const [form] = Form.useForm<CommentForm>()
@@ -33,6 +36,8 @@ export const useForumTopicPageData = () => {
   const [removeComment] = useRemoveCommentMutation()
 
   const [formMode, setFormMode] = useState<CommentFormMode>({ type: 'create' })
+  const [flashCommentId, setFlashCommentId] = useState<number | null>(null)
+  const [targetCommentId, setTargetCommentId] = useState<number | null>(null)
 
   const activeCommentId = formMode.type === 'create' ? null : formMode.commentId
 
@@ -40,47 +45,27 @@ export const useForumTopicPageData = () => {
     data: topic,
     isLoading,
     error,
-  } = useGetTopicQuery({ topicId: topicIdNum }, { skip: !topicIdNum })
+    refetch: refetchGetTopic,
+  } = useGetTopicQuery({ topicId: parsedTopicId }, { skip: !isValidTopicId })
 
-  const { data: comments, isLoading: isLoadingComments } =
-    useGetTopicCommentsQuery({ topicId: topicIdNum }, { skip: !topicIdNum })
-
-  const scrollToCommentWithFlash = (commentId: number) => {
-    setTimeout(() => {
-      const commentElement = commentsRef.current?.querySelector(
-        `#comment-${commentId}`
-      ) as HTMLElement | null
-      if (!commentElement) return
-
-      commentElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      })
-
-      commentElement.classList.remove('flash')
-      void commentElement.offsetWidth
-      commentElement.classList.add('flash')
-
-      const handleEnd = () => {
-        commentElement.classList.remove('flash')
-        commentElement.removeEventListener('animationend', handleEnd)
-      }
-
-      commentElement.addEventListener('animationend', handleEnd)
-    }, 300)
-  }
+  const {
+    data: comments,
+    isLoading: isLoadingComments,
+    error: commentsError,
+    refetch: refetchGetComments,
+  } = useGetTopicCommentsQuery(
+    { topicId: parsedTopicId },
+    { skip: !isValidTopicId }
+  )
 
   const focusTextarea = useCallback(() => {
     form.scrollToField('text', { behavior: 'smooth' })
 
-    setTimeout(() => {
-      textareaRef.current?.focus()
-
-      textareaRef.current?.resizableTextArea?.textArea?.setSelectionRange(
-        textareaRef.current.resizableTextArea.textArea.value.length,
-        textareaRef.current.resizableTextArea.textArea.value.length
-      )
-    }, 300)
+    requestAnimationFrame(() => {
+      textareaRef.current?.focus({
+        cursor: 'end',
+      })
+    })
   }, [form])
 
   const handleReplyComment = useCallback(
@@ -93,7 +78,7 @@ export const useForumTopicPageData = () => {
   )
 
   const handleSubmit = async ({ text }: CommentForm) => {
-    if (!topicIdNum || !user) {
+    if (!isValidTopicId || !user) {
       return
     }
 
@@ -104,10 +89,10 @@ export const useForumTopicPageData = () => {
           text: text.trim(),
         }).unwrap()
 
-        scrollToCommentWithFlash(updatedComment.id)
+        setTargetCommentId(updatedComment.id)
       } else {
         const newComment = await addComment({
-          topicId: topicIdNum,
+          topicId: parsedTopicId,
           parentId: formMode.type === 'reply' ? formMode.commentId : null,
           text: text.trim(),
           authorId: user.id,
@@ -115,7 +100,7 @@ export const useForumTopicPageData = () => {
           avatar: user.avatar,
         }).unwrap()
 
-        scrollToCommentWithFlash(newComment.id)
+        setTargetCommentId(newComment.id)
       }
 
       form.resetFields()
@@ -169,26 +154,57 @@ export const useForumTopicPageData = () => {
     navigate('/forum')
   }, [navigate])
 
+  const handleAnimationEndFlashing = () => {
+    setFlashCommentId(null)
+  }
+
+  useEffect(() => {
+    if (commentsError) {
+      message.warning('При загрузке комментариев произошла ошибка')
+    }
+  }, [commentsError])
+
+  // scrollToCommentWithFlash
+  useEffect(() => {
+    if (!targetCommentId || !comments?.length) {
+      return
+    }
+
+    const commentElement = commentRefs.current?.[targetCommentId]
+    commentElement?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+
+    setFlashCommentId(targetCommentId)
+  }, [targetCommentId, comments])
+
   return {
     user,
     isLoading,
     isLoadingComments,
-    isLoadingAddComment,
-    isLoadingUpdateComment,
-    isSubmitDisabled: !topicIdNum || !user,
+    isValidTopicId,
+    isSubmitDisabled: !isValidTopicId || !user,
+    isSubmitting: isLoadingAddComment || isLoadingUpdateComment,
     error,
     topic,
     comments,
+    commentsError,
     commentsRef,
+    commentRefs,
     textareaRef,
     activeCommentId,
+    flashCommentId,
     formMode,
     form,
+    refetchGetTopic,
+    refetchGetComments,
     confirmDeleteComment,
     onSubmit: handleSubmit,
     onReplyComment: handleReplyComment,
     onEditComment: handleEditComment,
     onCancelMode: handleCancelMode,
     goToForumTopicsPage,
+    onAnimationEndFlashing: handleAnimationEndFlashing,
   }
 }

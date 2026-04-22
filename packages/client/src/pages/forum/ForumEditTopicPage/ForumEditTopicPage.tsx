@@ -1,8 +1,8 @@
 import {
   Button,
-  Card,
   Form,
   Input,
+  InputRef,
   message,
   Space,
   Spin,
@@ -13,7 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useGetTopicQuery, useUpdateTopicMutation } from '../Forum.api'
 import { useSelector } from '@/store'
 import { selectUser } from '@/slices/userSlice'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 const { Title } = Typography
 
@@ -24,25 +24,33 @@ type FormValues = {
 
 export const ForumEditTopicPage = () => {
   const navigate = useNavigate()
+
   const { topicId } = useParams()
+  const parsedTopicId = Number(topicId)
+  const isValidTopicId = Number.isFinite(parsedTopicId)
 
   const user = useSelector(selectUser)
+  const inputRef = useRef<InputRef | null>(null)
   const [form] = Form.useForm<FormValues>()
 
-  const { data: topic, isLoading } = useGetTopicQuery({
-    topicId: Number(topicId),
-  })
+  const { data: topic, isLoading } = useGetTopicQuery(
+    {
+      topicId: parsedTopicId,
+    },
+    { refetchOnMountOrArgChange: true, skip: !isValidTopicId }
+  )
 
   const [updateTopic, { isLoading: isUpdating }] = useUpdateTopicMutation()
 
   const onFinish = async ({ title, description }: FormValues) => {
-    if (!user) {
+    if (!user || !isValidTopicId) {
+      message.error('Некорректный ID топика')
       return
     }
 
     try {
       await updateTopic({
-        id: Number(topicId),
+        id: parsedTopicId,
         title: title.trim(),
         description: description.trim(),
       }).unwrap()
@@ -60,15 +68,28 @@ export const ForumEditTopicPage = () => {
         title: topic.title ?? '',
         description: topic.description ?? '',
       })
+
+      inputRef.current?.focus({ cursor: 'end' })
     }
-  }, [topic, form.setFieldsValue])
+  }, [topic, form])
 
   if (isLoading) {
     return <Spin description={'Загрузка данных топика'} />
   }
 
+  if (!isValidTopicId) {
+    return (
+      <Space orientation="vertical" style={{ width: '100%' }} size={16}>
+        <Title level={3} style={{ margin: 0 }}>
+          Редактирование топика
+        </Title>
+        <Typography.Text type="danger">Некорректный ID топика</Typography.Text>)
+      </Space>
+    )
+  }
+
   return (
-    <Card variant="borderless">
+    <section style={{ padding: '24px' }}>
       <Space orientation="vertical" style={{ width: '100%' }} size={16}>
         <Title level={3} style={{ margin: 0 }}>
           Редактирование топика
@@ -79,7 +100,7 @@ export const ForumEditTopicPage = () => {
             label="Заголовок"
             name="title"
             rules={[{ required: true, message: 'Введите заголовок' }]}>
-            <Input />
+            <Input ref={inputRef} />
           </Form.Item>
 
           <Form.Item
@@ -97,6 +118,6 @@ export const ForumEditTopicPage = () => {
           </Space>
         </Form>
       </Space>
-    </Card>
+    </section>
   )
 }

@@ -2,7 +2,7 @@ import { Avatar, Button, Flex, Space, Tooltip, Typography } from 'antd'
 import { BASE_URL } from '@/shared/constants'
 import { UserOutlined } from '@ant-design/icons'
 import { CommentDTO } from '../../../Forum.api'
-import { memo } from 'react'
+import { memo, MutableRefObject } from 'react'
 import { formatISODate, isUpdated } from '@/shared/date'
 import * as Styled from './TopicComment.styled'
 import { cssVariables } from '@/styles/variables'
@@ -10,10 +10,13 @@ import { cssVariables } from '@/styles/variables'
 type TopicCommentProps = {
   comment: CommentDTO
   activeReplyId: number | null
-  currentUserId: number | null
+  flashId: number | null
+  commentRefs: MutableRefObject<Record<number, HTMLDivElement | null>>
   onReply: (commentId: number) => void
   onEdit: (comment: CommentDTO) => void
   onDelete: (commentId: number) => void
+  onAnimationEndFlashing: () => void
+  currentUserId?: number
 }
 
 const { Text } = Typography
@@ -22,17 +25,29 @@ export const TopicComment = memo(
   ({
     comment,
     activeReplyId,
+    flashId,
     currentUserId,
+    commentRefs,
     onReply,
     onEdit,
     onDelete,
+    onAnimationEndFlashing,
   }: TopicCommentProps) => {
+    const isFlashing = comment.id === flashId
     const isActive = comment.id === activeReplyId
     const isAuthor =
-      currentUserId != null && comment.author.id === currentUserId
+      currentUserId !== undefined && comment.author.id === currentUserId
 
     return (
-      <Styled.Wrapper id={`comment-${comment.id}`} $isActive={isActive}>
+      <Styled.Wrapper
+        ref={element => (commentRefs.current[comment.id] = element)}
+        $isFlashing={isFlashing}
+        $isActive={isActive}
+        onAnimationEnd={() => {
+          if (isFlashing) {
+            onAnimationEndFlashing()
+          }
+        }}>
         <Flex gap={8}>
           <Avatar
             size={28}
@@ -56,7 +71,7 @@ export const TopicComment = memo(
             <div style={{ color: cssVariables.textColor }}>{comment.text}</div>
 
             <Space size={4}>
-              {!isActive && (
+              {!isActive && currentUserId !== undefined && (
                 <Button
                   type="link"
                   size="small"
@@ -94,12 +109,15 @@ export const TopicComment = memo(
             {comment.replies.map(reply => (
               <TopicComment
                 key={reply.id}
+                commentRefs={commentRefs}
                 comment={reply}
                 activeReplyId={activeReplyId}
+                flashId={flashId}
                 currentUserId={currentUserId}
                 onReply={onReply}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onAnimationEndFlashing={onAnimationEndFlashing}
               />
             ))}
           </div>

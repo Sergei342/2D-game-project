@@ -1,10 +1,11 @@
-import { Button, Card, Form, Input, message, Space, Typography } from 'antd'
+import { Button, Form, Input, InputRef, message, Space, Typography } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 import { useAddTopicMutation } from '../Forum.api'
 import { useSelector } from '@/store'
 import { selectUser } from '@/slices/userSlice'
 import { getAuthorName } from '@/shared/getAuthorName'
+import { useEffect, useRef } from 'react'
 
 const { Title } = Typography
 
@@ -17,6 +18,8 @@ export const ForumCreateTopicPage = () => {
   const navigate = useNavigate()
 
   const user = useSelector(selectUser)
+  const inputRef = useRef<InputRef | null>(null)
+
   const [addTopic, { isLoading: isCreating }] = useAddTopicMutation()
 
   const onFinish = async ({ title, description }: FormValues) => {
@@ -40,8 +43,12 @@ export const ForumCreateTopicPage = () => {
     }
   }
 
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
+
   return (
-    <Card variant="borderless">
+    <section style={{ padding: '24px' }}>
       <Space orientation="vertical" style={{ width: '100%' }} size={16}>
         <Title level={3} style={{ margin: 0 }}>
           Создание топика
@@ -52,7 +59,7 @@ export const ForumCreateTopicPage = () => {
             label="Заголовок"
             name="title"
             rules={[{ required: true, message: 'Введите заголовок' }]}>
-            <Input />
+            <Input ref={inputRef} />
           </Form.Item>
 
           <Form.Item
@@ -70,6 +77,6 @@ export const ForumCreateTopicPage = () => {
           </Space>
         </Form>
       </Space>
-    </Card>
+    </section>
   )
 }

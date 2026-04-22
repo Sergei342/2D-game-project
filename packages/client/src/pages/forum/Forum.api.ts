@@ -30,6 +30,14 @@ type GetTopicsResponse = {
   totalPages: number
 }
 
+type TopicsViewModel = {
+  items: TopicDTO[]
+  page: number
+  size: number
+  total: number
+  totalPages: number
+}
+
 type CreateTopicData = {
   title: string
   description: string
@@ -77,7 +85,7 @@ const PAGE_SIZE_DEFAULT = 10
 
 export const forumApi = apiForum.injectEndpoints({
   endpoints: builder => ({
-    getTopics: builder.query<GetTopicsResponse, GetTopicsParams | undefined>({
+    getTopics: builder.query<TopicsViewModel, GetTopicsParams | undefined>({
       query: (params = {}) => ({
         url: '/topics',
         method: 'GET',
@@ -85,6 +93,19 @@ export const forumApi = apiForum.injectEndpoints({
           page: params.page ?? 1,
           pageSize: params.pageSize ?? PAGE_SIZE_DEFAULT,
         },
+      }),
+      transformResponse: ({
+        data,
+        page,
+        pageSize,
+        totalPages,
+        total,
+      }: GetTopicsResponse): TopicsViewModel => ({
+        items: data,
+        page,
+        size: pageSize,
+        total,
+        totalPages,
       }),
       providesTags: ['Topics'],
     }),
