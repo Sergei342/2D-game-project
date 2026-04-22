@@ -2,13 +2,10 @@ import type { Request, Response } from 'express'
 import { UniqueConstraintError } from 'sequelize'
 import { Reaction } from '../models/Reaction'
 import { Comment } from '../models/Comment'
-import { HTTP_STATUS, ERROR_MSG } from '../constants'
-
-// TODO: после реализации authMiddleware брать userId из req.user.id, не из body
+import { HTTP_STATUS, ERROR_MSG, REACTION_TYPES } from '../constants'
 
 /**
  * POST запрос на добавление reaction /api/v1/forum/comments/:commentId/reactions
- *
  */
 export const createReaction = async (
   req: Request,
@@ -17,6 +14,13 @@ export const createReaction = async (
   try {
     const commentId = Number(req.params.commentId)
     const { type, userId } = req.body
+
+    if (!type || !REACTION_TYPES.includes(type)) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: ERROR_MSG.REACTION_REQUIRED_FIELDS })
+      return
+    }
 
     const comment = await Comment.findByPk(commentId)
     if (!comment) {
@@ -49,7 +53,6 @@ export const createReaction = async (
 
 /**
  * PUT запрос на апдейт reaction /api/v1/forum/comments/:commentId/reactions
- *
  */
 export const updateReaction = async (
   req: Request,
@@ -58,6 +61,13 @@ export const updateReaction = async (
   try {
     const commentId = Number(req.params.commentId)
     const { type, userId } = req.body
+
+    if (!type || !REACTION_TYPES.includes(type)) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: ERROR_MSG.REACTION_REQUIRED_FIELDS })
+      return
+    }
 
     const reaction = await Reaction.findOne({ where: { commentId, userId } })
     if (!reaction) {
@@ -81,7 +91,6 @@ export const updateReaction = async (
 
 /**
  * DELETE запрос на удаление reaction /api/v1/forum/comments/:commentId/reactions
- *
  */
 export const deleteReaction = async (
   req: Request,
