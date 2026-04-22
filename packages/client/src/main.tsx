@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Provider } from 'react-redux'
-import { store, useDispatch } from './store'
+import { createAppStore, useDispatch } from './store'
 import { routes } from './routes/routes'
 import 'antd/dist/reset.css'
 import { ConfigProvider, theme } from 'antd'
@@ -12,9 +12,10 @@ import { fetchUserThunk } from './slices/userSlice'
 
 const root = document.getElementById('root') as HTMLElement
 const router = createBrowserRouter(routes)
+const store = createAppStore(window.APP_INITIAL_STATE)
 
 const App = () => {
-    const dispatch = useDispatch()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     dispatch(fetchUserThunk())

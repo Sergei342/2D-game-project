@@ -36,6 +36,14 @@ async function createServer() {
   app.get('*', async (req, res, next) => {
     const url = req.originalUrl
 
+    if (
+      url.startsWith('/sw.js') ||
+      url.includes('.') ||
+      url.startsWith('/.well-known')
+    ) {
+      return next()
+    }
+
     try {
       let render: (req: ExpressRequest) => Promise<{
         html: string

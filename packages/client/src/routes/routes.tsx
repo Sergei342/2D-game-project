@@ -17,6 +17,7 @@ import { RegisterPage, initRegisterPage } from '@/pages/register/Register'
 import { LeaderBoardPage } from '@/pages/leaderboard'
 import { initLeaderBoardPage } from '@/pages/leaderboard/LeaderBoardPage'
 import { ForumEditTopicPage } from '@/pages/forum/ForumEditTopicPage'
+import { initForumTopicsPage } from '@/pages/forum/ForumTopicsPage/ForumTopicsPage'
 
 export const routes: AppRouteObject[] = [
   {
@@ -71,6 +72,7 @@ export const routes: AppRouteObject[] = [
         <ForumTopicsPage />
       </ProtectedRoute>
     ),
+    fetchData: initForumTopicsPage,
     ErrorBoundary: AppErrorBoundary,
   },
   {

@@ -30,21 +30,35 @@ export const reducer = combineReducers({
   [apiForum.reducerPath]: apiForum.reducer,
 })
 
-export const store = configureStore({
-  reducer,
-  preloadedState:
-    typeof window === 'undefined' ? undefined : window.APP_INITIAL_STATE,
-  middleware: getDefaultMiddleware =>
-    getDefaultMiddleware().concat(
-      api.middleware,
-      apiForum.middleware,
-      apiErrorMiddleware
-    ),
-})
-
 export type RootState = ReturnType<typeof reducer>
-export type AppDispatch = typeof store.dispatch
 
-export const useDispatch: () => AppDispatch = useDispatchBase
+export const createAppStore = (preloadedState?: RootState) => {
+  const reducer = combineReducers({
+    friends: friendsReducer,
+    ssr: ssrReducer,
+    user: userReducer,
+    game: gameReducer,
+    [api.reducerPath]: api.reducer,
+    [apiForum.reducerPath]: apiForum.reducer,
+  })
+
+  const store = configureStore({
+    reducer,
+    preloadedState,
+    middleware: getDefaultMiddleware =>
+      getDefaultMiddleware().concat(
+        api.middleware,
+        apiForum.middleware,
+        apiErrorMiddleware
+      ),
+  })
+
+  return store
+}
+
+export type AppStore = ReturnType<typeof createAppStore>
+export type AppDispatch = AppStore['dispatch']
+
+export const useDispatch = () => useDispatchBase<AppDispatch>()
 export const useSelector: TypedUseSelectorHook<RootState> = useSelectorBase
-export const useStore: () => typeof store = useStoreBase
+export const useStore = () => useStoreBase() as AppStore

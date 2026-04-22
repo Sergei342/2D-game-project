@@ -81,7 +81,7 @@ type CreateCommentData = {
   avatar: string | null
 }
 
-const PAGE_SIZE_DEFAULT = 10
+export const PAGE_SIZE_DEFAULT = 10
 
 export const forumApi = apiForum.injectEndpoints({
   endpoints: builder => ({

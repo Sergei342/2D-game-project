@@ -1,11 +1,14 @@
 import App from './App'
 import { render, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { store } from './store'
+import { createAppStore } from './store'
 
 global.fetch = jest.fn(() =>
   Promise.resolve({ json: () => Promise.resolve(null) })
 ) as unknown as typeof global.fetch
+
+const preloadedState = window.APP_INITIAL_STATE
+const store = createAppStore(preloadedState)
 
 jest.mock('@/shared/constants', () => ({
   FORUM_API: 'forum-api-url',

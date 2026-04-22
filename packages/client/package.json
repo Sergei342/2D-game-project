@@ -16,7 +16,9 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.5",
+    "@types/cookie-parser": "^1.4.10",
     "@types/react-helmet": "^6.1.7",
+    "@types/serialize-javascript": "^5.0.4",
     "antd": "^6.3.1",
     "cookie-parser": "^1.4.6",
     "cross-fetch": "^4.1.0",

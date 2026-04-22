@@ -13,14 +13,29 @@ import {
   Typography,
 } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { useGetTopicsQuery, useRemoveTopicMutation } from '../Forum.api'
+import {
+  forumApi,
+  PAGE_SIZE_DEFAULT,
+  useGetTopicsQuery,
+  useRemoveTopicMutation,
+} from '../Forum.api'
 import { useSelector } from '@/store'
 import { selectUser } from '@/slices/userSlice'
 import * as Styled from './ForumTopicsPage.styled'
 import { cssVariables } from '@/styles/variables'
 import { formatISODate, isUpdated } from '@/shared/date'
 import { useState } from 'react'
+import { PageInitArgs } from '@/types'
 const { Title, Text } = Typography
+
+export const initForumTopicsPage = async ({ dispatch }: PageInitArgs) => {
+  return dispatch(
+    forumApi.endpoints.getTopics.initiate({
+      page: 1,
+      pageSize: PAGE_SIZE_DEFAULT,
+    })
+  )
+}
 
 export const ForumTopicsPage = () => {
   const navigate = useNavigate()
@@ -34,7 +49,7 @@ export const ForumTopicsPage = () => {
     isLoading,
     error,
     refetch: refetchGetTopics,
-  } = useGetTopicsQuery({ page })
+  } = useGetTopicsQuery({ page, pageSize: PAGE_SIZE_DEFAULT })
 
   const confirmDelete = (topicId: number, title: string) => {
     Modal.confirm({

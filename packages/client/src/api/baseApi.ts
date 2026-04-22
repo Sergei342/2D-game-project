@@ -1,11 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import fetch from 'cross-fetch'
-import { API_CONFIG } from './constants'
+import { getApiConfig } from './utils'
 
 export const baseQuery = fetchBaseQuery({
-  baseUrl: API_CONFIG.main,
+  baseUrl: getApiConfig().main,
   credentials: 'include',
-  fetchFn: fetch,
   prepareHeaders: headers => {
     headers.set('Content-Type', 'application/json')
     return headers
