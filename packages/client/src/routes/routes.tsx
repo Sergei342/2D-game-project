@@ -10,21 +10,14 @@ import { Error404Page, initError404Page } from '../pages/error404/Error404'
 import { initMainPage, MainPage } from '@/pages/Main'
 import { initFriendsPage, FriendsPage } from '@/pages/FriendsPage'
 
-import {
-  initForumTopicsPage,
-  ForumTopicsPage,
-} from '@/pages/forum/ForumTopicsPage'
-import {
-  initForumCreateTopicPage,
-  ForumCreateTopicPage,
-} from '@/pages/forum/ForumCreateTopicPage'
-import {
-  initForumTopicPage,
-  ForumTopicPage,
-} from '@/pages/forum/ForumTopicPage'
+import { ForumTopicsPage } from '@/pages/forum/ForumTopicsPage'
+import { ForumCreateTopicPage } from '@/pages/forum/ForumCreateTopicPage'
+import { ForumTopicPage } from '@/pages/forum/ForumTopicPage'
 import { RegisterPage, initRegisterPage } from '@/pages/register/Register'
 import { LeaderBoardPage } from '@/pages/leaderboard'
 import { initLeaderBoardPage } from '@/pages/leaderboard/LeaderBoardPage'
+import { ForumEditTopicPage } from '@/pages/forum/ForumEditTopicPage'
+import { initForumTopicsPage } from '@/pages/forum/ForumTopicsPage/ForumTopicsPage'
 
 export const routes: AppRouteObject[] = [
   {
@@ -89,7 +82,6 @@ export const routes: AppRouteObject[] = [
         <ForumCreateTopicPage />
       </ProtectedRoute>
     ),
-    fetchData: initForumCreateTopicPage,
     ErrorBoundary: AppErrorBoundary,
   },
   {
@@ -99,7 +91,15 @@ export const routes: AppRouteObject[] = [
         <ForumTopicPage />
       </ProtectedRoute>
     ),
-    fetchData: initForumTopicPage,
+    ErrorBoundary: AppErrorBoundary,
+  },
+  {
+    path: '/forum/:topicId/edit',
+    Component: () => (
+      <ProtectedRoute>
+        <ForumEditTopicPage />
+      </ProtectedRoute>
+    ),
     ErrorBoundary: AppErrorBoundary,
   },
   {

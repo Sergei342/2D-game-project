@@ -16,6 +16,16 @@ const mockUser: UserProfile = {
   phone: '+79991234567',
 }
 
+jest.mock('@/shared/constants', () => ({
+  FORUM_API: 'forum-api-url',
+  BASE_URL: 'base-api-url',
+  HttpStatus: {
+    Success: 200,
+    Unauthorized: 401,
+    ServerError: 500,
+  },
+}))
+
 describe('test ProfileService', () => {
   const originalFetch = global.fetch
 

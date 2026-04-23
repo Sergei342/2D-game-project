@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { Header } from '../components/Header'
 import { usePage } from '../hooks/usePage'
-import { PageInitArgs } from '@/routes/types'
+import { PageInitArgs } from '@/types'
 import { clearUser, fetchUserThunk, selectUser } from '../slices/userSlice'
 import { useDispatch, useSelector } from '../store'
 import { logoutUser } from './login/LoginService'

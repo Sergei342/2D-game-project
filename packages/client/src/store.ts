@@ -11,60 +11,49 @@ import friendsReducer from './slices/friendsSlice'
 import ssrReducer from './slices/ssrSlice'
 import userReducer from './slices/userSlice'
 import gameReducer from './slices/gameSlice'
-import forumReducer from './slices/forumSlice'
 import { api } from './api/baseApi'
 import { apiErrorMiddleware } from './api/apiErrorMiddleware'
-import {
-  createNoopForumStateStorage,
-  type ForumStateStorage,
-} from './store/forumStateStorage'
+import { apiForum } from './api/forumApi'
+
+declare global {
+  interface Window {
+    APP_INITIAL_STATE: RootState
+  }
+}
 
 export const reducer = combineReducers({
   friends: friendsReducer,
   ssr: ssrReducer,
   user: userReducer,
-  forum: forumReducer,
   game: gameReducer,
   [api.reducerPath]: api.reducer,
+  [apiForum.reducerPath]: apiForum.reducer,
 })
 
 export type RootState = ReturnType<typeof reducer>
 
-type CreateAppStoreOptions = {
-  preloadedState?: RootState
-  forumStateStorage?: ForumStateStorage
-}
+export const createAppStore = (preloadedState?: RootState) => {
+  const reducer = combineReducers({
+    friends: friendsReducer,
+    ssr: ssrReducer,
+    user: userReducer,
+    game: gameReducer,
+    [api.reducerPath]: api.reducer,
+    [apiForum.reducerPath]: apiForum.reducer,
+  })
 
-const resolvePreloadedState = (
-  preloadedState: RootState | undefined,
-  forumStateStorage: ForumStateStorage
-): RootState | undefined => {
-  if (!preloadedState) {
-    return undefined
-  }
-
-  return {
-    ...preloadedState,
-    forum: forumStateStorage.load() ?? preloadedState.forum,
-  }
-}
-
-export const createAppStore = ({
-  preloadedState,
-  forumStateStorage = createNoopForumStateStorage(),
-}: CreateAppStoreOptions = {}) => {
-  const createdStore = configureStore({
+  const store = configureStore({
     reducer,
-    preloadedState: resolvePreloadedState(preloadedState, forumStateStorage),
+    preloadedState,
     middleware: getDefaultMiddleware =>
-      getDefaultMiddleware().concat(api.middleware, apiErrorMiddleware),
+      getDefaultMiddleware().concat(
+        api.middleware,
+        apiForum.middleware,
+        apiErrorMiddleware
+      ),
   })
 
-  createdStore.subscribe(() => {
-    forumStateStorage.save(createdStore.getState().forum)
-  })
-
-  return createdStore
+  return store
 }
 
 export type AppStore = ReturnType<typeof createAppStore>

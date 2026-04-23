@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '../store'
-import { SERVER_HOST } from '@/constants'
+import { BASE_URL } from '@/shared/constants'
 
 export interface User {
   id: number
@@ -33,7 +33,7 @@ export const fetchUserThunk = createAsyncThunk<
   { rejectValue: string }
 >('user/fetchUserThunk', async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${SERVER_HOST}/auth/user`, {
+    const response = await fetch(`${BASE_URL}/auth/user`, {
       credentials: 'include',
     })
 
