@@ -10,6 +10,7 @@ services:
       args:
         NODE_VERSION: 20
         CLIENT_PORT: ${CLIENT_PORT:-3000}
+        VITE_FORUM_API: ${VITE_FORUM_API:-http://localhost:3001/api/v1/forum}
     restart: always
     ports:
       - "${CLIENT_PORT:-3000}:${CLIENT_PORT:-3000}"
@@ -54,10 +55,9 @@ services:
 
   postgres:
     container_name: space-invaders-db
-    image: postgres:14
+    image: postgres:17
     ports:
-      - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
-      - '${POSTGRES_PORT}:5432'
+      - "${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
