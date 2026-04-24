@@ -18,6 +18,7 @@ import { LeaderBoardPage } from '@/pages/leaderboard'
 import { initLeaderBoardPage } from '@/pages/leaderboard/LeaderBoardPage'
 import { ForumEditTopicPage } from '@/pages/forum/ForumEditTopicPage'
 import { initForumTopicsPage } from '@/pages/forum/ForumTopicsPage/ForumTopicsPage'
+import { OAuthPage, initOAuthPage } from '@/pages/oauth/OAuthPage'
 
 export const routes: AppRouteObject[] = [
   {
@@ -136,6 +137,11 @@ export const routes: AppRouteObject[] = [
     path: '/*',
     Component: Error404Page,
     fetchData: initError404Page,
+  },
+  {
+    path: '/oauth',
+    Component: OAuthPage,
+    fetchData: initOAuthPage,
     ErrorBoundary: AppErrorBoundary,
   },
 ]
