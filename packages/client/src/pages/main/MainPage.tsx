@@ -3,10 +3,10 @@ import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
 import { PageInitArgs } from '@/types'
-import { fetchUserThunk, selectUser } from '../slices/userSlice'
-import { useSelector } from '../store'
+import { fetchUserThunk, selectUser } from '../../slices/userSlice'
+import { useSelector } from '../../store'
 
-import * as Styled from './Main.styled'
+import * as Styled from './MainPage.styled'
 
 const { Title, Paragraph, Text } = Typography
 

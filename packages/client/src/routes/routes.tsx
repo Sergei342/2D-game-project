@@ -7,7 +7,7 @@ import { AppErrorBoundary } from '../components/AppErrorBoundary'
 import { GamePage, initGamePage } from '../pages/game/components/GamePage'
 import { Error500Page } from '../pages/error500/Error500'
 import { Error404Page } from '../pages/error404/Error404'
-import { initMainPage, MainPage } from '@/pages/Main'
+import { initMainPage, MainPage } from '@/pages/main'
 
 import { ForumTopicsPage } from '@/pages/forum/ForumTopicsPage'
 import { ForumCreateTopicPage } from '@/pages/forum/ForumCreateTopicPage'
@@ -46,7 +46,7 @@ export const routes: AppRouteObject[] = [
             Component: OAuthPage,
             fetchData: initOAuthPage,
             ErrorBoundary: AppErrorBoundary,
-          }
+          },
         ],
       },
     ],
