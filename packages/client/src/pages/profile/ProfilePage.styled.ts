@@ -11,7 +11,7 @@ export const ProfilePageWrapper = styled.div`
   align-items: center;
   overflow-y: auto;
   max-height: calc(
-    100vh - ${cssVariables.headerHeight} - ${cssVariables.footerHeight}
+    100vh - ${cssVariables.headerHeight} - ${cssVariables.footerHeight} - 48px
   );
 `
 

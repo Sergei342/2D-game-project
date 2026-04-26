@@ -1,65 +1,21 @@
-﻿import { Button, Space, Typography, message } from 'antd'
+﻿import { Button, Card, Col, Row, Typography } from 'antd'
 import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
-import { Header } from '../components/Header'
 import { PageInitArgs } from '@/types'
-import { clearUser, fetchUserThunk, selectUser } from '../slices/userSlice'
-import { useDispatch, useSelector } from '../store'
-import { logoutUser } from './login/LoginService'
-import {
-  HeroCard,
-  MainMenu,
-  MainMenuButton,
-  PageRoot,
-  StartButton,
-  TopBar,
-} from './Main.styles'
+import { fetchUserThunk, selectUser } from '../slices/userSlice'
+import { useSelector } from '../store'
+
+import * as Styled from './Main.styled'
 
 const { Title, Paragraph, Text } = Typography
-
-type QuickLink = {
-  key: string
-  title: string
-  path: string
-}
-
-const quickLinks: QuickLink[] = [
-  {
-    key: 'forum',
-    title: 'Форум',
-    path: '/forum',
-  },
-  {
-    key: 'leaderboard',
-    title: 'Лидерборд',
-    path: '/leaderboard',
-  },
-  {
-    key: 'profile',
-    title: 'Профиль',
-    path: '/profile',
-  },
-]
 
 export const MainPage = () => {
   const user = useSelector(selectUser)
   const navigate = useNavigate()
-  const dispatch = useDispatch()
-
-  const handleLogout = async () => {
-    const success = await logoutUser()
-
-    if (success) {
-      dispatch(clearUser())
-      navigate('/login')
-    } else {
-      message.error('Не удалось выйти. Попробуйте позже.')
-    }
-  }
 
   return (
-    <PageRoot>
+    <Styled.PageRoot>
       <Helmet>
         <meta charSet="utf-8" />
         <title>Главная</title>
@@ -69,46 +25,83 @@ export const MainPage = () => {
         />
       </Helmet>
 
-      <Header />
+      <Styled.Block>
+        <Title level={3}>👾 SPACE INVADERS</Title>
+        {user ? (
+          <Text>
+            С возвращением, <strong>{user.first_name}</strong>!
+          </Text>
+        ) : (
+          <Text>Они уже здесь. Сможешь ли ты выстоять?</Text>
+        )}
 
-      <TopBar>
-        <Button onClick={handleLogout}>Выйти</Button>
-      </TopBar>
-
-      <HeroCard variant="borderless">
-        <Space orientation="vertical" size={10} style={{ width: '100%' }}>
-          <Title level={2}>Space Invaders</Title>
-          <Paragraph>
-            Управляйте кораблем, уворачивайтесь от снарядов, поднимайтесь в
-            рейтинге и оттачивайте свой стиль игры.
-          </Paragraph>
-          {user ? (
-            <Text strong>
-              С возвращением, {user.first_name} {user.second_name}
-            </Text>
-          ) : (
-            <Text type="secondary">Профиль игрока пока не загружен</Text>
-          )}
-          <StartButton
-            type="primary"
+        <Styled.Actions>
+          <Button type="primary" size="large" onClick={() => navigate('/game')}>
+            Играть
+          </Button>
+          <Button
+            type="link"
             size="large"
-            onClick={() => navigate('/game')}>
-            Начать игру
-          </StartButton>
-        </Space>
-      </HeroCard>
+            onClick={() => navigate('/leaderboard')}>
+            Таблица лидеров
+          </Button>
+        </Styled.Actions>
+      </Styled.Block>
 
-      <MainMenu>
-        {quickLinks.map(link => (
-          <MainMenuButton
-            key={link.key}
-            type="default"
-            onClick={() => navigate(link.path)}>
-            {link.title}
-          </MainMenuButton>
-        ))}
-      </MainMenu>
-    </PageRoot>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={12}>
+          <Card>
+            <Styled.Glitch level={4} data-text={'Геймплей'}>
+              Геймплей
+            </Styled.Glitch>
+            <Text>
+              Уклоняйся, стреляй и уничтожай волны врагов. Чем дольше живёшь —
+              тем сложнее становится.
+            </Text>
+          </Card>
+        </Col>
+
+        <Col xs={24} md={12}>
+          <Card>
+            <Styled.Glitch level={4} data-text={'Комьюнити'}>
+              Комьюнити
+            </Styled.Glitch>
+            <Paragraph>
+              Делись рекордами, обсуждай стратегии и соревнуйся с другими
+              игроками.
+            </Paragraph>
+
+            <Button type="link" onClick={() => navigate('/forum')}>
+              Перейти на форум →
+            </Button>
+          </Card>
+        </Col>
+
+        <Col xs={24} md={12}>
+          <Card>
+            <Styled.Glitch level={4} data-text={'Лидеры'}>
+              Лидеры
+            </Styled.Glitch>
+            <Text>
+              Лучшие игроки уже в таблице. Попробуй обойти их и занять первое
+              место.
+            </Text>
+          </Card>
+        </Col>
+
+        <Col xs={24} md={12}>
+          <Card>
+            <Styled.Glitch level={4} data-text={'Ретро'}>
+              Ретро
+            </Styled.Glitch>
+            <Text>
+              Легендарная аркада возвращается. Минимализм, скорость и чистый
+              скилл.
+            </Text>
+          </Card>
+        </Col>
+      </Row>
+    </Styled.PageRoot>
   )
 }
 
