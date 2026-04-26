@@ -2,18 +2,21 @@ import { useState } from 'react'
 import * as Styled from './LeaderBoardPage.styled'
 import { useSelector } from '@/store'
 import { selectUser } from '@/slices/userSlice'
-import { Button, Spin } from 'antd'
+import { Button, Spin, Typography } from 'antd'
 import { PageInitArgs } from '@/types'
 import { leaderBoardApi, useGetLeaderBoardQuery } from './LeaderBoard.api'
 import { HomeOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { SortOrder } from 'antd/es/table/interface'
+import { TrophyOutlined } from '@ant-design/icons'
 
 type Leader = {
   id: number
   name: string
   score: number
 }
+
+const { Title } = Typography
 
 export const LeaderBoardPage = () => {
   const navigate = useNavigate()
@@ -71,7 +74,9 @@ export const LeaderBoardPage = () => {
 
   return (
     <Styled.Wrapper>
-      <Styled.TitleStyled>🏆 ТАБЛИЦА ЛИДЕРОВ</Styled.TitleStyled>
+      <Title level={3}>
+        <TrophyOutlined /> ТАБЛИЦА ЛИДЕРОВ
+      </Title>
 
       <Styled.StyledTable
         dataSource={leaders}
@@ -102,5 +107,5 @@ export const LeaderBoardPage = () => {
 }
 
 export const initLeaderBoardPage = ({ dispatch }: PageInitArgs) => {
-  dispatch(leaderBoardApi.endpoints.getLeaderBoard.initiate(undefined))
+  return dispatch(leaderBoardApi.endpoints.getLeaderBoard.initiate(undefined))
 }

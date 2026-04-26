@@ -1,7 +1,7 @@
 import { Button, Form, Input, message } from 'antd'
 import './Register.scss'
 import { RegisterData, registerUser } from './RegisterService'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export const RegisterPage = () => {
   const [form] = Form.useForm()
@@ -67,6 +67,9 @@ export const RegisterPage = () => {
             </Button>
           </Form.Item>
         </Form>
+        <Link className="login__register" to="/login">
+          Войти
+        </Link>
       </div>
     </div>
   )

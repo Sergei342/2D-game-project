@@ -60,7 +60,7 @@ export const LoginPage = () => {
             label="Пароль"
             name="password"
             rules={[{ required: true, message: 'Пароль' }]}>
-            <Input placeholder="Пароль" />
+            <Input.Password placeholder="Пароль" />
           </Form.Item>
           <Form.Item className="profile-submit-row">
             <Button type="primary" htmlType="submit">

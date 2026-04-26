@@ -32,19 +32,11 @@ export const reducer = combineReducers({
 
 export type RootState = ReturnType<typeof reducer>
 
-export const createAppStore = (preloadedState?: RootState) => {
-  const reducer = combineReducers({
-    friends: friendsReducer,
-    ssr: ssrReducer,
-    user: userReducer,
-    game: gameReducer,
-    [api.reducerPath]: api.reducer,
-    [apiForum.reducerPath]: apiForum.reducer,
-  })
-
+export const createAppStore = () => {
   const store = configureStore({
     reducer,
-    preloadedState,
+    preloadedState:
+      typeof window !== 'undefined' ? window.APP_INITIAL_STATE : undefined,
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware().concat(
         api.middleware,

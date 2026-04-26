@@ -45,6 +45,8 @@ export const theme: ThemeConfig = {
       darkItemBg: cssVariables.bgColor,
       darkItemSelectedBg: cssVariables.borderColor,
       darkItemSelectedColor: cssVariables.bgColor,
+      collapsedWidth: 200,
+      activeBarWidth: 200,
     },
     Card: {
       colorBgContainer: 'transparent',

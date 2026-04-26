@@ -59,7 +59,9 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   h3.ant-typography {
+    margin-bottom: 0 !important;
     font-family: ${cssVariables.fontFamilyTitle};
+    letter-spacing: 1px;
   }
 
   .ant-typography strong {
@@ -101,7 +103,6 @@ export const GlobalStyles = createGlobalStyle`
   .ant-input,
   .ant-input-password {
     background-color: #05070d;
-    box-shadow: inset 0 0 6px rgba(0, 255, 156, 0.4);
   }
 
   /* Скроллбар */

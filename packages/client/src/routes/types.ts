@@ -1,17 +1,7 @@
 import { AppLayout } from '@/layouts/AppLayout'
 import { AuthLayout } from '@/layouts/AuthLayout'
-import { AppDispatch, RootState } from '@/store'
+import { PageInitArgs } from '@/types'
 import { RouteObject } from 'react-router-dom'
-
-export type PageInitContext = {
-  clientToken?: string
-}
-
-export type PageInitArgs = {
-  dispatch: AppDispatch
-  state: RootState
-  ctx: PageInitContext
-}
 
 export const templates = {
   app: AppLayout,

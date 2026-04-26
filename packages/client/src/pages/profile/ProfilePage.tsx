@@ -10,7 +10,7 @@ import {
 } from './ProfileService'
 
 import { MAX_AVATAR_SIZE, MAX_AVATAR_SIZE_MB_UNITS } from './consts'
-import { Form, message, Collapse } from 'antd'
+import { Form, message, Collapse, Typography } from 'antd'
 import { useDispatch, useSelector } from '../../store'
 import { setUser, selectUser } from '../../slices/userSlice'
 
@@ -24,6 +24,9 @@ import { PasswordSection } from './PasswordSection'
 import { ProfileSection } from './ProfileSection'
 import { GeoSectionContent } from './GeoSection'
 import { NotificationSection } from './NotificationSection'
+import { SettingOutlined } from '@ant-design/icons'
+
+const { Title } = Typography
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage })
@@ -246,6 +249,10 @@ export const ProfilePage = () => {
       </Helmet>
 
       <ProfilePageWrapper>
+        <Title level={3}>
+          <SettingOutlined /> НАСТРОЙКИ ПОЛЬЗОВАТЕЛЯ
+        </Title>
+
         <ProfileCollapseWrapper>
           <Collapse
             defaultActiveKey={['profile']}

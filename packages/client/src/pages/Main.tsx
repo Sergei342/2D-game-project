@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
 import { Header } from '../components/Header'
-import { usePage } from '../hooks/usePage'
 import { PageInitArgs } from '@/types'
 import { clearUser, fetchUserThunk, selectUser } from '../slices/userSlice'
 import { useDispatch, useSelector } from '../store'
@@ -48,8 +47,6 @@ export const MainPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  usePage({ initPage: initMainPage })
-
   const handleLogout = async () => {
     const success = await logoutUser()
 
@@ -90,7 +87,7 @@ export const MainPage = () => {
               С возвращением, {user.first_name} {user.second_name}
             </Text>
           ) : (
-            <Text type="secondary">Профиль игрока пока не загружен.</Text>
+            <Text type="secondary">Профиль игрока пока не загружен</Text>
           )}
           <StartButton
             type="primary"
@@ -115,8 +112,8 @@ export const MainPage = () => {
   )
 }
 
-export const initMainPage = async ({ dispatch, state }: PageInitArgs) => {
+export const initMainPage = async ({ dispatch, state, ctx }: PageInitArgs) => {
   if (!selectUser(state)) {
-    await dispatch(fetchUserThunk())
+    await dispatch(fetchUserThunk({ cookie: ctx.clientToken }))
   }
 }

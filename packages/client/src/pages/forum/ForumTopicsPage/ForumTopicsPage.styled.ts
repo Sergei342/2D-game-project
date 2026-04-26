@@ -1,4 +1,7 @@
+import { Typography } from 'antd'
 import styled from 'styled-components'
+
+const { Title } = Typography
 
 export const Container = styled.section`
   display: flex;
@@ -13,6 +16,13 @@ export const PageHeader = styled.div`
   align-items: center;
   width: 100%;
   padding: 20px;
+`
+
+export const TitleStyled = styled(Title)`
+  && {
+    flex: 1;
+    text-align: center;
+  }
 `
 
 export const Topics = styled.div`
