@@ -12,4 +12,6 @@ export const cssVariables = {
   overlayColor: '#00000045',
   errorColor: '#ff4d4f',
   bgContainerLight: 'rgb(26 23 123 / 70%)',
+  headerHeight: '80px',
+  footerHeight: '74px',
 }

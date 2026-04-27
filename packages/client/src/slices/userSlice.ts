@@ -29,12 +29,17 @@ const initialState: UserState = {
 
 export const fetchUserThunk = createAsyncThunk<
   User,
-  void,
+  { cookie?: string } | void,
   { rejectValue: string }
->('user/fetchUserThunk', async (_, { rejectWithValue }) => {
+>('user/fetchUserThunk', async (args, { rejectWithValue }) => {
   try {
     const response = await fetch(`${BASE_URL}/auth/user`, {
       credentials: 'include',
+      headers: args?.cookie
+        ? {
+            Cookie: args.cookie,
+          }
+        : undefined,
     })
 
     if (!response.ok) {

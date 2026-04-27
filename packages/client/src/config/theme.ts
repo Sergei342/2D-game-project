@@ -25,9 +25,9 @@ export const theme: ThemeConfig = {
   },
   components: {
     Layout: {
-      headerBg: cssVariables.bgColor,
-      bodyBg: cssVariables.bgColor,
-      footerBg: cssVariables.bgColor,
+      headerBg: cssVariables.bgContainerLight,
+      bodyBg: 'transparent',
+      footerBg: cssVariables.bgContainerLight,
       headerHeight: 80,
       headerPadding: 0,
       siderBg: cssVariables.primaryColor,
@@ -42,9 +42,11 @@ export const theme: ThemeConfig = {
       colorBorder: cssVariables.borderColor,
     },
     Menu: {
-      darkItemBg: cssVariables.bgColor,
+      darkItemBg: 'transparent',
       darkItemSelectedBg: cssVariables.borderColor,
       darkItemSelectedColor: cssVariables.bgColor,
+      collapsedWidth: 200,
+      activeBarWidth: 200,
     },
     Card: {
       colorBgContainer: 'transparent',

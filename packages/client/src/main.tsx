@@ -1,38 +1,22 @@
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Provider } from 'react-redux'
-import { createAppStore, useDispatch } from './store'
-import { routes } from './routes/routes'
+import { createAppStore } from './store'
 import 'antd/dist/reset.css'
-import { ConfigProvider, theme } from 'antd'
-import { theme as appTheme } from './config/theme'
-import { GlobalStyles } from './styles/styles'
-import { useEffect } from 'react'
-import { fetchUserThunk } from './slices/userSlice'
+import { createCache } from '@ant-design/cssinjs'
+import { routes } from './routes/routes'
+import { AppShell } from './AppShell'
 
 const root = document.getElementById('root') as HTMLElement
 const router = createBrowserRouter(routes)
-const store = createAppStore(window.APP_INITIAL_STATE)
+const store = createAppStore()
+const cache = createCache()
 
 const App = () => {
-  const dispatch = useDispatch()
-
-  useEffect(() => {
-    dispatch(fetchUserThunk())
-  }, [dispatch])
-
   return (
-    <>
-      <GlobalStyles />
-      <ConfigProvider
-        theme={{
-          algorithm: theme.darkAlgorithm,
-          ...appTheme,
-          hashed: true,
-        }}>
-        <RouterProvider router={router} />
-      </ConfigProvider>
-    </>
+    <AppShell store={store} cache={cache}>
+      <RouterProvider router={router} />
+    </AppShell>
   )
 }
 

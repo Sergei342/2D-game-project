@@ -1,30 +1,17 @@
-import { glow } from '@/styles/glow'
 import { cssVariables } from '@/styles/variables'
-import { Typography, Table } from 'antd'
+import { Table } from 'antd'
 import styled from 'styled-components'
-
-const { Title } = Typography
 
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  min-height: 100vh;
-  padding: 10vh 20px;
+  min-height: calc(
+    100vh - ${cssVariables.headerHeight} - ${cssVariables.footerHeight}
+  );
+  padding: 20px;
   color: ${cssVariables.primaryColor};
-`
-
-export const TitleStyled = styled(Title)`
-  && {
-    margin-bottom: 40px;
-    color: ${cssVariables.primaryColor};
-    font-size: 22px;
-    line-height: 1.25;
-    text-shadow: 0 0 10px ${cssVariables.primaryColor},
-      0 0 20px ${cssVariables.primaryColor};
-    animation: ${glow} 2s infinite;
-  }
 `
 
 export const StyledTable = styled(Table)`

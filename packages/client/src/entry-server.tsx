@@ -1,5 +1,4 @@
 import ReactDOM from 'react-dom/server'
-import { Provider } from 'react-redux'
 import { ServerStyleSheet } from 'styled-components'
 import { Helmet } from 'react-helmet'
 import { Request as ExpressRequest } from 'express'
@@ -19,15 +18,12 @@ import { routes } from './routes/routes'
 import { AppRouteObject } from './routes/types'
 import './index.css'
 import { setPageHasBeenInitializedOnServer } from './slices/ssrSlice'
-import { ConfigProvider, theme } from 'antd'
-import { theme as appTheme } from './config/theme'
-import { GlobalStyles } from './styles/styles'
 import { api } from './api/baseApi'
 import { apiForum } from './api/forumApi'
-import { getApiConfig } from './api/utils'
 import 'antd/dist/reset.css'
-import { StyleProvider, createCache, extractStyle } from '@ant-design/cssinjs'
+import { createCache, extractStyle } from '@ant-design/cssinjs'
 import { createAppStore } from './store'
+import { AppShell } from './AppShell'
 
 export const render = async (req: ExpressRequest) => {
   const { query, dataRoutes } = createStaticHandler(routes)
@@ -75,19 +71,9 @@ export const render = async (req: ExpressRequest) => {
   try {
     const html = ReactDOM.renderToString(
       sheet.collectStyles(
-        <StyleProvider cache={cache}>
-          <Provider store={store}>
-            <GlobalStyles />
-            <ConfigProvider
-              theme={{
-                algorithm: theme.darkAlgorithm,
-                ...appTheme,
-                hashed: true,
-              }}>
-              <StaticRouterProvider router={router} context={context} />
-            </ConfigProvider>
-          </Provider>
-        </StyleProvider>
+        <AppShell store={store} cache={cache}>
+          <StaticRouterProvider router={router} context={context} />
+        </AppShell>
       )
     )
     const antdStyle = extractStyle(cache)

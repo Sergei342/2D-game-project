@@ -5,16 +5,18 @@ import { cssVariables } from '@/styles/variables'
 const { Link: AntLink } = Typography
 
 export const ProfilePageWrapper = styled.div`
-  position: fixed;
-  inset: 0;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: center;
   overflow-y: auto;
-  box-sizing: border-box;
+  max-height: calc(
+    100vh - ${cssVariables.headerHeight} - ${cssVariables.footerHeight} - 48px
+  );
 `
 
 export const ProfileCollapseWrapper = styled.div`
+  flex-shrink: 0;
   width: 600px;
   max-width: 100%;
   overflow: hidden;

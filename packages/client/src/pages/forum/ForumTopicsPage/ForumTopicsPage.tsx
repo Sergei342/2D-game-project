@@ -26,7 +26,9 @@ import { cssVariables } from '@/styles/variables'
 import { formatISODate, isUpdated } from '@/shared/date'
 import { useState } from 'react'
 import { PageInitArgs } from '@/types'
-const { Title, Text } = Typography
+import { MessageOutlined } from '@ant-design/icons'
+
+const { Text } = Typography
 
 export const initForumTopicsPage = async ({ dispatch }: PageInitArgs) => {
   return dispatch(
@@ -93,9 +95,9 @@ export const ForumTopicsPage = () => {
   return (
     <Styled.Container>
       <Styled.PageHeader>
-        <Title level={3} style={{ flex: 1, textAlign: 'center' }}>
-          ФОРУМ
-        </Title>
+        <Styled.TitleStyled level={3}>
+          <MessageOutlined /> ФОРУМ
+        </Styled.TitleStyled>
         <Button type="primary" onClick={() => navigate('/forum/new')}>
           Создать топик
         </Button>

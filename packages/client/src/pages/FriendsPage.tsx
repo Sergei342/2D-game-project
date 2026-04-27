@@ -1,7 +1,6 @@
 import { Helmet } from 'react-helmet'
 
 import { useSelector } from '../store'
-import { Header } from '../components/Header'
 import {
   fetchFriendsThunk,
   selectFriends,
@@ -9,7 +8,7 @@ import {
   selectFriendsError,
 } from '../slices/friendsSlice'
 import { fetchUserThunk, selectUser } from '../slices/userSlice'
-import { PageInitArgs } from '../routes/types'
+import { PageInitArgs } from '../types'
 import { usePage } from '../hooks/usePage'
 
 export const FriendsPage = () => {
@@ -30,8 +29,6 @@ export const FriendsPage = () => {
           content="Страница со списком друзей и с информацией о пользователе"
         />
       </Helmet>
-
-      <Header />
 
       {user ? (
         <>

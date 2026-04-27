@@ -63,9 +63,6 @@ const networkFirst = async (request: Request): Promise<Response> => {
     const cached = await cache.match(request)
     if (cached) return cached
 
-    const appShell = await caches.match('/index.html')
-    if (appShell) return appShell
-
     return new Response('Offline', {
       status: 503,
       statusText: 'Service Unavailable',
@@ -96,7 +93,7 @@ self.addEventListener('fetch', event => {
 
   // SPA navigation: serve cached app shell when offline.
   if (request.mode === 'navigate') {
-    event.respondWith(networkFirst(request))
+    event.respondWith(fetch(request))
     return
   }
 

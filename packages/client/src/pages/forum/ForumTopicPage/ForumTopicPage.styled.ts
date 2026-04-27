@@ -10,7 +10,7 @@ export const Container = styled.section`
 `
 
 export const Comments = styled.div`
-  max-height: 40vh;
+  max-height: 34vh;
   overflow-y: auto;
   margin-bottom: 16;
 `

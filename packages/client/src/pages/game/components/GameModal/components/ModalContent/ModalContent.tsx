@@ -50,6 +50,7 @@ export const ModalContent = ({
   return (
     <Space orientation="vertical" align="center" size="large">
       <Title
+        level={3}
         style={{
           marginBottom: 0,
           color: danger ? cssVariables.errorColor : cssVariables.primaryColor,
