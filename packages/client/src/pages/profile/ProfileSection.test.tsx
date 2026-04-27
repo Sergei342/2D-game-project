@@ -69,29 +69,6 @@ describe('ProfileSection', () => {
     jest.restoreAllMocks()
   })
 
-  // TODO: проверить обноление
-  // it('renders default state', () => {
-  //   const { container } = render(<ProfileSectionWrapper />)
-
-  //   expect(container).toMatchSnapshot()
-  // })
-
-  // TODO: проверить обноление
-  // it('renders with avatar src', () => {
-  //   const { container } = render(
-  //     <ProfileSectionWrapper avatarSrc="https://example.com/avatar.jpg" />
-  //   )
-
-  //   expect(container).toMatchSnapshot()
-  // })
-
-  // TODO: проверить обноление
-  // it('renders with saving state', () => {
-  //   const { container } = render(<ProfileSectionWrapper saving={true} />)
-
-  //   expect(container).toMatchSnapshot()
-  // })
-
   it('calls onSave with form values on valid submit', async () => {
     const onSave = jest.fn()
     render(<ProfileSectionWrapper onSave={onSave} />)

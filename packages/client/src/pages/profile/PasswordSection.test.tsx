@@ -31,15 +31,6 @@ describe('PasswordSection', () => {
     jest.restoreAllMocks()
   })
 
-  // TODO: проверить обноление
-  // it('renders correctly', () => {
-  //   const { container } = render(
-  //     <PasswordSectionWrapper onChangePassword={jest.fn()} />
-  //   )
-
-  //   expect(container).toMatchSnapshot()
-  // })
-
   it('calls onChangePassword with form values on valid submit', async () => {
     const onChangePassword = jest.fn()
     render(<PasswordSectionWrapper onChangePassword={onChangePassword} />)
