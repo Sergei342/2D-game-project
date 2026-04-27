@@ -7,7 +7,7 @@ import {
   selectIsLoadingFriends,
   selectFriendsError,
 } from '../slices/friendsSlice'
-import { fetchUserThunk, selectUser } from '../slices/userSlice'
+import { selectUser } from '../slices/userSlice'
 import { PageInitArgs } from '../types'
 import { usePage } from '../hooks/usePage'
 
@@ -58,12 +58,6 @@ export const FriendsPage = () => {
   )
 }
 
-export const initFriendsPage = async ({ dispatch, state }: PageInitArgs) => {
-  const queue: Promise<unknown>[] = [dispatch(fetchFriendsThunk())]
-
-  if (!selectUser(state)) {
-    queue.push(dispatch(fetchUserThunk()))
-  }
-
-  await Promise.all(queue)
+export const initFriendsPage = ({ dispatch }: PageInitArgs) => {
+  return dispatch(fetchFriendsThunk())
 }
