@@ -2,8 +2,7 @@
 import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
-import { PageInitArgs } from '@/types'
-import { fetchUserThunk, selectUser } from '../../slices/userSlice'
+import { selectUser } from '../../slices/userSlice'
 import { useSelector } from '../../store'
 
 import * as Styled from './MainPage.styled'
@@ -105,8 +104,4 @@ export const MainPage = () => {
   )
 }
 
-export const initMainPage = async ({ dispatch, state, ctx }: PageInitArgs) => {
-  if (!selectUser(state)) {
-    await dispatch(fetchUserThunk({ cookie: ctx.clientToken }))
-  }
-}
+export const initMainPage = () => Promise.resolve()
