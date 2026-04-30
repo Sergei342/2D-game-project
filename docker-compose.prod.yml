@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  client:
+    container_name: prakticum-client
+    image: ghcr.io/Sergei342/2D-game-project/client:latest
+    restart: always
+    ports:
+      - "${CLIENT_PORT:-3000}:${CLIENT_PORT:-3000}"
+    environment:
+      - PORT=${CLIENT_PORT:-3000}
+      - NODE_ENV=production
+    depends_on:
+      server:
+        condition: service_healthy
+
+  server:
+    container_name: prakticum-server
+    image: ${IMAGE_PREFIX}/server:latest
+    restart: always
+    ports:
+      - "${SERVER_PORT:-3001}:${SERVER_PORT:-3001}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=${SERVER_PORT:-3001}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${SERVER_PORT:-3001}/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  postgres:
+    container_name: space-invaders-db
+    image: postgres:17
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
