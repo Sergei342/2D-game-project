@@ -61,6 +61,6 @@ jobs:
 
             cd /opt/app
 
-            docker-compose -f docker-compose.prod.yml pull
-            docker-compose -f docker-compose.prod.yml up -d
+            docker compose docker-compose.prod.yml -f pull
+            docker compose docker-compose.prod.yml -f up -d --remove-orphans
           EOF
