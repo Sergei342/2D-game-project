@@ -3,7 +3,7 @@ version: '3.9'
 services:
   client:
     container_name: prakticum-client
-    image: ghcr.io/Sergei342/2D-game-project/client:latest
+    image: ${IMAGE_PREFIX}/client:${IMAGE_TAG}
     restart: always
     ports:
       - "${CLIENT_PORT:-3000}:${CLIENT_PORT:-3000}"
@@ -16,7 +16,7 @@ services:
 
   server:
     container_name: prakticum-server
-    image: ${IMAGE_PREFIX}/server:latest
+    image: ${IMAGE_PREFIX}/server:${IMAGE_TAG}
     restart: always
     ports:
       - "${SERVER_PORT:-3001}:${SERVER_PORT:-3001}"
