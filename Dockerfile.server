@@ -1,7 +1,7 @@
 ARG NODE_VERSION=20
 ARG SERVER_PORT=3001
 
-FROM node:$NODE_VERSION-bookworm as base
+FROM node:$NODE_VERSION-bookworm AS base
 
 WORKDIR /app
 
@@ -13,17 +13,17 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 RUN yarn lerna bootstrap
-RUN rm -rf /app/packages/server/dist/ && yarn build --scope=server
+RUN yarn workspace server build
+RUN ls -R /app/packages/server
 
-
-FROM node:$NODE_VERSION-bookworm-slim as production
+FROM node:$NODE_VERSION-bookworm-slim AS production
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/packages/server/dist/ /app/
+COPY --from=builder /app/packages/server/dist/ /app/dist
 COPY --from=builder /app/packages/server/package.json /app/package.json
 RUN yarn install --production=true
 
 EXPOSE $SERVER_PORT
-CMD [ "node", "/app/index.js" ]
+CMD [ "node", "/app/dist/index.js" ]
