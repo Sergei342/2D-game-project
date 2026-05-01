@@ -7,7 +7,7 @@ FROM node:$NODE_VERSION-bookworm as base
 
 WORKDIR /app
 
-FROM base as builder
+FROM base AS builder
 
 ARG EXTERNAL_SERVER_URL
 ARG INTERNAL_SERVER_URL
