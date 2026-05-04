@@ -60,6 +60,7 @@ jobs:
             export IMAGE_PREFIX=ghcr.io/${{ env.OWNER_LC }}/${{ env.REPO_LC }}
 
             cd /opt/app
+            git pull origin develop
 
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
