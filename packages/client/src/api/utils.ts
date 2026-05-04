@@ -1,6 +1,6 @@
-import { BASE_URL } from '@/shared/constants'
+import { BASE_URL, VITE_FORUM_API } from '@/shared/constants'
 
 export const getApiConfig = () => ({
   main: BASE_URL,
-  forum: 'http://localhost:3001/api/v1/forum',
+  forum: VITE_FORUM_API,
 })

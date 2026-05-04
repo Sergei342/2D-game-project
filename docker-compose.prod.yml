@@ -6,7 +6,7 @@ services:
     image: ${IMAGE_PREFIX}/client:${IMAGE_TAG}
     restart: always
     ports:
-      - "${CLIENT_PORT:-3000}:${CLIENT_PORT:-3000}"
+      - "127.0.0.1:${CLIENT_PORT:-3000}:${CLIENT_PORT:-3000}"
     environment:
       - PORT=${CLIENT_PORT:-3000}
       - NODE_ENV=production
@@ -19,7 +19,7 @@ services:
     image: ${IMAGE_PREFIX}/server:${IMAGE_TAG}
     restart: always
     ports:
-      - "${SERVER_PORT:-3001}:${SERVER_PORT:-3001}"
+      - "127.0.0.1:${SERVER_PORT:-3001}:${SERVER_PORT:-3001}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -30,6 +30,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB:-postgres}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SERVER_PORT:-3001}/"]
       interval: 10s
@@ -40,8 +41,6 @@ services:
   postgres:
     container_name: space-invaders-db
     image: postgres:17
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
