@@ -48,7 +48,11 @@ const cacheFirst = async (request: Request): Promise<Response> => {
 
   const response = await fetch(request)
   const cache = await caches.open(RUNTIME_NAME)
-  void cache.put(request, response.clone()).catch(() => undefined)
+
+  if (response.ok) {
+    void cache.put(request, response.clone())
+  }
+
   return response
 }
 
@@ -57,7 +61,11 @@ const networkFirst = async (request: Request): Promise<Response> => {
 
   try {
     const response = await fetch(request)
-    void cache.put(request, response.clone()).catch(() => undefined)
+
+    if (response.ok) {
+      void cache.put(request, response.clone())
+    }
+
     return response
   } catch {
     const cached = await cache.match(request)
@@ -82,6 +90,11 @@ self.addEventListener('fetch', event => {
     return
 
   const url = new URL(request.url)
+
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(fetch(request))
+    return
+  }
 
   // Let Vite dev client/HMR bypass caching.
   if (
