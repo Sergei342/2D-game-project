@@ -24,6 +24,7 @@ COPY . .
 
 RUN yarn lerna bootstrap
 RUN rm -rf /app/packages/client/dist/ && yarn build --scope=client
+RUN yarn cache clean && rm -rf /usr/local/share/.cache/yarn
 
 FROM node:$NODE_VERSION-bookworm-slim AS production
 WORKDIR /app
@@ -31,7 +32,10 @@ WORKDIR /app
 COPY --from=builder /app/packages/client/dist/ /app/dist/
 COPY --from=builder /app/packages/client/server/ /app/server/
 COPY --from=builder /app/packages/client/package.json /app/package.json
-RUN yarn install --production=true
+COPY --from=builder /app/yarn.lock /app/yarn.lock
+RUN yarn install --production=true \
+  && yarn cache clean \
+  && rm -rf /usr/local/share/.cache/yarn
 
 EXPOSE $CLIENT_PORT
 CMD [ "node", "/app/server/index.js" ]

@@ -14,6 +14,7 @@ COPY . .
 
 RUN yarn lerna bootstrap
 RUN yarn workspace server build
+RUN yarn cache clean && rm -rf /usr/local/share/.cache/yarn
 
 FROM node:$NODE_VERSION-bookworm-slim AS production
 WORKDIR /app
@@ -22,7 +23,11 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/packages/server/dist/ /app/dist
 COPY --from=builder /app/packages/server/package.json /app/package.json
-RUN yarn install --production=true
+COPY --from=builder /app/yarn.lock /app/yarn.lock
+
+RUN yarn install --production=true \
+  && yarn cache clean \
+  && rm -rf /usr/local/share/.cache/yarn
 
 EXPOSE $SERVER_PORT
 CMD [ "node", "/app/dist/index.js" ]
