@@ -56,17 +56,15 @@ jobs:
       - name: Deploy on VM
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << EOF
-            export IMAGE_TAG=${{ github.sha }}
-            export IMAGE_PREFIX=ghcr.io/${{ env.OWNER_LC }}/${{ env.REPO_LC }}
+            set -euo pipefail
 
             cd /opt/app
-            git pull origin develop
+            sed -i 's/^IMAGE_TAG=.*/IMAGE_TAG=${{ github.sha }}/' .env
 
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
 
-            docker image prune -af
-            docker builder prune -af
+            docker image prune -f
           EOF
 
       - name: Show docker images
