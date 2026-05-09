@@ -1,14 +1,14 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from '../store'
-import { fetchUserThunk, selectIsUserInitialized } from '../slices/userSlice'
+import { fetchUserThunk, selectAuthStatus } from '../slices/userSlice'
 
 export const useBootstrapUser = () => {
   const dispatch = useDispatch()
-  const isInitialized = useSelector(selectIsUserInitialized)
+  const status = useSelector(selectAuthStatus)
 
   useEffect(() => {
-    if (!isInitialized) {
+    if (status === 'idle') {
       dispatch(fetchUserThunk())
     }
-  }, [dispatch, isInitialized])
+  }, [status])
 }

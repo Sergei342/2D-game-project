@@ -15,15 +15,13 @@ export interface User {
 
 export interface UserState {
   data: User | null
-  isLoading: boolean
-  isInitialized: boolean
+  status: 'idle' | 'loading' | 'authenticated' | 'unauthenticated'
   error: string | null
 }
 
 const initialState: UserState = {
   data: null,
-  isLoading: false,
-  isInitialized: false,
+  status: 'idle',
   error: null,
 }
 
@@ -45,20 +43,27 @@ export const fetchUserThunk = createAsyncThunk<
     if (!response.ok) {
       let errorMessage = `Ошибка ${response.status}`
 
-      try {
-        const errorBody = await response.json()
-        if (errorBody?.reason) {
-          errorMessage = errorBody.reason
+      const contentType = response.headers.get('content-type')
+
+      if (contentType?.includes('application/json')) {
+        try {
+          const errorBody = await response.json()
+
+          if (errorBody?.reason) {
+            errorMessage = errorBody.reason
+          }
+        } catch (e) {
+          console.error('Failed to parse error response', e)
         }
-      } catch {
-        // ignore
       }
 
       return rejectWithValue(errorMessage)
     }
 
     return (await response.json()) as User
-  } catch {
+  } catch (e) {
+    console.error('fetchUserThunk failed', e)
+
     return rejectWithValue('Не удалось загрузить пользователя')
   }
 })
@@ -69,32 +74,28 @@ export const userSlice = createSlice({
   reducers: {
     setUser: (state, { payload }: PayloadAction<User>) => {
       state.data = payload
-      state.isLoading = false
-      state.isInitialized = true
+      state.status = 'authenticated'
       state.error = null
     },
     clearUser: state => {
       state.data = null
-      state.isLoading = false
-      state.isInitialized = true
+      state.status = 'unauthenticated'
       state.error = null
     },
   },
   extraReducers: builder => {
     builder
       .addCase(fetchUserThunk.pending, state => {
-        state.isLoading = true
+        state.status = 'loading'
         state.error = null
       })
       .addCase(fetchUserThunk.fulfilled, (state, action) => {
         state.data = action.payload
-        state.isLoading = false
-        state.isInitialized = true
+        state.status = 'authenticated'
         state.error = null
       })
       .addCase(fetchUserThunk.rejected, (state, action) => {
-        state.isLoading = false
-        state.isInitialized = true
+        state.status = 'unauthenticated'
         state.data = null
         state.error = action.payload ?? 'Не удалось загрузить пользователя'
       })
@@ -104,9 +105,9 @@ export const userSlice = createSlice({
 export const { setUser, clearUser } = userSlice.actions
 
 export const selectUser = (state: RootState) => state.user.data
-export const selectIsLoadingUser = (state: RootState) => state.user.isLoading
-export const selectIsUserInitialized = (state: RootState) =>
-  state.user.isInitialized
+export const selectIsLoadingUser = (state: RootState) =>
+  state.user.status === 'loading'
+export const selectAuthStatus = (state: RootState) => state.user.status
 export const selectUserError = (state: RootState) => state.user.error
 
 export default userSlice.reducer
