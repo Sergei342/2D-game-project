@@ -1,7 +1,7 @@
 import { useActiveMenuKey } from '@/hooks/useActiveMenuKey'
 import { logoutUser } from '@/pages/login/LoginService'
-import { clearUser } from '@/slices/userSlice'
-import { useDispatch } from '@/store'
+import { clearUser, selectAuthStatus } from '@/slices/userSlice'
+import { useDispatch, useSelector } from '@/store'
 import { MenuItem } from '@/types'
 import { Button, Layout, Menu, message } from 'antd'
 import { Outlet, useNavigate } from 'react-router-dom'
@@ -18,6 +18,8 @@ const menuItems: MenuItem[] = [
 export const AppLayout = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+
+  const status = useSelector(selectAuthStatus)
 
   const activeKey = useActiveMenuKey({ menuItems }) as string
 
@@ -54,9 +56,17 @@ export const AppLayout = () => {
           onClick={({ key }) => navigate(key)}
         />
 
-        <Button type="link" danger onClick={handleLogout}>
-          Выйти
-        </Button>
+        {status === 'unauthenticated' && (
+          <Button type="text" onClick={() => navigate('/login')}>
+            Войти
+          </Button>
+        )}
+
+        {status === 'authenticated' && (
+          <Button type="link" danger onClick={handleLogout}>
+            Выйти
+          </Button>
+        )}
       </Header>
 
       <Content style={{ padding: '24px', flex: 1 }}>

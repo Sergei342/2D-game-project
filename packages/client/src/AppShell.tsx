@@ -5,6 +5,7 @@ import { Provider } from 'react-redux'
 import { GlobalStyles } from './styles/styles'
 import { ConfigProvider, theme } from 'antd'
 import { theme as appTheme } from './config/theme'
+import { AuthBootstrap } from './components/AuthBootstrap'
 
 type AppShellProps = {
   store: AppStore
@@ -26,7 +27,7 @@ export const AppShell = ({
             hashed: true,
           }}>
           <GlobalStyles />
-          {children}
+          <AuthBootstrap>{children}</AuthBootstrap>
         </ConfigProvider>
       </StyleProvider>
     </Provider>

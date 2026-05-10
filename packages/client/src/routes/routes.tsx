@@ -56,14 +56,14 @@ export const routes: AppRouteObject[] = [
     element: <AppLayout />,
     children: [
       {
+        index: true,
+        Component: MainPage,
+        fetchData: initMainPage,
+        ErrorBoundary: AppErrorBoundary,
+      },
+      {
         element: <ProtectedRoute />,
         children: [
-          {
-            index: true,
-            Component: MainPage,
-            fetchData: initMainPage,
-            ErrorBoundary: AppErrorBoundary,
-          },
           {
             path: 'forum',
             children: [

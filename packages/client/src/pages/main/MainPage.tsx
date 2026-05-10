@@ -2,8 +2,7 @@
 import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 
-import { PageInitArgs } from '@/types'
-import { fetchUserThunk, selectUser } from '../../slices/userSlice'
+import { selectUser } from '../../slices/userSlice'
 import { useSelector } from '../../store'
 
 import * as Styled from './MainPage.styled'
@@ -28,24 +27,38 @@ export const MainPage = () => {
       <Styled.Block>
         <Title level={3}>👾 SPACE INVADERS</Title>
         {user ? (
-          <Text>
-            С возвращением, <strong>{user.first_name}</strong>!
-          </Text>
-        ) : (
-          <Text>Они уже здесь. Сможешь ли ты выстоять?</Text>
-        )}
+          <>
+            <Text>
+              С возвращением, <strong>{user.first_name}</strong>!
+            </Text>
 
-        <Styled.Actions>
-          <Button type="primary" size="large" onClick={() => navigate('/game')}>
-            Играть
-          </Button>
-          <Button
-            type="link"
-            size="large"
-            onClick={() => navigate('/leaderboard')}>
-            Таблица лидеров
-          </Button>
-        </Styled.Actions>
+            <Styled.Actions>
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => navigate('/game')}>
+                Играть
+              </Button>
+              <Button
+                type="link"
+                size="large"
+                onClick={() => navigate('/leaderboard')}>
+                Таблица лидеров
+              </Button>
+            </Styled.Actions>
+          </>
+        ) : (
+          <>
+            <Text>Они уже здесь. Сможешь ли ты выстоять?</Text>
+
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => navigate('/login')}>
+              Войти
+            </Button>
+          </>
+        )}
       </Styled.Block>
 
       <Row gutter={[16, 16]}>
@@ -105,8 +118,4 @@ export const MainPage = () => {
   )
 }
 
-export const initMainPage = async ({ dispatch, state, ctx }: PageInitArgs) => {
-  if (!selectUser(state)) {
-    await dispatch(fetchUserThunk({ cookie: ctx.clientToken }))
-  }
-}
+export const initMainPage = () => Promise.resolve()

@@ -1,6 +1,5 @@
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { Provider } from 'react-redux'
 import { createAppStore } from './store'
 import 'antd/dist/reset.css'
 import { createCache } from '@ant-design/cssinjs'
@@ -20,12 +19,7 @@ const App = () => {
   )
 }
 
-ReactDOM.hydrateRoot(
-  root,
-  <Provider store={store}>
-    <App />
-  </Provider>
-)
+ReactDOM.hydrateRoot(root, <App />)
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
